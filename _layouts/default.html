@@ -1,0 +1,10 @@
+<script>
+    // Initialize theme
+    (function() {
+        const savedTheme = localStorage.getItem('siteTheme') || 'dark';
+        document.documentElement.classList.add(savedTheme + '-theme');
+    })();
+</script>
+
+<script src="{{ site.baseurl }}/assets/js/theme.js"></script>
+<script src="{{ site.baseurl }}/assets/js/theme-switcher.js"></script> 

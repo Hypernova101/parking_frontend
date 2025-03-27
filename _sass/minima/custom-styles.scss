@@ -1,0 +1,92 @@
+// Dark themes
+//@import "minima/leaf/_leaf";  //Leaf theme
+//@import "minima/hacker/jekyll-theme-hacker"; //Hacker theme 
+//@import "minima/dracula/_dracula";
+
+// Light theme
+//@import "minima/minimal-mistakes/__minimal-mistakes"; //Minimal Mistakes theme 
+
+// Dark theme
+@import "minima/dracula/dark-mode";
+
+// Styles for nighthawk theme, do not remove
+@import "nighthawk/main";
+
+// Styles for prism theme, do not remove
+@import "prism/prism";
+
+// Import theme styles
+@import "minima/theme";
+
+// Add theme styles
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+    
+    &[data-theme="light"] {
+        background-color: #ffffff !important;
+        color: #333333 !important;
+
+        .site-header {
+            background-color: #f8f9fa !important;
+            border-bottom: 1px solid #e1e4e8 !important;
+        }
+
+        .site-title, .site-nav .page-link {
+            color: #24292e !important;
+        }
+
+        .card, .section, .container, .profile {
+            background-color: #f5f5f5 !important;
+            color: #333333 !important;
+        }
+
+        .heading h1, h2, h3, h4, h5, h6 {
+            color: #24292e !important;
+        }
+
+        a {
+            color: #0366d6 !important;
+            &:hover {
+                color: #035fc7 !important;
+            }
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            background-color: #ffffff !important;
+            color: #24292e !important;
+            border: 1px solid #e1e4e8 !important;
+        }
+    }
+}
+
+// Theme switch button styles
+.theme-switch-wrapper {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.theme-switch {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #2d3748;
+    border: 2px solid #e53e3e;
+    border-radius: 20px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    gap: 8px;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+}
+
+.theme-icon {
+    font-size: 16px;
+}

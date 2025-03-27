@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <link rel="stylesheet" href="{{site.baseurl}}/navigation/worlds/style.css">
+    <script src="{{site.baseurl}}/navigation/worlds/script.js"></script>
+</head>
+<body>
+    <header class="heading">
+        <h1>Leaderboard</h1>
+        <p>Reflecting Progress 1 Step at a Time.</p>
+    </header>
+
+    <div class="container">
+        <h2>Hover over the rows to see more details.</h2>
+
+        <h3>Top Posts</h3>
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Post Title</th>
+                    <th>Username</th>
+                    <th>Net Votes</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-posts">
+                <!-- Data will be populated here by JavaScript -->
+            </tbody>
+        </table>
+
+        <h3>Top Interests</h3>
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Interest</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-interests">
+                <!-- Data will be populated here by JavaScript -->
+            </tbody>
+        </table>
+
+        <h3>Top Users</h3>
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Username</th>
+                    <th>Engagement</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-users">
+                <!-- Data will be populated here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+    <footer class="copyright">
+        <p>© 2024 Prism. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            async function fetchLeaderboard() {
+                try {
+                    const response = await fetch('http://localhost:4887/api/leaderboard', {
+                        headers: {
+                            'Authorization': 'your_secure_token'
+                        }
+                    });
+                    if (!response.ok) throw new Error("Failed to fetch leaderboard data");
+
+                    const data = await response.json();
+                    const { posts, top_interests, user_engagement } = data;
+
+                    const postsBody = document.getElementById("leaderboard-posts");
+                    postsBody.innerHTML = "";
+                    posts.forEach((post, index) => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td>${post.post_title}</td>
+                            <td>${post.username}</td>
+                            <td>${post.net_vote_count}</td>
+                        `;
+                        postsBody.appendChild(row);
+                    });
+
+                    const interestsBody = document.getElementById("leaderboard-interests");
+                    interestsBody.innerHTML = "";
+                    top_interests.forEach(([interest, count], index) => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td>${interest}</td>
+                            <td>${count}</td>
+                        `;
+                        interestsBody.appendChild(row);
+                    });
+
+                    const usersBody = document.getElementById("leaderboard-users");
+                    usersBody.innerHTML = "";
+                    user_engagement.forEach(([username, count], index) => {
+                        const row = document.createElement("tr");
+                        row.innerHTML = `
+                            <td>${index + 1}</td>
+                            <td>${username}</td>
+                            <td>${count}</td>
+                        `;
+                        usersBody.appendChild(row);
+                    });
+                } catch (error) {
+                    console.error("Error fetching leaderboard:", error);
+                    alert('Failed to load leaderboard data.');
+                }
+            }
+
+            fetchLeaderboard();
+        });
+    </script>
+</body>
+</html>

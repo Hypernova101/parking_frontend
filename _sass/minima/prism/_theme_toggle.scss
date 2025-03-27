@@ -1,0 +1,153 @@
+// Light theme colors
+$light-background: #ffffff;
+$light-text: #333333;
+$light-heading: #222222;
+$light-link: #0366d6;
+$light-border: #e1e4e8;
+$light-code-bg: #f6f8fa;
+$light-header-bg: #f8f9fa;
+$light-nav-text: #24292e;
+
+// Dark theme colors (matching your current theme)
+$dark-background: #282a36;
+$dark-text: #f8f8f2;
+$dark-heading: #ff5555;
+$dark-link: #bd93f9;
+$dark-border: #44475a;
+$dark-code-bg: #44475a;
+$dark-header-bg: #1a1a1a;
+$dark-nav-text: #ffffff;
+
+// Theme switching styles
+body {
+    &[data-theme="light"] {
+        background-color: $light-background !important;
+        color: $light-text !important;
+
+        // Header specific styles
+        .site-header, header, nav {
+            background-color: $light-header-bg !important;
+            border-bottom: 1px solid $light-border !important;
+        }
+
+        // Navigation links
+        .site-nav {
+            background-color: $light-header-bg !important;
+            
+            .page-link {
+                color: $light-nav-text !important;
+                
+                &:hover {
+                    color: $light-link !important;
+                }
+            }
+        }
+
+        // Site title
+        .site-title {
+            color: $light-nav-text !important;
+            
+            &:hover {
+                text-decoration: none;
+                color: $light-link !important;
+            }
+        }
+
+        // Navigation menu
+        .menu-icon {
+            > svg path {
+                fill: $light-nav-text !important;
+            }
+        }
+
+        // Rest of your light theme styles...
+        h1, h2, h3, h4, h5, h6 {
+            color: $light-heading !important;
+        }
+
+        a {
+            color: $light-link !important;
+            
+            &:hover {
+                color: darken($light-link, 10%) !important;
+            }
+        }
+
+        .highlight {
+            background-color: $light-code-bg !important;
+        }
+
+        pre, code {
+            background-color: $light-code-bg !important;
+            color: $light-text !important;
+        }
+
+        // Add other light theme overrides as needed
+    }
+
+    &[data-theme="dark"] {
+        // Header specific styles for dark theme
+        .site-header, header, nav {
+            background-color: $dark-header-bg !important;
+            border-bottom: 1px solid $dark-border !important;
+        }
+
+        .site-nav {
+            background-color: $dark-header-bg !important;
+            
+            .page-link {
+                color: $dark-nav-text !important;
+                
+                &:hover {
+                    color: $dark-link !important;
+                }
+            }
+        }
+
+        .site-title {
+            color: $dark-nav-text !important;
+            
+            &:hover {
+                text-decoration: none;
+                color: $dark-link !important;
+            }
+        }
+
+        .menu-icon {
+            > svg path {
+                fill: $dark-nav-text !important;
+            }
+        }
+        
+        // Your existing dark theme styles will apply by default
+    }
+}
+
+// Additional header-specific responsive styles
+@media screen and (max-width: 600px) {
+    body[data-theme="light"] {
+        .site-nav {
+            background-color: $light-header-bg !important;
+            border: 1px solid $light-border !important;
+            
+            .menu-icon {
+                > svg path {
+                    fill: $light-nav-text !important;
+                }
+            }
+        }
+    }
+
+    body[data-theme="dark"] {
+        .site-nav {
+            background-color: $dark-header-bg !important;
+            border: 1px solid $dark-border !important;
+            
+            .menu-icon {
+                > svg path {
+                    fill: $dark-nav-text !important;
+                }
+            }
+        }
+    }
+} 

@@ -1,0 +1,1429 @@
+// ==========================================================================
+// PRISM COMPLETE STYLESHEET
+// Dark & Red Theme
+// ==========================================================================
+
+// Import fonts
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap');
+
+// Color Theme
+$primary-color: #ff1900;     // Red
+$secondary-color: #cf1500;   // Dark Red
+$background-dark: #000000;   // Black background
+$container-bg: #1a1a1a;      // Dark Grey container
+$card-bg: #2e2e2e;          // Card/Section background
+$input-bg: #333;             // Input background
+$text-light: #ffffff;        // White text
+$text-muted: #ddd;           // Muted text
+$border-color: #b30000;      // Red border
+$button-bg: #690000;         // Light Red button
+$button-hover: #e60000;      // Darker Red on hover
+$success-color: #28a745;     // Success states
+$error-color: #dc3545;       // Error states
+$warning-color: #ffc107;     // Warning states (This was missing)
+$table-stripe: #6f0e0e;      // Table striping
+
+// Light theme colors
+$light-primary: #ff1900;
+$light-secondary: #cf1500;
+$light-background: #ffffff;
+$light-container: #f0f0f0;
+$light-card: #ffffff;
+$light-input: #f5f5f5;
+$light-text: #333333;
+$light-text-muted: #666666;
+$light-border: #ff1900;
+$light-warning: #ffc107;     // Light theme warning color
+
+// Base theme styles
+html, body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+    background-color: $background-dark;
+    color: $text-light;
+
+    &.light-theme {
+        background-color: $light-background;
+        color: $light-text;
+
+        // Navigation/Header styles
+        .site-header {
+            background-color: $light-container;
+            border-color: $light-border;
+        }
+
+        // Main content area
+        .site-content {
+            background-color: $light-background;
+        }
+
+        // All containers
+        .container, .chat-container, .form-container {
+            background-color: $light-container;
+        }
+
+        // All cards and sections
+        .card, .section, .heading {
+            background-color: $light-card;
+            color: $light-text;
+        }
+
+        // All inputs and form elements
+        input, textarea, select {
+            background-color: $light-input;
+            color: $light-text;
+            border-color: $light-border;
+        }
+
+        // Links
+        a {
+            color: $light-primary;
+            &:hover {
+                color: darken($light-primary, 10%);
+            }
+        }
+
+        // Buttons
+        button {
+            background-color: $light-primary;
+            color: $light-text;
+            &:hover {
+                background-color: darken($light-primary, 10%);
+            }
+        }
+
+        // Navigation links
+        .nav-link {
+            color: $light-text;
+        }
+
+        // Chat elements
+        #chatBox {
+            background-color: $light-card;
+            border-color: $light-border;
+        }
+
+        .chat-message {
+            background-color: $light-card;
+            color: $light-text;
+        }
+
+        // Headers
+        h1, h2, h3, h4, h5, h6 {
+            color: $light-text;
+        }
+
+        // Text elements
+        p, span {
+            color: $light-text;
+        }
+    }
+}
+
+// Shadows
+$shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+$shadow-md: 0 4px 8px rgba(0, 0, 0, 0.2);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.3);
+
+// Spacing
+$spacing-xs: 0.25rem;    // 4px
+$spacing-sm: 0.5rem;     // 8px
+$spacing-md: 1rem;       // 16px
+$spacing-lg: 1.5rem;     // 24px
+$spacing-xl: 2rem;       // 32px
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+// Transitions
+$transition-fast: 0.2s ease;
+$transition-base: 0.3s ease;
+$transition-slow: 0.5s ease;
+
+// Border Radius
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 16px;
+$radius-full: 9999px;
+
+// Z-index
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-modal: 1030;
+$z-popover: 1040;
+$z-tooltip: 1050;
+
+// Mixins
+@mixin flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@mixin flex-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+@mixin card-base {
+    background-color: $card-bg;
+    border-radius: $radius-md;
+    padding: $spacing-lg;
+    box-shadow: $shadow-md;
+}
+
+@mixin button-base {
+    padding: $spacing-sm $spacing-lg;
+    border-radius: $radius-full;
+    border: none;
+    cursor: pointer;
+    transition: all $transition-base;
+    font-weight: 500;
+    background-color: $button-bg;
+    color: $text-light;
+
+    &:hover {
+        background-color: $button-hover;
+        box-shadow: $shadow-md;
+    }
+
+    &:active {
+        transform: translateY(1px);
+    }
+}
+
+@mixin input-base {
+    width: 100%;
+    padding: $spacing-sm;
+    border: 1px solid $border-color;
+    border-radius: $radius-sm;
+    background-color: $input-bg;
+    color: $text-light;
+    transition: border-color $transition-base;
+
+    &:focus {
+        outline: none;
+        border-color: $primary-color;
+        box-shadow: 0 0 0 2px rgba($primary-color, 0.2);
+    }
+}
+
+// Global Styles (Applies Everywhere)
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: $spacing-md;
+  font-weight: 700;
+  line-height: 1.2;
+  color: $text-light;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin-bottom: $spacing-md;
+  color: $text-light;
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color $transition-base;
+
+  &:hover {
+    color: lighten($primary-color, 10%);
+  }
+}
+
+// Header
+.heading {
+  background-color: $border-color;
+  padding: $spacing-xl $spacing-lg;
+  text-align: center;
+  box-shadow: $shadow-md;
+  margin-bottom: $spacing-xl;
+  border-radius: $radius-lg;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+
+  p {
+    font-size: 1.2rem;
+    margin: $spacing-sm 0 0;
+    color: $text-muted;
+  }
+}
+
+// Main Container
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: $spacing-lg;
+}
+
+// Chat Section
+.chat-container {
+  background-color: $container-bg;
+  width: 100%;
+  max-width: 1000px;
+  min-height: 800px;
+  height: auto;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 4px 10px $shadow-md;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+
+  h2 {
+    color: $primary-color;
+    margin-bottom: 20px;
+  }
+}
+
+// Chat Box
+#chatBox {
+  width: 100%;
+  flex: 1;
+  min-height: 200px;
+  background-color: $background-dark;
+  color: $text-light;
+  border: 1px solid $border-color;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+
+  .chat-message {
+    background-color: $card-bg;
+    padding: $spacing-md;
+    border-radius: $radius-md;
+    width: 100%;
+    margin: $spacing-xs 0;
+    
+    .message-content {
+      display: flex;
+      align-items: center;
+      gap: $spacing-md;
+      
+      p {
+        margin: 0;
+        flex: 1;
+        word-break: break-word;
+        color: $text-light;
+        
+        strong {
+          color: $text-light;
+          font-weight: 500;
+        }
+      }
+      
+      button {
+        min-width: 60px;
+        padding: $spacing-xs $spacing-sm;
+        font-size: 0.9rem;
+        margin: 0 $spacing-xs;
+        height: fit-content;
+        border-radius: $radius-sm;
+      }
+      
+      .edit-button {
+        background-color: $warning-color;
+        color: $background-dark;
+        
+        &:hover {
+          background-color: darken($warning-color, 10%);
+        }
+      }
+      
+      .delete-button {
+        background-color: $error-color;
+        
+        &:hover {
+          background-color: darken($error-color, 10%);
+        }
+      }
+    }
+  }
+}
+
+// Message Input
+.message-input {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  width: 100%;
+  padding: 0 $spacing-md;
+
+  input {
+    flex: 1;
+    @include input-base;
+    margin: 0;
+    height: 40px;
+  }
+
+  button {
+    padding: $spacing-sm $spacing-lg;
+    white-space: nowrap;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+// Dropdown Section
+.dropdown {
+  position: relative;
+  display: inline-block;
+  margin-top: 20px;
+
+  button {
+    background-color: $input-bg;
+    color: $text-light;
+    padding: 10px 15px;
+    font-size: 16px;
+    border: 1px solid $border-color;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $button-hover;
+    }
+  }
+
+  .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: $container-bg;
+    border: 1px solid $border-color;
+    border-radius: 5px;
+    z-index: 1;
+    min-width: 180px;
+    box-shadow: 0px 4px 8px $shadow-sm;
+
+    a {
+      display: block;
+      color: $text-muted;
+      padding: 10px 15px;
+      text-decoration: none;
+      font-size: 16px;
+      border-bottom: 1px solid $border-color;
+
+      &:hover {
+        background-color: $button-hover;
+        color: $text-light;
+      }
+    }
+  }
+
+  &:hover .dropdown-content {
+    display: block;
+  }
+}
+
+// Login & Signup Containers
+.login-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+// Login & Signup Cards
+.login-card, .signup-card {
+  width: 45%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 20px;
+  background-color: $card-bg;
+  box-shadow: 2px 2px 5px $shadow-sm;
+  margin-bottom: 20px;
+  overflow-x: auto;
+
+  h1 {
+    margin-bottom: 20px;
+  }
+}
+
+// Buttons
+button {
+  background-color: $button-bg;
+  color: $text-light;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 8px $shadow-sm;
+
+  &:hover {
+    background-color: $button-hover;
+    box-shadow: 0 6px 12px $shadow-md;
+  }
+}
+
+// Footer
+.copyright {
+  margin-top: 20px;
+  font-size: 12px;
+  color: $text-muted;
+  text-align: center;
+}
+
+// ==========================================================================
+// 2. BASE STYLES
+// ==========================================================================
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: $spacing-md;
+    font-weight: 700;
+    line-height: 1.2;
+    color: $text-light;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.75rem; }
+h4 { font-size: 1.5rem; }
+h5 { font-size: 1.25rem; }
+h6 { font-size: 1rem; }
+
+p {
+    margin-bottom: $spacing-md;
+    color: $text-light;
+}
+
+a {
+    color: $primary-color;
+    text-decoration: none;
+    transition: color $transition-base;
+
+    &:hover {
+        color: lighten($primary-color, 10%);
+    }
+}
+
+// ==========================================================================
+// 3. LAYOUT COMPONENTS
+// ==========================================================================
+
+// Main Container
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: $spacing-lg;
+}
+
+// Grid System
+.grid {
+    display: grid;
+    gap: $spacing-md;
+
+    &-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    &-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    &-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+    @media (max-width: $breakpoint-md) {
+        grid-template-columns: 1fr;
+    }
+}
+
+// Flex Layouts
+.flex {
+    display: flex;
+
+    &-center {
+        @include flex-center;
+    }
+
+    &-between {
+        @include flex-between;
+    }
+
+    &-column {
+        flex-direction: column;
+    }
+}
+
+// ==========================================================================
+// 4. HEADER COMPONENTS
+// ==========================================================================
+
+// Page Header
+header.page {
+    background-color: $primary-color;
+    padding: $spacing-xl $spacing-lg;
+    text-align: center;
+    margin-bottom: $spacing-xl;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-md;
+
+    h1 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .subtitle {
+        font-size: 1.2rem;
+        color: $text-muted;
+        margin-top: $spacing-sm;
+    }
+}
+
+// Section Headers
+.heading {
+    background-color: $border-color;
+    padding: $spacing-xl $spacing-lg;
+    text-align: center;
+    box-shadow: $shadow-md;
+    margin-bottom: $spacing-xl;
+    border-radius: $radius-lg;
+
+    h1 {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    p {
+        font-size: 1.2rem;
+        margin: $spacing-sm 0 0;
+        color: $text-muted;
+    }
+}
+
+// ==========================================================================
+// 5. FORM COMPONENTS
+// ==========================================================================
+
+// Form Container
+.form-container {
+    @include card-base;
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+    margin-bottom: $spacing-lg;
+}
+
+// Input Fields
+input[type="text"],
+input[type="password"],
+input[type="email"],
+input[type="number"],
+textarea,
+select {
+    @include input-base;
+    margin-bottom: $spacing-md;
+
+    &::placeholder {
+        color: rgba($text-muted, 0.7);
+    }
+}
+
+textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+// Select Dropdown
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23FFFFFF%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.7em top 50%;
+    background-size: 0.65em auto;
+    padding-right: 2.5em;
+}
+
+// Checkboxes and Radio Buttons
+input[type="checkbox"],
+input[type="radio"] {
+    margin-right: $spacing-sm;
+    accent-color: $primary-color;
+}
+
+// Labels
+label {
+    display: block;
+    margin-bottom: $spacing-xs;
+    color: $text-light;
+    font-weight: 500;
+}
+
+// Form Groups
+.form-group {
+    margin-bottom: $spacing-lg;
+}
+
+// ==========================================================================
+// 6. BUTTON COMPONENTS
+// ==========================================================================
+
+// Base Button
+.button,
+button {
+    @include button-base;
+    
+    &.primary {
+        background-color: $primary-color;
+        
+        &:hover {
+            background-color: darken($primary-color, 10%);
+        }
+    }
+    
+    &.secondary {
+        background-color: $secondary-color;
+        
+        &:hover {
+            background-color: darken($secondary-color, 10%);
+        }
+    }
+    
+    &.success {
+        background-color: $success-color;
+        
+        &:hover {
+            background-color: darken($success-color, 10%);
+        }
+    }
+    
+    &.warning {
+        background-color: $warning-color;
+        color: $background-dark;
+        
+        &:hover {
+            background-color: darken($warning-color, 10%);
+        }
+    }
+    
+    &.danger {
+        background-color: $error-color;
+        
+        &:hover {
+            background-color: darken($error-color, 10%);
+        }
+    }
+
+    &.disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+}
+
+// Button Groups
+.button-group {
+    display: flex;
+    gap: $spacing-sm;
+
+    &.vertical {
+        flex-direction: column;
+    }
+}
+
+// ==========================================================================
+// 7. CARD COMPONENTS
+// ==========================================================================
+
+// Base Card
+.card {
+    @include card-base;
+    margin-bottom: $spacing-lg;
+    transition: transform $transition-base;
+
+    &:hover {
+        transform: translateY(-2px);
+    }
+
+    .card-header {
+        margin: -$spacing-lg;
+        margin-bottom: $spacing-lg;
+        padding: $spacing-lg;
+        background-color: rgba($primary-color, 0.1);
+        border-bottom: 1px solid $border-color;
+        border-radius: $radius-md $radius-md 0 0;
+
+        h3 {
+            margin: 0;
+            color: $primary-color;
+        }
+    }
+
+    .card-body {
+        p:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    .card-footer {
+        margin: $spacing-lg -$spacing-lg -$spacing-lg;
+        padding: $spacing-lg;
+        background-color: rgba($background-dark, 0.2);
+        border-top: 1px solid $border-color;
+        border-radius: 0 0 $radius-md $radius-md;
+    }
+}
+
+// Profile Card
+.profile-card {
+    @extend .card;
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+
+    .profile-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 3px solid $primary-color;
+        object-fit: cover;
+    }
+
+    .profile-info {
+        flex: 1;
+
+        h3 {
+            margin-bottom: $spacing-xs;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: $spacing-lg;
+            margin-top: $spacing-sm;
+
+            .stat {
+                text-align: center;
+
+                .stat-value {
+                    font-size: 1.5rem;
+                    font-weight: bold;
+                    color: $primary-color;
+                }
+
+                .stat-label {
+                    color: $text-muted;
+                    font-size: 0.9rem;
+                }
+            }
+        }
+    }
+}
+
+// Post Card
+.post-card {
+    @extend .card;
+
+    .post-header {
+        @include flex-between;
+        margin-bottom: $spacing-md;
+
+        .post-author {
+            display: flex;
+            align-items: center;
+            gap: $spacing-sm;
+
+            img {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+            }
+        }
+
+        .post-meta {
+            color: $text-muted;
+            font-size: 0.9rem;
+        }
+    }
+
+    .post-content {
+        margin-bottom: $spacing-md;
+    }
+
+    .post-actions {
+        @include flex-between;
+        padding-top: $spacing-md;
+        border-top: 1px solid $border-color;
+
+        button {
+            padding: $spacing-xs $spacing-md;
+            font-size: 0.9rem;
+        }
+    }
+}
+
+// ==========================================================================
+// 8. TABLE COMPONENTS
+// ==========================================================================
+
+// Base Table
+.table-container {
+    overflow-x: auto;
+    margin-bottom: $spacing-lg;
+    background-color: $card-bg;
+    border-radius: $radius-md;
+    box-shadow: $shadow-md;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+
+    th, td {
+        padding: $spacing-md;
+        border-bottom: 1px solid $border-color;
+    }
+
+    th {
+        background-color: rgba($primary-color, 0.1);
+        color: $primary-color;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: background-color $transition-base;
+
+        &:hover {
+            background-color: rgba($primary-color, 0.2);
+        }
+
+        &.sort-asc::after {
+            content: ' ↑';
+            color: $primary-color;
+        }
+
+        &.sort-desc::after {
+            content: ' ↓';
+            color: $primary-color;
+        }
+    }
+
+    tr {
+        &:nth-child(even) {
+            background-color: rgba($background-dark, 0.2);
+        }
+
+        &:hover {
+            background-color: rgba($primary-color, 0.05);
+        }
+    }
+
+    td {
+        vertical-align: middle;
+    }
+}
+
+// ==========================================================================
+// 9. CHAT COMPONENTS
+// ==========================================================================
+
+.chat-container {
+    @include card-base;
+    height: 600px;
+    display: flex;
+    flex-direction: column;
+
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: $spacing-md;
+        margin: -$spacing-lg;
+        margin-bottom: $spacing-md;
+
+        .message {
+            margin-bottom: $spacing-md;
+            max-width: 80%;
+
+            &.sent {
+                margin-left: auto;
+                .message-bubble {
+                    background-color: $primary-color;
+                    border-radius: $radius-md 0 $radius-md $radius-md;
+                }
+            }
+
+            &.received {
+                margin-right: auto;
+                .message-bubble {
+                    background-color: $card-bg;
+                    border-radius: 0 $radius-md $radius-md $radius-md;
+                }
+            }
+
+            .message-bubble {
+                padding: $spacing-sm $spacing-md;
+                margin-bottom: $spacing-xs;
+            }
+
+            .message-meta {
+                font-size: 0.8rem;
+                color: $text-muted;
+                text-align: right;
+            }
+        }
+    }
+
+    .chat-input {
+        display: flex;
+        gap: $spacing-sm;
+        margin-top: auto;
+
+        input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+    }
+}
+
+// ==========================================================================
+// 10. POLL & QUIZ COMPONENTS
+// ==========================================================================
+
+.poll-container {
+    @include card-base;
+    max-width: 600px;
+    margin: 0 auto;
+
+    .poll-question {
+        font-size: 1.2rem;
+        font-weight: 500;
+        margin-bottom: $spacing-lg;
+        color: $primary-color;
+    }
+
+    .poll-options {
+        display: flex;
+        flex-direction: column;
+        gap: $spacing-sm;
+
+        .poll-option {
+            background-color: $card-bg;
+            padding: $spacing-md;
+            border-radius: $radius-md;
+            cursor: pointer;
+            transition: all $transition-base;
+            border: 1px solid $border-color;
+
+            &:hover {
+                background-color: lighten($card-bg, 5%);
+                transform: translateX(5px);
+            }
+
+            &.selected {
+                background-color: rgba($primary-color, 0.2);
+                border-color: $primary-color;
+            }
+
+            .option-progress {
+                margin-top: $spacing-sm;
+                height: 4px;
+                background-color: $background-dark;
+                border-radius: $radius-full;
+                overflow: hidden;
+
+                .progress-bar {
+                    height: 100%;
+                    background-color: $primary-color;
+                    transition: width $transition-base;
+                }
+            }
+        }
+    }
+}
+
+// Quiz Components
+.quiz-container {
+    @extend .poll-container;
+
+    .quiz-feedback {
+        margin-top: $spacing-md;
+        padding: $spacing-md;
+        border-radius: $radius-md;
+        text-align: center;
+
+        &.correct {
+            background-color: rgba($success-color, 0.1);
+            color: $success-color;
+        }
+
+        &.incorrect {
+            background-color: rgba($error-color, 0.1);
+            color: $error-color;
+        }
+    }
+}
+
+// ==========================================================================
+// 11. LEADERBOARD COMPONENTS
+// ==========================================================================
+
+.leaderboard {
+    @include card-base;
+
+    .leaderboard-header {
+        @include flex-between;
+        margin-bottom: $spacing-lg;
+        padding-bottom: $spacing-md;
+        border-bottom: 1px solid $border-color;
+
+        h2 {
+            margin: 0;
+            color: $primary-color;
+        }
+    }
+
+    .leaderboard-item {
+        @include flex-between;
+        padding: $spacing-md;
+        border-radius: $radius-md;
+        background-color: rgba($background-dark, 0.2);
+        margin-bottom: $spacing-sm;
+        transition: transform $transition-base;
+
+        &:hover {
+            transform: translateX(5px);
+        }
+
+        .rank {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: $primary-color;
+            width: 40px;
+        }
+
+        .user-info {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: $spacing-md;
+
+            img {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+            }
+        }
+
+        .score {
+            font-weight: 500;
+            color: $text-muted;
+        }
+    }
+}
+
+// ==========================================================================
+// 12. LANGUAGE EDITOR COMPONENTS
+// ==========================================================================
+
+.language-editor {
+    @include card-base;
+
+    .editor-header {
+        @include flex-between;
+        margin-bottom: $spacing-lg;
+        padding-bottom: $spacing-md;
+        border-bottom: 1px solid $border-color;
+    }
+
+    .editor-controls {
+        display: flex;
+        gap: $spacing-sm;
+        margin-bottom: $spacing-md;
+    }
+
+    .code-area {
+        background-color: darken($card-bg, 5%);
+        border-radius: $radius-md;
+        padding: $spacing-md;
+        margin-bottom: $spacing-lg;
+        font-family: 'Courier New', monospace;
+        
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            color: $text-light;
+        }
+    }
+}
+
+// ==========================================================================
+// 13. MODAL COMPONENTS
+// ==========================================================================
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba($background-dark, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: $z-modal;
+    opacity: 0;
+    visibility: hidden;
+    transition: all $transition-base;
+
+    &.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .modal-content {
+        background-color: $card-bg;
+        border-radius: $radius-lg;
+        padding: $spacing-xl;
+        max-width: 500px;
+        width: 90%;
+        position: relative;
+        transform: translateY(-20px);
+        transition: transform $transition-base;
+
+        .modal-header {
+            margin-bottom: $spacing-lg;
+            padding-bottom: $spacing-md;
+            border-bottom: 1px solid $border-color;
+
+            h3 {
+                margin: 0;
+                color: $primary-color;
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: $spacing-md;
+            right: $spacing-md;
+            font-size: 1.5rem;
+            color: $text-muted;
+            cursor: pointer;
+            transition: color $transition-base;
+
+            &:hover {
+                color: $primary-color;
+            }
+        }
+    }
+
+    &.active .modal-content {
+        transform: translateY(0);
+    }
+}
+
+// ==========================================================================
+// 14. UTILITY CLASSES
+// ==========================================================================
+
+// Spacing Utilities
+.m {
+    &t-0 { margin-top: 0; }
+    &t-1 { margin-top: $spacing-xs; }
+    &t-2 { margin-top: $spacing-sm; }
+    &t-3 { margin-top: $spacing-md; }
+    &t-4 { margin-top: $spacing-lg; }
+    &t-5 { margin-top: $spacing-xl; }
+}
+
+.p {
+    &t-0 { padding-top: 0; }
+    &t-1 { padding-top: $spacing-xs; }
+    &t-2 { padding-top: $spacing-sm; }
+    &t-3 { padding-top: $spacing-md; }
+    &t-4 { padding-top: $spacing-lg; }
+    &t-5 { padding-top: $spacing-xl; }
+}
+
+// Text Utilities
+.text {
+    &-center { text-align: center; }
+    &-left { text-align: left; }
+    &-right { text-align: right; }
+    &-primary { color: $primary-color; }
+    &-muted { color: $text-muted; }
+}
+
+// Display Utilities
+.d {
+    &-none { display: none; }
+    &-block { display: block; }
+    &-flex { display: flex; }
+    &-grid { display: grid; }
+}
+
+// Flex Utilities
+.flex {
+    &-1 { flex: 1; }
+    &-wrap { flex-wrap: wrap; }
+    &-nowrap { flex-wrap: nowrap; }
+}
+
+// Animation Utilities
+.fade {
+    transition: opacity $transition-base;
+    
+    &-enter {
+        opacity: 0;
+        
+        &-active {
+            opacity: 1;
+        }
+    }
+    
+    &-exit {
+        opacity: 1;
+        
+        &-active {
+            opacity: 0;
+        }
+    }
+}
+
+// Responsive Utilities
+@media (max-width: $breakpoint-sm) {
+    .hide-sm {
+        display: none !important;
+    }
+}
+
+@media (max-width: $breakpoint-md) {
+    .hide-md {
+        display: none !important;
+    }
+}
+
+@media (max-width: $breakpoint-lg) {
+    .hide-lg {
+        display: none !important;
+    }
+}
+
+// Interests container
+.interests {
+    background-color: $card-bg;
+    padding: $spacing-md;
+    border-radius: $radius-md;
+    margin-bottom: $spacing-lg;
+    text-align: center;
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto $spacing-lg auto;
+
+    #interest1, #interest2 {
+        color: $text-light;
+        margin: $spacing-sm 0;
+        font-size: 1.1rem;
+    }
+}
+
+// AI Question styling
+.ai-text {
+    color: $primary-color;
+    font-size: 1.2rem;
+}
+
+// Chat message styling
+.chat-message {
+    background-color: $card-bg;
+    padding: $spacing-md;
+    margin: $spacing-sm 0;
+    border-radius: $radius-md;
+    
+    .message-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        
+        p {
+            margin: 0;
+            flex: 1;
+        }
+        
+        .edit-button, .delete-button {
+            margin-left: $spacing-sm;
+            padding: $spacing-xs $spacing-sm;
+            font-size: 0.9rem;
+        }
+        
+        .edit-button {
+            background-color: $warning-color;
+            color: $background-dark;
+        }
+        
+        .delete-button {
+            background-color: $error-color;
+        }
+    }
+}
+
+// ==========================================================================
+// END OF STYLESHEET
+// ==========================================================================

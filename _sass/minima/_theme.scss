@@ -1,0 +1,46 @@
+// Theme variables
+$light-background: #ffffff;
+$light-text: #333333;
+$light-container: #f5f5f5;
+$light-accent: #e53e3e;
+$light-header: #f8f9fa;
+$light-nav: #24292e;
+
+// Base theme styles
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+    
+    &[data-theme="light"] {
+        background-color: $light-background !important;
+        color: $light-text !important;
+
+        .site-header, header, nav {
+            background-color: $light-header !important;
+        }
+
+        .site-nav {
+            background-color: $light-header !important;
+            
+            .page-link {
+                color: $light-nav !important;
+            }
+        }
+
+        .site-title {
+            color: $light-nav !important;
+        }
+
+        .page-content {
+            background-color: $light-background !important;
+        }
+
+        .post-content {
+            color: $light-text !important;
+        }
+
+        .card, .section, .container {
+            background-color: $light-container !important;
+            color: $light-text !important;
+        }
+    }
+} 
