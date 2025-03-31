@@ -2,8 +2,8 @@ title: Prism
 description : "A platform that evolves around your connections and creativity."
 owner_name: Yash Parikh
 github_username: illuminati1618
-github_repo: "prism_frontend" 
-baseurl: "/prism_frontend"
+github_repo: "parking_frontend" 
+baseurl: "/parking_frontend"
 future: true
 remote_theme: jekyll/minima
 minima:
@@ -19,3 +19,4 @@ header_pages:
   - navigation/worlds/home.md
   - navigation/aboutus.md
   - navigation/search.md
+  - navigation/bootstrap/landing.md
