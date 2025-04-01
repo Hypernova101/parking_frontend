@@ -13,8 +13,8 @@ permalink: /smartpark/home
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <h1 data-aos="fade-left" class="text-uppercase text-white fw-semibold display-1">Welcome to elixir</h1>
-                    <h5 class="text-white mt-3 mb-4" data-aos="fade-right">WE ARE TEAM OF TALENTED DESIGNERS MAKING WEBSITES WITH BOOTSTRAP</h5>
+                    <h1 data-aos="fade-left" class="text-uppercase text-white fw-semibold display-1">Welcome to SmartPark</h1>
+                    <h5 class="text-white mt-3 mb-4" data-aos="fade-right">Find. Park. Go.</h5>
                     <div data-aos="fade-up" data-aos-delay="50">
                         <a href="#" class="btn btn-brand me-2">Get Started</a>
                         <a href="#" class="btn btn-light ms-2">Our Portfolio</a>
