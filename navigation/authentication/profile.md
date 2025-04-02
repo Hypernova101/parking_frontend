@@ -346,12 +346,8 @@ show_reading_time: false
                 <input type="password" id="newPassword" placeholder="New Password">
             </div>
             <div>
-                <label for="newInterests">Enter New Interests:</label>
-                <input type="text" id="newInterests" placeholder="New Interests (e.g., Soccer, Reading)">
-            </div>
-            <div>
-                <label for="newFollowers">Enter New Followers:</label>
-                <input type="text" id="newFollowers" placeholder="New Followers (e.g., toby, bobby)">
+                <label for="newLocations">Enter New Saved Location:</label>
+                <input type="text" id="newLocation" placeholder="New Saved Location (e.g. 123 Main St.">
             </div>
             <br>
             <label for="profilePictureUpload" class="file-icon">
@@ -613,7 +609,7 @@ async function updateUserInfo() {
             document.getElementById('profilePicture').src = data.pfp;
         }
         
-        const interestsResponse = await fetch(pythonURI + "/api/interests", {
+        const interestsResponse = await fetch(pythonURI + "/api/savedlocations", {
             ...fetchOptions,
             method: 'GET'
         });
@@ -676,7 +672,7 @@ async function updateProfile(field, value) {
             const combinedInterests = [...new Set([...currentInterests, ...newInterests])];
             value = combinedInterests.join(', ');
 
-            const updateResponse = await fetch(pythonURI + "/api/interests", {
+            const updateResponse = await fetch(pythonURI + "/api/savedlocations", {
                 ...fetchOptions,
                 method: 'PUT',
                 body: JSON.stringify({ interests: value })
@@ -737,7 +733,7 @@ async function updateProfile(field, value) {
 
 async function deleteInterest(interest) {
     try {
-        const response = await fetch(pythonURI + "/api/interests", {
+        const response = await fetch(pythonURI + "/api/savedlocations", {
             ...fetchOptions,
             method: 'DELETE',
             body: JSON.stringify({ interest: interest })
@@ -762,14 +758,14 @@ async function editInterest(oldInterest) {
     if (newInterest && newInterest.trim() !== "") {
         try {
             // Delete the old interest
-            await fetch(pythonURI + "/api/interests", {
+            await fetch(pythonURI + "/api/savedlocations", {
                 ...fetchOptions,
                 method: 'DELETE',
                 body: JSON.stringify({ interest: oldInterest })
             });
 
             // Add the new interest
-            const response = await fetch(pythonURI + "/api/interests", {
+            const response = await fetch(pythonURI + "/api/savedlocations", {
                 ...fetchOptions,
                 method: 'PUT',
                 body: JSON.stringify({ interests: newInterest })
