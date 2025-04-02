@@ -92,6 +92,7 @@ img {
     text-transform: uppercase;
     border-radius: 0;
     padding: 10px 24px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
 }
 
 .btn-brand {
@@ -99,12 +100,30 @@ img {
     border-color: var(--c-brand);
     color: white;
 }
-
-.btn-brand:hover {
+  
+  /* Brand button hover effect */
+  .btn-brand:hover {
     background-color: var(--c-brand-light);
     border-color: var(--c-brand-light);
-    color: white;
-}
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(var(--c-brand-rgb), 0.3);
+  }
+  
+  /* Light button hover effect */
+  .btn-light {
+    background-color: #f8f9fa;
+    color: #212529;
+    border: 1px solid #ced4da;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  }
+  
+  .btn-light:hover {
+    background-color: #e2e6ea;
+    border-color: #adb5bd;
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+  
 
 
 /* HERO */
