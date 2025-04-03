@@ -6,7 +6,7 @@ baseurl: "/parking_frontend"
 future: true
 remote_theme: jekyll/minima
 minima:
-  skin: classic
+  skin: dark
 # remote_theme: pages-themes/midnight@v0.2.0
 # remote_theme: pages-themes/dinky@v0.2.0
 # remote_theme: pages-themes/minimal@v0.2.0
