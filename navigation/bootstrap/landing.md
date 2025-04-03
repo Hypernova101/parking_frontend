@@ -22,8 +22,8 @@ permalink: /smartpark/home
                 Find. Park. Go.
                 </h5>
                 <div id="hero-buttons" class="animate__animated">
-                <a href="#" class="btn btn-brand me-2">Get Started</a>
-                <a href="#" class="btn btn-light ms-2">Our Portfolio</a>
+                <a href="/parking_frontend/map/" class="btn btn-brand me-2">Route Planner</a>
+                <a href="/parking_frontend/titanic/" class="btn btn-light ms-2">Titanic Predictor</a>
                 </div>
             </div>
             </div>
