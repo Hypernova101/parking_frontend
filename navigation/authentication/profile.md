@@ -347,7 +347,7 @@ show_reading_time: false
             </div>
             <div>
                 <label for="newLocations">Enter New Saved Location:</label>
-                <input type="text" id="newLocation" placeholder="New Saved Location (e.g. 123 Main St.">
+                <input type="text" id="newLocation" placeholder="New Saved Location (e.g. 123 Main St.)">
             </div>
             <br>
             <label for="profilePictureUpload" class="file-icon">
@@ -372,24 +372,12 @@ show_reading_time: false
     </section>
 
     <section class="card">
-        <h3>My Interests</h3>
-        <p>Click on an interest to view more details</p>
+        <h3>My Saved Locations</h3>
+        <p>Click on a location to view more details</p>
         <section class="grid grid-cols-2" id="interestsSection"></section>
     </section>
 
     <section class="grid grid-cols-2" id="interestsSection">
-    </section>
-
-    <section class="card">
-        <h3>My Following</h3>
-        <p>Click on a person you are following to view more details</p>
-        <section class="grid grid-cols-2" id="followersSection"></section>
-    </section>
-
-    <section class="card">
-        <h3>My Followers</h3>
-        <p>Click on a follower to view more details</p>
-        <div class="web-container" id="myFollowersWeb"></div>
     </section>
 
     <section class="card">
@@ -427,172 +415,69 @@ show_reading_time: false
 <script type="module">
 import { pythonURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
 
-function createInterestCards(interests) {
+document.addEventListener('DOMContentLoaded', () => {
+    updateUserInfo();
+
+    const settingsLocationInput = document.getElementById('newLocation');
+    if (settingsLocationInput) {
+        settingsLocationInput.addEventListener('keydown', async (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const newLoc = settingsLocationInput.value.trim();
+                if (!newLoc) return;
+
+                try {
+                    const res = await fetch(pythonURI + "/api/savedlocations", {
+                        ...fetchOptions,
+                        method: 'POST',
+                        body: JSON.stringify({ savedlocation: newLoc })
+                    });
+
+                    if (!res.ok) throw new Error('Failed to add location');
+                    settingsLocationInput.value = '';
+                    showError('Location added successfully!', 'green');
+                    updateUserInfo();
+                } catch (err) {
+                    console.error(err);
+                    showError('Error adding location');
+                }
+            }
+        });
+    }
+});
+
+
+function createInterestCards(locations) {
     const interestsSection = document.getElementById('interestsSection');
     interestsSection.innerHTML = '';
     
-    if (!interests || interests.length === 0) {
-        const placeholderInterests = ['Gaming', 'Reading', 'Music', 'Art'];
-        placeholderInterests.forEach((interest, index) => {
+    if (!locations || locations.length === 0) {
+        const placeholder = ['123 Main St.', '456 Oak Ave.', '789 Pine Dr.'];
+        placeholder.forEach((loc) => {
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <h4>${interest}</h4>
-                <img src="https://placehold.co/300x200/d34e3f/a3adbf/png?text=${interest}" alt="${interest}">
-                <button onclick="deleteInterest('${interest}')">Delete</button>
-                <button onclick="editInterest('${interest}')">Edit</button>
+                <h4>${loc}</h4>
+                <img src="https://placehold.co/300x200/d34e3f/a3adbf/png?text=${encodeURIComponent(loc)}" alt="${loc}">
+                <button onclick="deleteInterest('${loc}')">Delete</button>
+                <button onclick="editInterest('${loc}')">Edit</button>
             `;
             interestsSection.appendChild(card);
         });
         return;
     }
 
-    interests.forEach(interest => {
+    locations.forEach(loc => {
         const card = document.createElement('div');
         card.className = 'card';
         card.innerHTML = `
-            <h4>${interest}</h4>
-            <img src="https://placehold.co/300x200/d34e3f/a3adbf/png?text=${interest}" alt="${interest}">
-            <button onclick="deleteInterest('${interest}')">Delete</button>
-            <button onclick="editInterest('${interest}')">Edit</button>
+            <h4>${loc}</h4>
+            <img src="https://placehold.co/300x200/d34e3f/a3adbf/png?text=${encodeURIComponent(loc)}" alt="${loc}">
+            <button onclick="deleteInterest('${loc}')">Delete</button>
+            <button onclick="editInterest('${loc}')">Edit</button>
         `;
         interestsSection.appendChild(card);
     });
-}
-
-function createFollowerCards(followers) {
-    const followersSection = document.getElementById('followersSection');
-    followersSection.innerHTML = '';
-    
-    if (!followers || followers.length === 0) {
-        const placeholderFollowers = ['Gaming', 'Reading', 'Music', 'Art'];
-        placeholderFollowers.forEach((follower, index) => {
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <h4>${follower}</h4>
-                <img src="https://placehold.co/300x200/218f66/a3adbf/png?text=${interest}" alt="${interest}">
-            `;
-            followersSection.appendChild(card);
-        });
-        return;
-    }
-
-    followers.forEach(follower => {
-        const card = document.createElement('div');
-        card.className = 'card';
-        card.innerHTML = `
-            <h4>${follower}</h4>
-            <img src="https://placehold.co/300x200/218f66/a3adbf/png?text=${follower}" alt="${follower}">
-        `;
-        followersSection.appendChild(card);
-    });
-}
-
-async function createMyFollowerWeb(followers) {
-    const webContainer = document.getElementById('myFollowersWeb');
-    webContainer.innerHTML = '';
-
-    const centerX = webContainer.clientWidth / 2;
-    const centerY = webContainer.clientHeight / 2;
-    const radius = 150;
-
-    if (!followers || followers.length === 0) {
-        const placeholderFollowers = ['No followers yet'];
-        placeholderFollowers.forEach((follower, index) => {
-            const angle = (index / placeholderFollowers.length) * 2 * Math.PI;
-            const x = centerX + radius * Math.cos(angle) - 50;
-            const y = centerY + radius * Math.sin(angle) - 50;
-            const node = createWebNode(follower, x, y);
-            webContainer.appendChild(node);
-        });
-        return;
-    }
-
-    const followerPositions = {};
-
-    followers.forEach((follower, index) => {
-        const angle = (index / followers.length) * 2 * Math.PI;
-        const x = centerX + radius * Math.cos(angle) - 50;
-        const y = centerY + radius * Math.sin(angle) - 50;
-        const node = createWebNode(follower, x, y);
-        webContainer.appendChild(node);
-        followerPositions[follower] = { x: x + 50, y: y + 50 };
-
-        if (index > 0) {
-            const prevAngle = ((index - 1) / followers.length) * 2 * Math.PI;
-            const prevX = centerX + radius * Math.cos(prevAngle);
-            const prevY = centerY + radius * Math.sin(prevAngle);
-            const line = createWebLine(prevX, prevY, x + 50, y + 50);
-            webContainer.appendChild(line);
-        }
-    });
-
-    if (followers.length > 1) {
-        const firstAngle = 0;
-        const firstX = centerX + radius * Math.cos(firstAngle);
-        const firstY = centerY + radius * Math.sin(firstAngle);
-        const lastAngle = ((followers.length - 1) / followers.length) * 2 * Math.PI;
-        const lastX = centerX + radius * Math.cos(lastAngle);
-        const lastY = centerY + radius * Math.sin(lastAngle);
-        const line = createWebLine(lastX, lastY, firstX, firstY);
-        webContainer.appendChild(line);
-    }
-
-    await fetchMutualConnections(followerPositions);
-}
-
-async function fetchMutualConnections(followerPositions) {
-    try {
-        const response = await fetch(pythonURI + "/api/mutual_connections", fetchOptions);
-        if (!response.ok) {
-            throw new Error('Failed to fetch mutual connections');
-        }
-        const mutualConnections = await response.json();
-        const webContainer = document.getElementById('myFollowersWeb');
-
-        for (const [follower, connections] of Object.entries(mutualConnections)) {
-            connections.forEach(connection => {
-                if (followerPositions[follower] && followerPositions[connection]) {
-                    const line = createWebLine(
-                        followerPositions[follower].x,
-                        followerPositions[follower].y,
-                        followerPositions[connection].x,
-                        followerPositions[connection].y
-                    );
-                    webContainer.appendChild(line);
-                }
-            });
-        }
-    } catch (error) {
-        console.error('Error fetching mutual connections:', error);
-    }
-}
-
-const yellowShades = ['#f6e05e', '#ecc94b', '#d69e2e', '#b7791f', '#975a16'];
-
-function createWebNode(name, x, y) {
-    const node = document.createElement('div');
-    node.className = 'web-node';
-    node.style.left = `${x}px`;
-    node.style.top = `${y}px`;
-    node.style.backgroundColor = yellowShades[Math.floor(Math.random() * yellowShades.length)];
-    node.textContent = name;
-    return node;
-}
-
-function createWebLine(x1, y1, x2, y2) {
-    const line = document.createElement('div');
-    line.className = 'web-line';
-    line.style.left = `${x1}px`;
-    line.style.top = `${y1}px`;
-    line.style.width = `${Math.hypot(x2 - x1, y2 - y1)}px`;
-    line.style.transform = `rotate(${Math.atan2(y2 - y1, x2 - x1)}rad)`;
-    return line;
-}
-
-function createMyFollowerCards(followers) {
-    createMyFollowerWeb(followers);
 }
 
 async function updateUserInfo() {
@@ -602,32 +487,19 @@ async function updateUserInfo() {
             method: 'GET'
         });
         const data = await response.json();
-        
+
         document.getElementById('username').textContent = data.name || 'User Name';
-        
         if (data.pfp) {
             document.getElementById('profilePicture').src = data.pfp;
         }
-        
-        const interestsResponse = await fetch(pythonURI + "/api/savedlocations", {
+
+        const savedLocationsResponse = await fetch(pythonURI + "/api/savedlocations", {
             ...fetchOptions,
             method: 'GET'
         });
-        const interestsData = await interestsResponse.json();
-        const interests = interestsData ? interestsData.split(',').map(i => i.trim()).filter(i => i) : [];
-        createInterestCards(interests);
-
-        const followers = data.followers ? data.followers.split(',').map(i => i.trim()).filter(i => i) : [];
-        createFollowerCards(followers);
-
-        const myFollowersResponse = await fetch(pythonURI + "/api/following", {
-            ...fetchOptions,
-            method: 'GET'
-        });
-        const myFollowersData = await myFollowersResponse.json();
-        const myFollowers = myFollowersData ? myFollowersData : [];
-        createMyFollowerCards(myFollowers);
-
+        const locationsData = await savedLocationsResponse.json();
+        const savedLocations = locationsData ? locationsData.split(',').map(i => i.trim()).filter(i => i) : [];
+        createInterestCards(savedLocations);
     } catch (error) {
         console.error('Error fetching user info:', error);
     }
@@ -635,369 +507,52 @@ async function updateUserInfo() {
 
 document.addEventListener('DOMContentLoaded', updateUserInfo);
 
-async function fetchProfilePicture() {
-    try {
-        const response = await fetch(pythonURI + "/api/id/pfp", fetchOptions);
-        if (!response.ok) {
-            throw new Error('Failed to fetch profile picture');
-        }
-        const data = await response.json();
-        if (data && data.pfp) {
-            document.getElementById('profilePicture').src = `data:image/jpeg;base64,${data.pfp}`;
-        }
-    } catch (error) {
-        console.error('Error fetching profile picture:', error);
-        showError('Error fetching profile picture');
-    }
-}
-
-function setPlaceholders(userData) {
-    const uidInput = document.getElementById('newUid');
-    const nameInput = document.getElementById('newName');
-    const interestsInput = document.getElementById('newInterests');
-    const followersInput = document.getElementById('newFollowers');
-
-    if (userData.uid) uidInput.placeholder = userData.uid;
-    if (userData.name) nameInput.placeholder = userData.name;
-    if (userData.followers) followersInput.placeholder = userData.followers;
-}
-
-async function updateProfile(field, value) {
-    try {
-        if (field === 'interests' && value) {
-            const response = await fetch(pythonURI + "/api/user", fetchOptions);
-            const userData = await response.json();
-            const currentInterests = userData.interests ? userData.interests.split(',').map(i => i.trim()) : [];
-            const newInterests = value.split(',').map(i => i.trim());
-            const combinedInterests = [...new Set([...currentInterests, ...newInterests])];
-            value = combinedInterests.join(', ');
-
-            const updateResponse = await fetch(pythonURI + "/api/savedlocations", {
-                ...fetchOptions,
-                method: 'PUT',
-                body: JSON.stringify({ interests: value })
-            });
-
-            if (!updateResponse.ok) {
-                throw new Error('Failed to update interests');
-            }
-
-            showError('Interests updated successfully', 'green');
-            updateUserInfo();
-            return;
-        }
-
-        if (field === 'followers' && value) {
-            const response = await fetch(pythonURI + "/api/user", fetchOptions);
-            const userData = await response.json();
-            const currentFollowers = userData.followers ? userData.followers.split(',').map(i => i.trim()) : [];
-            const newFollowers = value.split(',').map(i => i.trim());
-            const combinedFollowers = [...new Set([...currentFollowers, ...newFollowers])];
-            value = combinedFollowers.join(', ');
-
-            const updateResponse = await fetch(pythonURI + "/api/user", {
-                ...fetchOptions,
-                method: 'PUT',
-                body: JSON.stringify({ followers: value })
-            });
-
-            if (!updateResponse.ok) {
-                const errorData = await updateResponse.json();
-                throw new Error(errorData.message || 'Failed to update followers');
-            }
-
-            showError('Followers updated successfully', 'green');
-            updateUserInfo();
-            return;
-        }
-
-        const response = await fetch(pythonURI + "/api/user", {
-            ...fetchOptions,
-            method: 'PUT',
-            body: JSON.stringify({
-                [field]: value
-            })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to update profile');
-        }
-
-        showError('Profile updated successfully', 'green');
-        updateUserInfo();
-    } catch (error) {
-        console.error('Error updating profile:', error);
-        showError(error.message || 'Error updating profile');
-    }
-}
-
-async function deleteInterest(interest) {
+async function deleteInterest(loc) {
     try {
         const response = await fetch(pythonURI + "/api/savedlocations", {
             ...fetchOptions,
             method: 'DELETE',
-            body: JSON.stringify({ interest: interest })
+            body: JSON.stringify({ savedlocation: loc })
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to delete interest');
-        }
+        if (!response.ok) throw new Error('Failed to delete location');
 
-        showError('Interest deleted successfully', 'green');
+        showError('Saved location deleted successfully', 'green');
         updateUserInfo();
     } catch (error) {
-        console.error('Error deleting interest:', error);
-        showError('Error deleting interest');
+        console.error('Error deleting saved location:', error);
+        showError('Error deleting saved location');
     }
 }
 
 window.deleteInterest = deleteInterest;
 
-async function editInterest(oldInterest) {
-    const newInterest = prompt("Edit interest:", oldInterest);
-    if (newInterest && newInterest.trim() !== "") {
+async function editInterest(oldLoc) {
+    const newLoc = prompt("Edit saved location:", oldLoc);
+    if (newLoc && newLoc.trim() !== "") {
         try {
-            // Delete the old interest
             await fetch(pythonURI + "/api/savedlocations", {
                 ...fetchOptions,
                 method: 'DELETE',
-                body: JSON.stringify({ interest: oldInterest })
+                body: JSON.stringify({ savedlocation: oldLoc })
             });
 
-            // Add the new interest
-            const response = await fetch(pythonURI + "/api/savedlocations", {
+            await fetch(pythonURI + "/api/savedlocations", {
                 ...fetchOptions,
                 method: 'PUT',
-                body: JSON.stringify({ interests: newInterest })
+                body: JSON.stringify({ savedlocation: newLoc })
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to edit interest');
-            }
-
-            showError('Interest edited successfully', 'green');
+            showError('Saved location updated successfully', 'green');
             updateUserInfo();
         } catch (error) {
-            console.error('Error editing interest:', error);
-            showError('Error editing interest');
+            console.error('Error editing saved location:', error);
+            showError('Error editing saved location');
         }
     }
 }
 
 window.editInterest = editInterest;
-
-async function uploadProfilePicture(file) {
-    try {
-        const base64String = await convertToBase64(file);
-        const response = await fetch(pythonURI + "/api/id/pfp", {
-            ...fetchOptions,
-            method: 'PUT',
-            body: JSON.stringify({ pfp: base64String })
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to upload profile picture');
-        }
-
-        showError('Profile picture updated successfully', 'green');
-        fetchProfilePicture();
-    } catch (error) {
-        console.error('Error uploading profile picture:', error);
-        showError('Error uploading profile picture');
-    }
-}
-
-function convertToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result.split(',')[1]);
-        reader.onerror = error => reject(error);
-        reader.readAsDataURL(file);
-    });
-}
-
-function showError(message, color = 'red') {
-    const messageElement = document.getElementById('profile-message');
-    messageElement.style.color = color;
-    messageElement.textContent = message;
-    setTimeout(() => {
-        messageElement.textContent = '';
-    }, 3000);
-}
-
-async function displayCurrentInterests() {
-    try {
-        const response = await fetch(pythonURI + "/api/user", fetchOptions);
-        const userData = await response.json();
-        if (userData.interests) {
-            const formattedInterests = userData.interests.split(',').map(i => i.trim()).filter(i => i).join(', ');
-            document.getElementById('newInterests').placeholder = `Current interests: ${formattedInterests}`;
-        }
-    } catch (error) {
-        console.error('Error fetching current interests:', error);
-    }
-}
-
-async function displayCurrentFollowers() {
-    try {
-        const response = await fetch(pythonURI + "/api/user", fetchOptions);
-        const userData = await response.json();
-        if (userData.followers) {
-            const formattedFollowers = userData.followers.split(',').map(i => i.trim()).filter(i => i).join(', ');
-            document.getElementById('newFollowers').placeholder = `Current follower: ${formattedFollowers}`;
-        }
-    } catch (error) {
-        console.error('Error fetching current followers:', error);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    fetchProfilePicture();
-    displayCurrentInterests();
-    displayCurrentFollowers();
-
-    const profilePictureInput = document.getElementById('profilePictureUpload');
-    profilePictureInput.addEventListener('change', (e) => {
-        if (e.target.files[0]) {
-            uploadProfilePicture(e.target.files[0]);
-        }
-    });
-
-    const inputs = ['newUid', 'newName', 'newPassword', 'newInterests', 'newFollowers'];
-    inputs.forEach(id => {
-        const input = document.getElementById(id);
-        input.addEventListener('change', (e) => {
-            if (e.target.value) {
-                updateProfile(id.replace('new', '').toLowerCase(), e.target.value);
-                e.target.value = '';
-            }
-        });
-    });
-
-    const themeToggle = document.querySelector('.theme-switch');
-    
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('site-theme') || 'dark';
-    document.body.classList.add(savedTheme + '-theme');
-    
-    // Update initial button text
-    updateThemeButtonText(savedTheme);
-
-    themeToggle.addEventListener('click', () => {
-        const root = document.documentElement;
-        const currentTheme = root.classList.contains('light-theme') ? 'light' : 'dark';
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        
-        // Remove old theme class and add new one
-        root.classList.remove(currentTheme + '-theme');
-        root.classList.add(newTheme + '-theme');
-        
-        // Save preference
-        localStorage.setItem('site-theme', newTheme);
-        
-        // Update button text
-        updateThemeButtonText(newTheme);
-    });
-
-    function updateThemeButtonText(theme) {
-        const themeText = themeToggle.querySelector('.theme-text');
-        themeText.textContent = `Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`;
-    }
-});
-
-window.onload = function() {
-    fetchPosts();
-};
-
-async function fetchPosts() {
-    const channelData = {
-        channel_id: 7 
-    };
-
-    try {
-        const response = await fetch(`${pythonURI}/api/posts/filter`, {
-            ...fetchOptions,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(channelData)
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to get posts: ' + response.statusText);
-        }
-
-        const posts = await response.json();
-        const postsContainer = document.getElementById('recentPosts');
-        postsContainer.innerHTML = '';
-
-        posts.forEach(post => {
-            const postElement = document.createElement('div');
-            postElement.classList.add('message-bubble');
-            
-            const titleElement = document.createElement('div');
-            titleElement.classList.add('post-title');
-            titleElement.textContent = post.title;
-            
-            const commentElement = document.createElement('div');
-            commentElement.classList.add('post-comment');
-            commentElement.textContent = post.comment;
-            
-            postElement.appendChild(titleElement);
-            postElement.appendChild(commentElement);
-            postsContainer.appendChild(postElement);
-        });
-
-    } catch (error) {
-        console.error('Error fetching posts:', error);
-        const postsContainer = document.getElementById('recentPosts');
-        postsContainer.innerHTML = '<p style="color: #e53e3e;">Error loading posts. Please try again later.</p>';
-    }
-}
-
-async function createPost() {
-    const title = document.getElementById('postTitle').value.trim();
-    const comment = document.getElementById('postComment').value.trim();
-    
-    if (!title || !comment) {
-        alert('Please fill in both title and comment fields');
-        return;
-    }
-
-    const postData = {
-        title: title,
-        comment: comment,
-        channel_id: 7,
-    };
-
-    try {
-        const response = await fetch(`${pythonURI}/api/post`, {
-            ...fetchOptions,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(postData)
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to create post: ' + response.statusText);
-        }
-
-        document.getElementById('newPostForm').reset();
-        alert('Post created successfully!');
-        
-        // Refresh posts after creating a new one
-        await fetchPosts();
-        
-    } catch (error) {
-        console.error('Error creating post:', error);
-        alert('Failed to create post. Please try again.');
-    }
-}
-
-window.createPost = createPost;
 </script>
 
 <script>
