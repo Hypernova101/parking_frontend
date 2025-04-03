@@ -129,8 +129,8 @@ img {
 /* HERO */
 #hero {
     width: 100vw;
-    height: 100vh; /* optional: for full height */
-    background: linear-gradient(rgba(var(--c-brand-rgb), 0.507), rgba(var(--c-brand-rgb), 0.438)), url(../hero/hero.png);
+    height: 100vh;
+    background: url(../hero/hero.jpg);
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -138,7 +138,6 @@ img {
     padding: 0;
     padding-top: 100px;
 }
-
 
 
 /* SECTION TITLE */
