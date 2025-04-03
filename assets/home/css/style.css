@@ -130,7 +130,7 @@ img {
 #hero {
     width: 100vw;
     height: 100vh; /* optional: for full height */
-    background: linear-gradient(rgba(var(--c-brand-rgb), 0.507), rgba(var(--c-brand-rgb), 0.438)), url(../hero/hero.jpg);
+    background: linear-gradient(rgba(var(--c-brand-rgb), 0.507), rgba(var(--c-brand-rgb), 0.438)), url(../hero/hero.png);
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
