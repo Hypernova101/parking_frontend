@@ -19,5 +19,5 @@ header_pages:
 #  - navigation/titanic.md
  # - navigation/map.md
   #- navigation/aboutus.md
- # - navigation/search.md
+  - navigation/search.md
   #- navigation/bootstrap/landing.md
