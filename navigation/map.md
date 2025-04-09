@@ -112,13 +112,7 @@ permalink: /map/
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
           center: { lat: 36.7783, lng: -119.4179 },
-          zoom: 6,
-          styles: [
-            { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
-            { featureType: "poi", elementType: "geometry", stylers: [{ visibility: "off" }] },
-            { featureType: "poi.park", elementType: "geometry", stylers: [{ visibility: "off" }] },
-            { featureType: "poi.park", elementType: "labels", stylers: [{ visibility: "off" }] }
-          ]
+          zoom: 6
         });
 
         directionsService = new google.maps.DirectionsService();
