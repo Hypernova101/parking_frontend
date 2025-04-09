@@ -29,4 +29,4 @@ categories: [Designs and Plans]
 <p>The system continuously improves by incorporating feedback into the machine-learning model.</p>
 </li>
 </ol>
-<p>With this system, users can plan their trips efficiently, reduce time wasted searching for parking, and contribute to improving the model's accuracy for future users.</p></body></html><!--EndFragment-->
+<p>With this system, users can plan their trips efficiently, reduce time wasted searching for parking, and contribute to improving the model's accuracy for future users.</p>
