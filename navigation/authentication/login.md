@@ -50,12 +50,12 @@ show_reading_time: false
                     <input type="password" name="signupPassword" id="signupPassword" required>
                 </label>
             </p>
-            <p>
+            <!-- <p>
                 <label>
                     Interests:
                     <input type="text" name="interests" id="interests" placeholder="e.g., Soccer, Pool, Computer Science" required>
                 </label>
-            </p>
+            </p> -->
             <p>
                 <button type="submit">Sign Up</button>
             </p>
