@@ -24,7 +24,7 @@ permalink: /map/
       #sidebar {
         width: 300px;
         padding: 20px;
-        background: white;
+        background: black;
         border-right: 1px solid #ddd;
         display: flex;
         flex-direction: column;
@@ -38,7 +38,7 @@ permalink: /map/
         border-radius: 10px;
         padding: 15px;
         margin-bottom: 20px;
-        background-color: #f9f9f9;
+        background-color:rgb(0, 0, 0);
       }
       .button-primary {
         background-color: #357edd;
