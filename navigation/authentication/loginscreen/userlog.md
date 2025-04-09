@@ -22,7 +22,7 @@ show_reading_time: false
 
 <script>
     // Typing animation for the welcome message
-    const text = "Welcome to Prism";
+    const text = "Welcome to SmartPark";
     let index = 0;
     const speed = 50; 
 
@@ -38,7 +38,7 @@ show_reading_time: false
 
     // Redirect to index.md after the cutscene plays
     setTimeout(() => {
-        window.location.href = "{{site.baseurl}}/index";
+        window.location.href = "{{site.baseurl}}/smartpark/home";
     }, 3000); // Adjust the timeout duration to match the length of your cutscene
 </script>
 
