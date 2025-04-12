@@ -38,7 +38,7 @@ title: Render Pipeline Showcase
             z: 0,
             rotx: 0,
             roty: 0,
-            FOV: 90
+            FOV: 300
         };
         const onScreenData = {
             u: 0,
@@ -82,7 +82,8 @@ title: Render Pipeline Showcase
             gamma: 0.2,
             phongVal: 0.8,
             diffuse: 0.5,
-            ambient: 0.1
+            ambient: 0.1,
+            renderLim: 2.5*10**100
         };
         function distance(x,y,z) {
             return Math.sqrt(x*x+y*y+z*z);
@@ -97,10 +98,10 @@ title: Render Pipeline Showcase
         function rotateRay() {
             const radx = (Math.PI*cam.rotx)/180;
             const rady = (Math.PI*cam.roty)/180;
-            ray.x = ray.x * Math.cos(radx) - ray.z * Math.sin(radx);
-            ray.z = ray.x * Math.sin(radx) + ray.z * Math.cos(radx);
-            ray.y = ray.y * Math.cos(rady) - ray.z * Math.sin(rady);
-            ray.z = ray.y * Math.sin(rady) + ray.z * Math.cos(rady);
+            ray.x = ray.x * Math.cos(radx) + ray.z * Math.sin(radx);
+            ray.z = ray.x * Math.sin(radx) - ray.z * Math.cos(radx);
+            ray.y = ray.y * Math.cos(rady) + ray.z * Math.sin(rady);
+            ray.z = ray.y * Math.sin(rady) - ray.z * Math.cos(rady);
         };
         function yPlane(x,y,z,w,l) {
             const dotdir = ray.y
@@ -130,11 +131,12 @@ title: Render Pipeline Showcase
                 renderDist = -dist;
                 setRGB(150,150,150);
                 r.normal = {x:nx,y:ny,z:nz};
+                console.log("Hit Plane");
             }
         };
         function findObjects() {
             plane(0,1,0,100);
-            yPlane(0,-50,100,50,50);
+            yPlane(0,50,100,50,50);
         };
         var renderDist = 0;
         function pixel(u,v) {
@@ -148,9 +150,11 @@ title: Render Pipeline Showcase
             ray.z = cam.FOV;
             ray = normalize3D(ray.x,ray.y,ray.z);
             rotateRay();
-            renderDist = Infinity;
+            renderDist = settings.renderLim;
             findObjects();
-            if (Infinity > renderDist) {
+            color.colors = []
+            if (settings.renderLim > renderDist) {
+                color.colors.push(0.4)
                 lighting();
                 addColors();
                 for (let i = 0; i < settings.reflCount; i++) {
@@ -160,24 +164,23 @@ title: Render Pipeline Showcase
                         y: -r.intercept.y,
                         z: -r.intercept.z,
                     };
-                    ray = normalize3D(...ray);
-                    renderDist = Infinity;
+                    ray = normalize3D(ray.x,ray.y,ray.z);
+                    renderDist = settings.renderLim;
                     findObjects();
-                    if (Infinity > renderDist) {
-                        color.colors.append(0.4);
+                    if (settings.renderLim > renderDist) {
+                        color.colors.push(0.4);
                         lighting();
                         addColors(color.r,color.g,color.b);
                     }
                 }
                 mixColors();
-                draw();
             } else {
                 setRGB(60,180,250);
-                draw();
             }
+            draw();
         };
         function mixColors() {
-            // tbd
+            setRGB()
         };
         function draw() {
             ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
@@ -198,9 +201,9 @@ title: Render Pipeline Showcase
             color.b = color.b * settings.exposure;
         };
         function addColors() {
-            color.colors.append(color.r);
-            color.colors.append(color.g);
-            color.colors.append(color.b);
+            color.colors.push(color.r);
+            color.colors.push(color.g);
+            color.colors.push(color.b);
         };
         const color = {
             r: 0,
@@ -233,16 +236,16 @@ title: Render Pipeline Showcase
             r.intercept.x = (r.center.x + (ray.x*renderDist)) + r.normal.x;
             r.intercept.y = (r.center.y + (ray.y*renderDist)) + r.normal.y;
             r.intercept.z = (r.center.z + (ray.z*renderDist)) + r.normal.z;
-            const light = {
+            var light = {
                 x: r.light.x - r.intercept.x,
                 y: r.light.y - r.intercept.y,
                 z: r.light.z - r.intercept.z,
             };
-            var dist = distance(...light);
-            light = normalize3D(...light);
+            var dist = distance(light.x,light.y,light.z);
+            light = normalize3D(light.x,light.y,light.z);
             var dot = dotProduct(r.normal,light);
             var shade = Math.max(0,dot);
-            dot = dotProdict(r.normal,ray);
+            dot = dotProduct(r.normal,ray);
             // Reflections
             r.reflect.x = (2 * r.normal.x * dot) + ray.x;
             r.reflect.y = (2 * r.normal.y * dot) + ray.y;
@@ -256,7 +259,7 @@ title: Render Pipeline Showcase
             r.center = r.intercept;
             const savedColors = {r: color.r, g: color.g, b: color.b};
             findObjects();
-            setRGB(...savedColors);
+            setRGB(savedColors.r,savedColors.g,savedColors.b);
             // Specular Highlights
             var specular = 0;
             if (lightDist === renderDist) {

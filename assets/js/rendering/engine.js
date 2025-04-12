@@ -61,7 +61,9 @@ const settings = {
     gamma: 0.2,
     phongVal: 0.8,
     diffuse: 0.5,
-    ambient: 0.1
+    ambient: 0.1,
+    mode: "day",
+    pSize: 1
 };
 
 function distance(x,y,z) {
@@ -107,13 +109,16 @@ function yPlane(x,y,z,w,l) {
 };
 
 function findObjects() {
-    // yPlane(0,-50,100,50,50);
+    yPlane(0,-50,100,50,50);
+    plane(0,1,0,100,)
 };
 
 var renderDist = 0;
 function pixel(u,v) {
-    onScreenData.u = u + canvas.width/2;
-    onScreenData.v = -v + canvas.height/2;
+    const pu = (u/settings.pSize)*settings.pSize;
+    const pv = (v/settings.pSize)*settings.pSize;
+    onScreenData.u = pu + canvas.width/2;
+    onScreenData.v = -pv + canvas.height/2;
     r.center.x = cam.x;
     r.center.y = cam.y;
     r.center.z = cam.z;
@@ -161,18 +166,22 @@ function draw() {
 };
 
 function postProcess() {
+    // Normalize Colors
+    setRGB(color.r/255,color.g/255,color.b/255)
     // Gamma
-    color.r = Math.pow(color.r/255,settings.gamma)*255;
-    color.g = Math.pow(color.g/255,settings.gamma)*255;
-    color.b = Math.pow(color.b/255,settings.gamma)*255;
+    setRGB(Math.pow(color.r,settings.gamma),Math.pow(color.g,settings.gamma),Math.pow(color.b,settings.gamma));
     // Tone Mapping
-    color.r = color.r/(color.r+1);
-    color.g = color.g/(color.g+1);
-    color.b = color.b/(color.b+1);
+    setRGB(color.r/(color.r+1),color.g/(color.g+1),color.b/(color.b+1));
     // Exposure
-    color.r = color.r * settings.exposure;
-    color.g = color.g * settings.exposure;
-    color.b = color.b * settings.exposure;
+    setRGB(color.r * settings.exposure,color.g * settings.exposure,color.b * settings.exposure);
+    // Color Blind Adjustments
+    if (settings.mode === "color blind") {
+        setRGB(color.r, color.g * 0.8 + color.b * 0.2, color.b * 1.1);
+    } else if (settings.mode === "retro") {
+        setRGB(color.r,color.g,color.b);
+    }
+    // Colors
+    setRGB(color.r*255,color.g*255,color.b*255);
 };
 
 function addColors() {
@@ -252,6 +261,7 @@ function lighting() {
 function display(width, height) {
     for (let v = 0; v < height; v++) {
         for (let u; u < width; u++) {
+
             pixel(u,v);
         }
     }
