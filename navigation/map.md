@@ -74,7 +74,7 @@ permalink: /map/
             <input id="start" placeholder="Enter starting point" style="margin-bottom:10px; width:100%; padding:8px;" />
             <input id="end" placeholder="Enter destination" style="margin-bottom:10px; width:100%; padding:8px;" />
             <div class="slider-group">
-              <label id="radiusLabel">Radius: 1 mile</label>
+              <label id="radiusLabel">Radius: 0.1 mile</label>
               <input type="range" id="radiusRange" min="0.01" max="0.25" step="0.01" value="0.1" oninput="updateRadiusLabel(this.value)" />
             </div>
             <button class="button-primary" onclick="calculateRoute()">Get Route</button>
