@@ -23,6 +23,7 @@ title: Render Pipeline Showcase
         }
         canvas {
             border: 1px solid black;
+            display: block;
         }
     </style>
 </head>
@@ -141,7 +142,9 @@ title: Render Pipeline Showcase
         var renderDist = 0;
         function pixel(u,v) {
             onScreenData.u = u + canvas.width/-2;
-            onScreenData.v = v + canvas.height/-2;
+            onScreenData.v = -v + canvas.height/2;
+            console.log(onScreenData.u);
+            console.log(onScreenData.v);
             r.center.x = cam.x;
             r.center.y = cam.y;
             r.center.z = cam.z;
@@ -152,9 +155,9 @@ title: Render Pipeline Showcase
             rotateRay();
             renderDist = settings.renderLim;
             findObjects();
-            color.colors = []
+            color.colors = [];
             if (settings.renderLim > renderDist) {
-                color.colors.push(0.4)
+                color.colors.push(0);
                 lighting();
                 addColors();
                 for (let i = 0; i < settings.reflCount; i++) {
@@ -162,13 +165,13 @@ title: Render Pipeline Showcase
                     ray = {
                         x: -r.intercept.x,
                         y: -r.intercept.y,
-                        z: -r.intercept.z,
+                        z: -r.intercept.z
                     };
                     ray = normalize3D(ray.x,ray.y,ray.z);
                     renderDist = settings.renderLim;
                     findObjects();
                     if (settings.renderLim > renderDist) {
-                        color.colors.push(0.4);
+                        color.colors.push(0);
                         lighting();
                         addColors(color.r,color.g,color.b);
                     }
@@ -179,8 +182,26 @@ title: Render Pipeline Showcase
             }
             draw();
         };
+        function addColors() {
+            color.colors.push(color.r);
+            color.colors.push(color.g);
+            color.colors.push(color.b);
+        };
         function mixColors() {
-            setRGB()
+            let totalReflectivity = 0;
+            for (let i = 0; i < colors.length; i++) {
+                const [reflectivity, cr, cg, cb] = colors[i];
+                totalReflectivity += reflectivity;
+                color.r += reflectivity * cr;
+                color.g += reflectivity * cg;
+                color.b += reflectivity * cb;
+            }
+            if (totalReflectivity > 0) {
+                color.r /= totalReflectivity;
+                color.g /= totalReflectivity;
+                color.b /= totalReflectivity;
+            }
+            setRGB(color.r, color.g, color.b);
         };
         function draw() {
             ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
@@ -199,11 +220,6 @@ title: Render Pipeline Showcase
             color.r = color.r * settings.exposure;
             color.g = color.g * settings.exposure;
             color.b = color.b * settings.exposure;
-        };
-        function addColors() {
-            color.colors.push(color.r);
-            color.colors.push(color.g);
-            color.colors.push(color.b);
         };
         const color = {
             r: 0,
