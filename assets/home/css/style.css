@@ -123,10 +123,7 @@ img {
     transform: translateY(-4px) scale(1.03);
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
-  
 
-
-/* HERO */
 #hero {
     width: 100vw;
     height: 100vh;
@@ -134,9 +131,52 @@ img {
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
-    margin: 0;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
     padding: 0;
-    padding-top: 100px;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* Force hero to full width */
+#hero {
+    width: 100vw !important; /* Use viewport width instead of percentage */
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    
+    /* Fix for potential horizontal scrollbar */
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw !important;
+    margin-right: -50vw !important;
+    
+    /* Background handling */
+    background-size: cover !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+    
+    /* Content centering */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Make container take full width but keep content centered */
+#hero .container {
+    max-width: 1200px; /* Allows content to be centered while background extends fully */
+    width: 100%;
+    padding: 0 15px; /* Small padding for content */
+}
+
+/* Ensure content is properly displayed */
+.hero-content {
+    text-align: center;
+    z-index: 2;
 }
 
 
