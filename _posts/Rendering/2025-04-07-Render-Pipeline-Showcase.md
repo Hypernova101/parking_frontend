@@ -34,11 +34,11 @@ title: Render Pipeline Showcase
         const ctx = canvas.getContext("2d");
         // Camera Setup
         const cam = {
-            x: 0,
+            x: -42,
             y: 0,
-            z: 0,
-            rotx: 0,
-            roty: 0,
+            z: -200,
+            rotx: 22,
+            roty: -5,
             FOV: 300
         };
         const onScreenData = {
@@ -74,17 +74,21 @@ title: Render Pipeline Showcase
             },
             light: {
                 x: 100,
-                y: 150,
+                y: 300,
                 z: -180
             }
         };
         const settings = {
-            reflCount: 4,
-            gamma: 0.2,
+            reflCount: 1,
+            gamma: 0.45,
             phongVal: 0.8,
             diffuse: 0.5,
             ambient: 0.1,
-            renderLim: 2.5*10**100
+            renderLim: 2.5*10**100,
+            exposure: 1,
+            psize: 1,
+            mode: "day",
+            shadows: true
         };
         function distance(x,y,z) {
             return Math.sqrt(x*x+y*y+z*z);
@@ -96,13 +100,15 @@ title: Render Pipeline Showcase
         function dotProduct(a,b) {
             return (a.x*b.x)+(a.y*b.y)+(a.z*b.z);
         };
-        function rotateRay() {
-            const radx = (Math.PI*cam.rotx)/180;
-            const rady = (Math.PI*cam.roty)/180;
-            ray.x = ray.x * Math.cos(radx) + ray.z * Math.sin(radx);
-            ray.z = ray.x * Math.sin(radx) - ray.z * Math.cos(radx);
-            ray.y = ray.y * Math.cos(rady) + ray.z * Math.sin(rady);
-            ray.z = ray.y * Math.sin(rady) - ray.z * Math.cos(rady);
+        function rotateRay(u,v) {
+            const radx = (Math.PI * u) / 180;
+            const rady = (Math.PI * v) / 180;
+            var savedDir = ray.z;
+            ray.z = ray.z*Math.cos(rady) - ray.y*Math.sin(rady);
+            ray.y = savedDir*Math.sin(rady) + ray.y*Math.cos(rady);
+            savedDir = ray.z;
+            ray.z = ray.z*Math.cos(radx) - ray.x*Math.sin(radx);
+            ray.x = savedDir*Math.sin(radx) + ray.x*Math.cos(radx);
         };
         function yPlane(x,y,z,w,l) {
             const dotdir = ray.y
@@ -120,9 +126,57 @@ title: Render Pipeline Showcase
                     }
                     r.normal.x = 0;
                     r.normal.z = 0;
-                    setRGB(220,220,220);
+                    setRGB(150,150,150);
                 }
             }
+        };
+        function zPlane(x,y,z,w,h) {
+            const dotdir = ray.z
+            const dot = r.center.z
+            const dist = (dot-z)/dotdir;
+            if (dotdir != 0 && dist < 0 && -dist<renderDist) {
+                const planeX = (ray.x*-dist) + r.center.x;
+                const planeY = (ray.y*-dist) + r.center.y;
+                if ((x-w) < planeX && (x+w) > planeX && (y-h) < planeY && (y+h) > planeY) {
+                    renderDist = -dist;
+                    if (r.center.z > z) {
+                        r.normal.z = 1;
+                    } else {
+                        r.normal.z = -1;
+                    }
+                    r.normal.x = 0;
+                    r.normal.y = 0;
+                    setRGB(150,150,150);
+                }
+            }
+        };
+        function xPlane(x,y,z,h,l) {
+            const dotdir = ray.x
+            const dot = r.center.x
+            const dist = (dot-x)/dotdir;
+            if (dotdir != 0 && dist < 0 && -dist<renderDist) {
+                const planeY = (ray.y*-dist) + r.center.y;
+                const planeZ = (ray.z*-dist) + r.center.z;
+                if ((y-h) < planeY && (y+h) > planeY && (z-l) < planeZ && (z+l) > planeZ) {
+                    renderDist = -dist;
+                    if (r.center.x > x) {
+                        r.normal.x = 1;
+                    } else {
+                        r.normal.x = -1;
+                    }
+                    r.normal.z = 0;
+                    r.normal.y = 0;
+                    setRGB(150,150,150);
+                }
+            }
+        };
+        function cube(x,y,z,w,h,l) {
+            xPlane(x+w,y,z,h,l);
+            xPlane(x-w,y,z,h,l);
+            yPlane(x,y+h,z,w,l);
+            yPlane(x,y-h,z,w,l);
+            zPlane(x,y,z+l,h,l);
+            zPlane(x,y,z-l,w,h);
         };
         function plane(nx,ny,nz,distance) {
             const dotdir = (nx*ray.x) + (ny*ray.y) + (nz*ray.z);
@@ -130,29 +184,28 @@ title: Render Pipeline Showcase
             const dist = (dot+distance)/dotdir;
             if (dotdir != 0 && dist < 0 && -dist<renderDist) {
                 renderDist = -dist;
-                setRGB(150,150,150);
+                setRGB(100,150,100);
                 r.normal = {x:nx,y:ny,z:nz};
-                console.log("Hit Plane");
             }
         };
         function findObjects() {
+             const spacing = 100;
+            const range = 1;
+            cube (0,150,200,100,300,100);
             plane(0,1,0,100);
-            yPlane(0,50,100,50,50);
         };
         var renderDist = 0;
         function pixel(u,v) {
-            onScreenData.u = u + canvas.width/-2;
-            onScreenData.v = -v + canvas.height/2;
-            console.log(onScreenData.u);
-            console.log(onScreenData.v);
+            onScreenData.u = u - canvas.width/2;
+            onScreenData.v = v + canvas.height/-2;
             r.center.x = cam.x;
             r.center.y = cam.y;
             r.center.z = cam.z;
-            ray.x = u;
-            ray.y = v;
+            ray.x = onScreenData.u;
+            ray.y = onScreenData.v;
             ray.z = cam.FOV;
             ray = normalize3D(ray.x,ray.y,ray.z);
-            rotateRay();
+            rotateRay(cam.rotx,cam.roty);
             renderDist = settings.renderLim;
             findObjects();
             color.colors = [];
@@ -176,11 +229,17 @@ title: Render Pipeline Showcase
                         addColors(color.r,color.g,color.b);
                     }
                 }
-                mixColors();
+                // mixColors();
             } else {
                 setRGB(60,180,250);
             }
+            // postProcess();
             draw();
+            // return [color.r,color.g,color.b];
+        };
+        function draw() {
+            ctx.fillStyle = `rgb(${color.r},${color.g},${color.b})`;
+            ctx.fillRect(onScreenData.u+canvas.width/2,-onScreenData.v+canvas.height/2,onScreenData.resolution,onScreenData.resolution);
         };
         function addColors() {
             color.colors.push(color.r);
@@ -189,8 +248,12 @@ title: Render Pipeline Showcase
         };
         function mixColors() {
             let totalReflectivity = 0;
-            for (let i = 0; i < colors.length; i++) {
-                const [reflectivity, cr, cg, cb] = colors[i];
+            for (let i = 0; i < color.colors.length/4; i++) {
+                const idx = i * 4
+                const reflectivity= color.colors[i];
+                const cr = color.colors[i+1];
+                const cg = color.colors[i+2];
+                const cb = color.colors[i+3];
                 totalReflectivity += reflectivity;
                 color.r += reflectivity * cr;
                 color.g += reflectivity * cg;
@@ -203,23 +266,22 @@ title: Render Pipeline Showcase
             }
             setRGB(color.r, color.g, color.b);
         };
-        function draw() {
-            ctx.fillStyle = `rgb(${color.r}, ${color.g}, ${color.b})`;
-            ctx.fillRect(onScreenData.u,onScreenData.v,onScreenData.resolution,onScreenData.resolution);
-        };
         function postProcess() {
+            setRGB(color.r/255,color.g/255,color.b/255)
             // Gamma
-            color.r = Math.pow(color.r/255,settings.gamma)*255;
-            color.g = Math.pow(color.g/255,settings.gamma)*255;
-            color.b = Math.pow(color.b/255,settings.gamma)*255;
+            setRGB(Math.pow(color.r,settings.gamma),Math.pow(color.g,settings.gamma),Math.pow(color.b,settings.gamma));
             // Tone Mapping
-            color.r *= color.r/(color.r+1);
-            color.g *= color.g/(color.g+1);
-            color.b *= color.b/(color.b+1);
+            setRGB(color.r/(color.r+1),color.g/(color.g+1),color.b/(color.b+1));
             // Exposure
-            color.r = color.r * settings.exposure;
-            color.g = color.g * settings.exposure;
-            color.b = color.b * settings.exposure;
+            setRGB(color.r * settings.exposure,color.g * settings.exposure,color.b * settings.exposure);
+            // Color Blind Adjustments
+            if (settings.mode === "color blind") {
+                setRGB(color.r, color.g * 0.8 + color.b * 0.2, color.b * 1.1);
+            } else if (settings.mode === "retro") {
+                setRGB(color.r,color.g,color.b);
+            }
+            // Colors
+            setRGB(color.r*255,color.g*255,color.b*255);
         };
         const color = {
             r: 0,
@@ -228,24 +290,9 @@ title: Render Pipeline Showcase
             colors: []
         };
         function setRGB(r,g,b) {
-            color.r = r;
-            color.g = g;
-            color.b = b;
-            if (color.r > 255) {
-                color.r = 255;
-            } else if (color.r < 0) {
-                color.r = 0;
-            }
-            if (color.g > 255) {
-                color.g = 255;
-            } else if (color.g < 0) {
-                color.g = 0;
-            }
-            if (color.b > 255) {
-                color.b = 255;
-            } else if (color.b < 0) {
-                color.b = 0;
-            }
+            color.r = Math.min(255, Math.max(0, r));
+            color.g = Math.min(255, Math.max(0, g));
+            color.b = Math.min(255, Math.max(0, b));
         };
         function lighting() {
             // Shading
@@ -260,25 +307,27 @@ title: Render Pipeline Showcase
             var dist = distance(light.x,light.y,light.z);
             light = normalize3D(light.x,light.y,light.z);
             var dot = dotProduct(r.normal,light);
-            var shade = Math.max(0,dot);
+            var shade = Math.min(0,dot);
             dot = dotProduct(r.normal,ray);
             // Reflections
             r.reflect.x = (2 * r.normal.x * dot) + ray.x;
             r.reflect.y = (2 * r.normal.y * dot) + ray.y;
             r.reflect.z = (2 * r.normal.z * dot) + ray.z;
             dot = -dotProduct(light,r.reflect);
-            const phong = Math.max(0,dot**8);
+            const phong = Math.min(0,dot**8);
             const lightDist = dist;
             renderDist = dist;
-            // Shadows
-            ray = light;
-            r.center = r.intercept;
-            const savedColors = {r: color.r, g: color.g, b: color.b};
-            findObjects();
-            setRGB(savedColors.r,savedColors.g,savedColors.b);
+            if (settings.shadows) {
+                // Shadows
+                ray = light;
+                r.center = r.intercept;
+                const savedColors = {r: color.r, g: color.g, b: color.b};
+                findObjects();
+                setRGB(savedColors.r,savedColors.g,savedColors.b);
+            }
             // Specular Highlights
             var specular = 0;
-            if (lightDist === renderDist) {
+            if (Math.abs(lightDist - renderDist) < 0.01) {
                 specular = phong * settings.phongVal * 255;
                 shade = Math.max(settings.ambient + settings.diffuse*shade,1);
             } else {
@@ -322,15 +371,23 @@ title: Render Pipeline Showcase
             cam.rotx -= 90;
             if (keyPressed === "e") {
                 cam.y += speed;
-            } else if (keyPressed === "a") {
+            } else if (keyPressed === "q") {
                 cam.y += -speed;
             }
-            console.log("Camera: " + cam);
+            if (keyPressed === "r") {
+                console.log(cam);
+            }
         };
         function render() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            display(canvas.width*2,canvas.height*2);
-            requestAnimationFrame(render);
+            onScreenData.resolution = 4;
+            for (let i = 0; i < 4; i ++) {
+                display(canvas.width*2,canvas.height);
+                display(canvas.width*2,canvas.height);
+            }
+            onScreenData.resolution = 1;
+            display(canvas.width*2,canvas.height);
+            // requestAnimationFrame(render);
         };
         render();
         document.addEventListener('keydown', (event) => {
