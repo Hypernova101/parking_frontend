@@ -311,7 +311,7 @@ show_reading_time: false
 </style>
 
 <header class="heading">
-    <h1>Prism</h1>
+    <h1>SmartPark</h1>
     <p>You can control your settings from here!</p>
 </header>
 
@@ -346,8 +346,8 @@ show_reading_time: false
                 <input type="password" id="newPassword" placeholder="New Password">
             </div>
             <div>
-                <label for="newLocations">Enter New Saved Location:</label>
-                <input type="text" id="newLocation" placeholder="New Saved Location (e.g. 123 Main St.)">
+                <label for="newLocation">Search and Save New Location:</label>
+                <input type="text" id="newLocation" placeholder="Search for a place..." autocomplete="off" />
             </div>
             <br>
             <label for="profilePictureUpload" class="file-icon">
@@ -412,10 +412,44 @@ show_reading_time: false
     <br>
 </div>
 
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_ZAbJtK2KkFT0_e1iJUNGrqDXWdGp3nU&libraries=places"></script>
+
 <script type="module">
 import { pythonURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const locationInput = document.getElementById('newLocation');
+        const autocomplete = new google.maps.places.Autocomplete(locationInput);
+
+        autocomplete.addListener('place_changed', async () => {
+            const place = autocomplete.getPlace();
+            if (!place.geometry) {
+                alert('Please select a location from the dropdown.');
+                return;
+            }
+
+            const address = place.formatted_address || place.name;
+            if (!address) return;
+
+            try {
+                const res = await fetch(pythonURI + "/api/savedlocations", {
+                    ...fetchOptions,
+                    method: 'POST',
+                    body: JSON.stringify({ savedlocation: address })
+                });
+
+                if (!res.ok) throw new Error('Failed to add location');
+
+                showError('Location added successfully!', 'green');
+                updateUserInfo();
+                locationInput.value = ''; // Clear after adding
+            } catch (err) {
+                console.error('Error adding location:', err);
+                showError('Error adding location');
+            }
+        });
+
     updateUserInfo();
 
     const settingsLocationInput = document.getElementById('newLocation');
