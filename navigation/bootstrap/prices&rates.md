@@ -20,6 +20,7 @@ permalink: /smartpark/pricing
   </div>
 </section>
 
+
 <style>
   body {
     background: #f4f7fb;
@@ -137,41 +138,72 @@ permalink: /smartpark/pricing
   }
 </style>
 
-<nav id="scrollspy-nav" class="d-none d-md-block">
-  <a href="#hero">Hero</a>
-  <a href="#meter-001">Meter 001</a>
-  <a href="#meter-002">Meter 002</a>
-  <a href="#meter-003">Meter 003</a>
-  <a href="#meter-004">Meter 004</a>
-</nav>
 
 <div class="container">
+  <div class="text-center mt-5">
+    <div class="btn-group toggle-switch" role="group" aria-label="Filter toggle">
+      <button type="button" class="btn btn-outline-primary active" data-filter="cheapest">Cheapest</button>
+      <button type="button" class="btn btn-outline-primary" data-filter="least-busy">Least Busy</button>
+    </div>
+  </div>
   <div class="pricing-container">
-    <div id="meter-001" class="pricing-card">
-      <h4>Meter 001</h4>
-      <p>Location: Downtown</p>
-      <p class="price">$1.00 / hour</p>
+    <!-- Cheapest Meters -->
+    <!-- Cheapest Meters -->
+    <div class="pricing-card cheapest">
+      <h4>P-2916</h4>
+      <p>Avg Rate:</p>
+      <p class="price">$0.8852 / min</p>
       <button class="btn">More Info</button>
     </div>
 
-    <div id="meter-002" class="pricing-card">
-      <h4>Meter 002</h4>
-      <p>Location: Central Park</p>
-      <p class="price">$0.75 / hour</p>
+    <div class="pricing-card cheapest">
+      <h4>P-2912</h4>
+      <p>Avg Rate:</p>
+      <p class="price">$0.946 / min</p>
       <button class="btn">More Info</button>
     </div>
 
-    <div id="meter-003" class="pricing-card">
-      <h4>Meter 003</h4>
-      <p>Location: City Square</p>
-      <p class="price">$1.25 / hour</p>
+    <div class="pricing-card cheapest">
+      <h4>P-2914</h4>
+      <p>Avg Rate:</p>
+      <p class="price">$1.0231 / min</p>
       <button class="btn">More Info</button>
     </div>
 
-    <div id="meter-004" class="pricing-card">
-      <h4>Meter 004</h4>
-      <p>Location: Riverside</p>
-      <p class="price">$0.50 / hour</p>
+    <div class="pricing-card cheapest">
+      <h4>P-2918</h4>
+      <p>Avg Rate:</p>
+      <p class="price">$1.0417 / min</p>
+      <button class="btn">More Info</button>
+    </div>
+
+
+    <!-- Least Busy Meters -->
+    <div class="pricing-card least-busy">
+      <h4>4-1424</h4>
+      <p>Fewest Valid Transactions</p>
+      <p class="price">Least Busy Meter</p>
+      <button class="btn">More Info</button>
+    </div>
+
+    <div class="pricing-card least-busy">
+      <h4>P-2920</h4>
+      <p>Fewest Valid Transactions</p>
+      <p class="price">Least Busy Meter</p>
+      <button class="btn">More Info</button>
+    </div>
+
+    <div class="pricing-card least-busy">
+      <h4>9-1302</h4>
+      <p>Fewest Valid Transactions</p>
+      <p class="price">Least Busy Meter</p>
+      <button class="btn">More Info</button>
+    </div>
+
+    <div class="pricing-card least-busy">
+      <h4>BE-710</h4>
+      <p>Fewest Valid Transactions</p>
+      <p class="price">Least Busy Meter</p>
       <button class="btn">More Info</button>
     </div>
   </div>
@@ -193,3 +225,43 @@ permalink: /smartpark/pricing
     link.href = `#meter-00${index + 1}`;
   });
 </script>
+
+<script>
+  const toggleButtons = document.querySelectorAll('.toggle-switch button');
+  const cards = document.querySelectorAll('.pricing-card');
+
+  toggleButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const filter = button.getAttribute('data-filter');
+
+      // Update active button
+      toggleButtons.forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+
+      // Animate and filter cards
+      cards.forEach((card, index) => {
+        const shouldShow = card.classList.contains(filter);
+        card.style.display = shouldShow ? 'block' : 'none';
+        card.classList.remove('animate__fadeInLeft', 'animate__fadeInRight');
+
+        if (shouldShow) {
+          const direction = index % 2 === 0 ? 'Left' : 'Right';
+          card.classList.add(`animate__animated`, `animate__fadeIn${direction}`);
+        }
+      });
+    });
+  });
+
+  // Show only 'cheapest' on load
+  window.addEventListener('DOMContentLoaded', () => {
+    cards.forEach((card, index) => {
+      const isCheapest = card.classList.contains('cheapest');
+      card.style.display = isCheapest ? 'block' : 'none';
+      const direction = index % 2 === 0 ? 'Left' : 'Right';
+      if (isCheapest) {
+        card.classList.add(`animate__animated`, `animate__fadeIn${direction}`);
+      }
+    });
+  });
+</script>
+
