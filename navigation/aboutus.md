@@ -95,7 +95,7 @@ permalink: /smartpark/ourteam
         </ul>
         <a href="https://hypernova101.github.io/parking_frontend/smartpark/history" class="text-success text-decoration-none fw-semibold" target="_blank">
           → View Graph Insights
-          <a href="https://hypernova101.github.io/parking_frontend/history" class="d-block mt-2 text-success text-decoration-none fw-semibold" target="_blank">
+          <a href="https://hypernova101.github.io/parking_frontend/graphs" class="d-block mt-2 text-success text-decoration-none fw-semibold" target="_blank">
   <i class="bi bi-journal-text me-1"></i> Learn more about the Design of Graph Trends Page
 </a>
 
