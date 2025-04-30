@@ -69,6 +69,9 @@ permalink: /smartpark/ourteam
           <a href="https://hypernova101.github.io/parking_frontend/availability" class="d-block mt-2 text-primary text-decoration-none fw-semibold" target="_blank">
   <i class="bi bi-journal-text me-1"></i> Learn more about the Design of Availability Page
 </a>
+          <a href="https://hypernova101.github.io/parking_frontend/helpa" class="d-block mt-2 text-primary text-decoration-none fw-semibold" target="_blank">
+  <i class="bi bi-journal-text me-1"></i> ❓Need More Help?
+</a>
 
         </a>
       </div>
@@ -98,10 +101,13 @@ permalink: /smartpark/ourteam
           <a href="https://hypernova101.github.io/parking_frontend/graphs" class="d-block mt-2 text-success text-decoration-none fw-semibold" target="_blank">
   <i class="bi bi-journal-text me-1"></i> Learn more about the Design of Graph Trends Page
 </a>
+          <a href="https://hypernova101.github.io/parking_frontend/helpb" class="d-block mt-2 text-success text-decoration-none fw-semibold" target="_blank">
+  <i class="bi bi-journal-text me-1"></i> ❓Need more Help?
+</a>
 
-        </a>
-      </div>
-    </div>
+  </a>
+  </div>
+  </div>
   </div>
 
   <!-- Price & Rate Estimates -->
@@ -126,6 +132,9 @@ permalink: /smartpark/ourteam
           → Estimate Pricing
           <a href="https://hypernova101.github.io/parking_frontend/pricing" class="d-block mt-2 text-warning text-decoration-none fw-semibold" target="_blank">
   <i class="bi bi-journal-text me-1"></i> Learn more about Pricing & Rates
+</a>
+          <a href="https://hypernova101.github.io/parking_frontend/helpc" class="d-block mt-2 text-warning text-decoration-none fw-semibold" target="_blank">
+  <i class="bi bi-journal-text me-1"></i> ❓Need more Help?
 </a>
 
         </a>
