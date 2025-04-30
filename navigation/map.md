@@ -2,6 +2,7 @@
 layout: post
 title: Google Maps Route Planner
 search_exclude: true
+show_reading_time: false
 permalink: /map/
 ---
 

@@ -3,7 +3,7 @@ layout: post
 show_reading_time: false
 permalink: /helpa
 title: Availability Help Page
-categories: [Designs and Plans]
+categories: [Help Pages]
 ---
 
 # 🚘 How to Use the Parking Availability Tool  
