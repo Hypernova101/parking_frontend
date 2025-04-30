@@ -78,7 +78,10 @@ permalink: /map/
               <input type="range" id="radiusRange" min="0.01" max="0.25" step="0.01" value="0.1" oninput="updateRadiusLabel(this.value)" />
             </div>
             <button class="button-primary" onclick="calculateRoute()">Get Route</button>
-            <button class="button-primary" style="margin-top: 10px; background-color:#444;" onclick="toggleHeatmap()">Toggle Heatmap</button>
+            <!-- <button class="button-primary" style="margin-top: 10px; background-color:#444;" onclick="toggleHeatmap()">Toggle Heatmap</button> -->
+            <button onclick="useCurrentLocation()" style="width: 100%; padding: 8px; margin-bottom: 10px; font-size: 14px;">
+              Use My Location
+            </button>
           </div>
         </div>
         <div style="font-size: 13px; color: #555; text-align: center;">Built with Google Maps API</div>
@@ -371,6 +374,26 @@ permalink: /map/
 
         heatmap.setMap(heatmap.getMap() ? null : map);
       }
+
+    function useCurrentLocation() {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        document.getElementById("start").value = `${lat}, ${lng}`;
+      },
+      (error) => {
+        alert("Unable to retrieve your location. Permission may be denied.");
+        console.error("Geolocation error:", error);
+      }
+    );
+  }
+
     </script>
   </body>
 </html>
