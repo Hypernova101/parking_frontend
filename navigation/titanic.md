@@ -54,7 +54,7 @@ permalink: /titanic/
     <label>
       <input type="checkbox" name="alone" /> Traveling Alone?
     </label>
-    <button type="submit">Predict Survival</button>
+    <button type="submit">Predict Occupancy</button>
   </form>
 
   <div class="result" id="result"></div>
