@@ -51,6 +51,15 @@ permalink: /map/
         font-size: 16px;
         width: 100%;
       }
+      #speedometer {
+        margin-top: 4px;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 8px;
+        font-size: 15px;
+        font-family: sans-serif;
+      }
       #map {
         flex-grow: 1;
       }
@@ -83,6 +92,7 @@ permalink: /map/
             <button onclick="useCurrentLocation()" style="width: 100%; padding: 8px; margin-bottom: 10px; font-size: 14px;">
               Use My Location
             </button>
+            <div id="speed-display">Speed: -- km/h</div>
           </div>
         </div>
         <div style="font-size: 13px; color: #555; text-align: center;">Built with Google Maps API</div>
@@ -117,6 +127,7 @@ permalink: /map/
       let parkingPlaces = [];
       let markers = [];
       let searchRadiusMeters = 0.1 * 1609; // Default 1 mile
+      // var radiusMeter = searchRadiusMeters;
       function updateRadiusLabel(val) {
         document.getElementById("radiusLabel").innerText = `Radius: ${val} mile${val > 1 ? 's' : ''}`;
         searchRadiusMeters = val * 1609.34;
@@ -135,6 +146,79 @@ permalink: /map/
         new google.maps.places.Autocomplete(startInput);
         new google.maps.places.Autocomplete(endInput);
       }
+      function getCurrentLocation() {
+        return new Promise((resolve, reject) => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              function (position) {
+                const lat1 = position.coords.latitude;
+                const lng1 = position.coords.longitude;
+                console.log("Current location:", lat1, lng1);
+                // Optionally center and mark on map
+                map.setCenter(new google.maps.LatLng(lat1, lng1));
+                map.setZoom(12);
+                new google.maps.Marker({
+                  position: { lat1, lng1 },
+                  map: map,
+                  title: "You are here",
+                  icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                });
+                resolve({latitude: lat1, longitude: lng1});
+              },
+              function (error) {
+                console.error("Error getting location:", error);
+                alert("Could not retrieve your location. Please enable location services.");
+                reject(error);
+              }
+            );
+          } else {
+            alert("Geolocation is not supported by your browser.");
+            reject(new Error("Geolocation not supported"));
+          }
+        });
+      }
+      async function grabLocateAPI() {
+        try {
+          const position = getCurrentLocation();
+          const requestData = {lat: position.latitude, lng: position.longitude, radius: searchRadiusMeters};
+          const response = await fetch(`${pythonURI}/api/locate/find`, {
+            ...fetchOptions,
+            method: "POST",
+            body: JSON.stringify(requestData)
+          });
+          // Check if the response is successful (status code 200)
+          if (!response.ok) {
+            // If not successful, return the error code
+            return { error: `Error: ${response.status} - ${response.statusText}` };
+          }
+          const data = await response.json();
+          console.log("LocateAPI Data:", data);
+          const Speed = data.speed || 'N/A';
+          const movementMode = data.movement_mode || 'N/A';  
+          const tickRate = data.update_rate || 'N/A';
+          // Process the markers
+          data.forEach(p => {
+            const marker = new google.maps.Marker({
+              position: { lat: p.lat, lng: p.lng },
+              map: map,
+              icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
+              title: p.name || "Parking Spot"
+            });
+            markers.push(marker);
+          });
+          // Return the fetched data if successful
+          return {
+            data: data.locations,
+            speed: Speed,
+            mode: movementMode,
+            updateRate: tickRate
+          }
+        } catch (error) {
+          // Catch any errors and return the error message
+          console.error("Error loading API data:", error);
+          return { error: `Error: ${error.message}` };
+        }
+      };
       function calculateRoute() {
         const start = document.getElementById("start").value;
         const end = document.getElementById("end").value;
@@ -322,26 +406,47 @@ permalink: /map/
         }
         heatmap.setMap(heatmap.getMap() ? null : map);
       }
-
+      // Speedometer in kilometers (I'll add a button to change)
+      function updDisplay() {
+        navigator.geolocation.watchPosition(position => {
+          var speedMps = position.coords.speed;
+          var wait = 0.4;
+          grabLocateAPI()
+            .then(result => {
+              if (result.error) {
+                // Handle the error case
+                console.error(result.error);
+              } else {
+                speedMps = result.speed;
+                wait = result.updateRate
+                console.log('Data received from API:', result);
+              }
+            });
+          const speedKph = speedMps ? (speedMps * 3.6).toFixed(1) : "0.0";
+          document.getElementById("speed-display").textContent = `Speed: ${speedKph} km/h`;
+          setTimeout(() => {
+            requestAnimationFrame(updDisplay);
+          }, wait*1000);
+        });
+      };
     function useCurrentLocation() {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        document.getElementById("start").value = `${lat}, ${lng}`;
-      },
-      (error) => {
-        alert("Unable to retrieve your location. Permission may be denied.");
-        console.error("Geolocation error:", error);
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
       }
-    );
-  }
-
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          document.getElementById("start").value = `${lat}, ${lng}`;
+        },
+        (error) => {
+          alert("Unable to retrieve your location. Permission may be denied.");
+          console.error("Geolocation error:", error);
+        }
+      );
+    }
+    updDisplay();
     </script>
   </body>
 </html>
