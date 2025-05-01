@@ -98,10 +98,6 @@ permalink: /map/
             <p><strong>ETA Info</strong></p>
             <p id="eta-output">No route selected yet.</p>
           </div>
-          <div class="info-box" id="eta-panel">
-            <p><strong>ETA Info</strong></p>
-            <p id="eta-output">No route selected yet.</p>
-          </div>
         </div>
         <div style="font-size: 13px; color: #555; text-align: center;">Built with Google Maps API</div>
       </div>
