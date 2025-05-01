@@ -89,20 +89,15 @@ permalink: /map/
       </div>
       <div id="map"></div>
     </div>
-
     <script
       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_ZAbJtK2KkFT0_e1iJUNGrqDXWdGp3nU&libraries=places,visualization,geometry&callback=initMap"
       async
       defer
     ></script>
-
-
     <script>
-      
       const pythonURI = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
         ? "http://localhost:8505"
         : "https://prism.stu.nighthawkcodingsociety.com";
-
       const fetchOptions = {
         mode: 'cors',
         cache: 'default',
@@ -112,7 +107,6 @@ permalink: /map/
           'X-Origin': 'client'
         }
       };
-      
       let map;
       let directionsService;
       let directionsRenderer;
@@ -123,38 +117,31 @@ permalink: /map/
       let parkingPlaces = [];
       let markers = [];
       let searchRadiusMeters = 0.1 * 1609; // Default 1 mile
-
       function updateRadiusLabel(val) {
         document.getElementById("radiusLabel").innerText = `Radius: ${val} mile${val > 1 ? 's' : ''}`;
         searchRadiusMeters = val * 1609.34;
       }
-
       function initMap() {
         map = new google.maps.Map(document.getElementById("map"), {
           center: { lat: 36.7783, lng: -119.4179 },
           zoom: 6
         });
-
         directionsService = new google.maps.DirectionsService();
         directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
         trafficLayer = new google.maps.TrafficLayer();
         trafficLayer.setMap(map);
-
         const startInput = document.getElementById("start");
         const endInput = document.getElementById("end");
         new google.maps.places.Autocomplete(startInput);
         new google.maps.places.Autocomplete(endInput);
       }
-
       function calculateRoute() {
         const start = document.getElementById("start").value;
         const end = document.getElementById("end").value;
-
         if (!start || !end) {
           alert("Please enter both start and destination.");
           return;
         }
-
         directionsService.route(
           {
             origin: start,
@@ -169,7 +156,6 @@ permalink: /map/
             if (status === "OK") {
               directionsRenderer.setDirections(response);
               const leg = response.routes[0].legs[0];
-
               const info = `
                 <strong>Route Info:</strong><br/>
                 From: ${leg.start_address}<br/>
@@ -177,7 +163,6 @@ permalink: /map/
                 Distance: ${leg.distance.text}<br/>
                 Duration (with traffic): ${leg.duration.text}
               `;
-
               const infoWindow = new google.maps.InfoWindow({
                 content: info,
                 position: leg.end_location,
@@ -190,31 +175,19 @@ permalink: /map/
           }
         );
       }
-
       function isWithinRadius(centerInput, point, radiusMeters) {
         console.log(centerInput)
         console.log(point)
-
-
         const centerLat = typeof centerInput.lat === "function" ? centerInput.lat() : centerInput.lat;
         const centerLng = typeof centerInput.lng === "function" ? centerInput.lng() : centerInput.lng;
-
         const center = new google.maps.LatLng(centerLat, centerLng);
         const testPoint = new google.maps.LatLng(point.lat, point.lng);
-
         const distance = google.maps.geometry.spherical.computeDistanceBetween(center, testPoint);
-        
         if (distance <= radiusMeters) {
           console.log("✅ MATCH:", point, "Distance:", distance.toFixed(2));
         }
-
         return distance <= radiusMeters;
       }
-
-
-
-
-
       function findAndStoreParkingSpots(location) {
         console.log("Route destination location:", location, "Radius:", searchRadiusMeters);
         const service = new google.maps.places.PlacesService(map);
@@ -223,12 +196,10 @@ permalink: /map/
           radius: searchRadiusMeters,
           type: ["parking"],
         };
-
         // Remove old circle
         if (searchRadiusCircle) {
           searchRadiusCircle.setMap(null);
         }
-
         // Draw new circle
         searchRadiusCircle = new google.maps.Circle({
           strokeColor: "#007bff",
@@ -240,17 +211,14 @@ permalink: /map/
           center: location,
           radius: searchRadiusMeters,
         });
-
         // Clear old markers
         markers.forEach(marker => marker.setMap(null));
         markers = [];
-
         // Google Places markers
         service.nearbySearch(request, (results, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK) {
             parkingPlaces = results.filter(place => place.geometry && place.geometry.location);
             heatmapData = parkingPlaces.map(place => place.geometry.location);
-
             parkingPlaces.forEach(place => {
               const marker = new google.maps.Marker({
                 position: place.geometry.location,
@@ -260,7 +228,6 @@ permalink: /map/
               });
               markers.push(marker);
             });
-
             // Optional heatmap setup
             if (heatmap) heatmap.setMap(null);
             heatmap = new google.maps.visualization.HeatmapLayer({
@@ -272,15 +239,13 @@ permalink: /map/
             console.error("Nearby parking search failed:", status);
           }
         });
-
-        // ✅ Load your own dataset and add markers
+        // Load your own dataset and add markers
         fetch('{{site.baseurl}}/datasets/locations.csv')
           .then(response => response.text())
           .then(csvText => {
-            const lines = csvText.trim().split('\n').slice(1); // skip header
+            const lines = csvText.trim().split('\n').slice(1);
             const parsedMeters = lines.map(line => {
               const parts = line.split(',').map(p => p.replace(/^"|"$/g, '').trim()); // Strip outer quotes
-
               return {
                 lat: parseFloat(parts[7]),
                 lng: parseFloat(parts[8]),
@@ -291,17 +256,12 @@ permalink: /map/
                 pole: parts[3]
               };
             });
-
-
             console.log("Loaded meters:", parsedMeters.length);
-
             const nearbyMeters = parsedMeters.filter(p => {
               const within = isWithinRadius(location, p, searchRadiusMeters);
-              if (within) console.log("✅ Within radius:", p);
+              if (within) console.log("Within radius:", p);
               return within;
             });
-
-
             const datasetMarkers = nearbyMeters.map(p => {
               const marker = new google.maps.Marker({
                 position: { lat: p.lat, lng: p.lng },
@@ -309,7 +269,6 @@ permalink: /map/
                 icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png",
                 title: `SAP ID: ${p.sapid}\nZone: ${p.zone}\nArea: ${p.area}`
               });
-
               marker.addListener("click", async () => {
                 const now = new Date();
                 const currentDay = now.getDay();       // 0 = Sunday, 6 = Saturday
@@ -319,23 +278,18 @@ permalink: /map/
                   day_of_week: currentDay,
                   hour_of_day: currentHour
                 };
-
                 console.log("Predicting for:", requestData);
-
                 try {
                   const response = await fetch(`${pythonURI}/api/parking/predict`, {
                     ...fetchOptions,
                     method: "POST",
                     body: JSON.stringify(requestData)
                   });
-
                   if (!response.ok) {
                     throw new Error(`Server error: ${response.status}`);
                   }
-
                   const data = await response.json();
                   const percent = data.predicted_parking_availability_percent;
-
                   const infoWindow = new google.maps.InfoWindow({
                     content: percent >= 50
                       ? `<span style="color:green;"><strong>🚗 Available:</strong> ${percent.toFixed(1)}%</span>`
@@ -343,18 +297,13 @@ permalink: /map/
                     position: marker.getPosition()
                   });
                   infoWindow.open(map, marker);
-
                 } catch (err) {
                   console.error("Prediction failed:", err);
                   alert("Prediction failed. Check the console.");
                 }
-
               });
-
               return marker;
             });
-
-
             markers.push(...datasetMarkers);
             const datasetHeatData = datasetMarkers.map(m => m.getPosition());
             heatmapData.push(...datasetHeatData);
@@ -365,14 +314,12 @@ permalink: /map/
           alert("No heatmap data available yet. Please get a route first.");
           return;
         }
-
         if (!heatmap) {
           heatmap = new google.maps.visualization.HeatmapLayer({
             data: heatmapData,
             radius: 30
           });
         }
-
         heatmap.setMap(heatmap.getMap() ? null : map);
       }
 
