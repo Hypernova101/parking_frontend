@@ -127,6 +127,7 @@ permalink: /map/
       let parkingPlaces = [];
       let markers = [];
       let searchRadiusMeters = 0.1 * 1609; // Default 1 mile
+      let userMarker = null;
       // var radiusMeter = searchRadiusMeters;
       function updateRadiusLabel(val) {
         document.getElementById("radiusLabel").innerText = `Radius: ${val} mile${val > 1 ? 's' : ''}`;
@@ -145,45 +146,52 @@ permalink: /map/
         const endInput = document.getElementById("end");
         new google.maps.places.Autocomplete(startInput);
         new google.maps.places.Autocomplete(endInput);
+        focusOnUserLocation();
       }
       function getCurrentLocation() {
-        return new Promise((resolve, reject) => {
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              function (position) {
-                const lat1 = position.coords.latitude;
-                const lng1 = position.coords.longitude;
-                console.log("Current location:", lat1, lng1);
-                // Optionally center and mark on map
-                map.setCenter(new google.maps.LatLng(lat1, lng1));
-                map.setZoom(12);
-                new google.maps.Marker({
-                  position: { lat1, lng1 },
+        if (navigator.geolocation) {
+          navigator.geolocation.watchPosition(
+            function (position) {
+              const lat = position.coords.latitude;
+              const lng = position.coords.longitude;
+              const currentLocation = new google.maps.LatLng(lat, lng);
+              if (userMarker) {
+                userMarker.setPosition(currentLocation);
+              } else {
+                userMarker = new google.maps.Marker({
+                  position: currentLocation,
                   map: map,
                   title: "You are here",
                   icon: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
                 });
-                resolve({latitude: lat1, longitude: lng1});
-              },
-              function (error) {
-                console.error("Error getting location:", error);
-                alert("Could not retrieve your location. Please enable location services.");
-                reject(error);
               }
-            );
-          } else {
-            alert("Geolocation is not supported by your browser.");
-            reject(new Error("Geolocation not supported"));
-          }
-        });
+              map.setCenter(currentLocation);
+            },
+            function (error) {
+              console.error("Tracking error:", error);
+            },
+            {
+              enableHighAccuracy: true,
+              maximumAge: 0,
+              timeout: 5000
+            }
+          );
+        } else {
+          alert("Geolocation not supported by your browser.");
+        }
       }
       async function grabLocateAPI() {
         try {
-          const position = getCurrentLocation();
-          const requestData = {lat: position.latitude, lng: position.longitude, radius: searchRadiusMeters};
+          var requestData = getCurrentLocation;
+          navigator.geolocation.getCurrentPosition(position => {
+            requestData = {lat: position.latitude, lng: position.longitude, radius: searchRadiusMeters};
+          });
           const response = await fetch(`${pythonURI}/api/locate/find`, {
             ...fetchOptions,
             method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
             body: JSON.stringify(requestData)
           });
           // Check if the response is successful (status code 200)
@@ -193,9 +201,9 @@ permalink: /map/
           }
           const data = await response.json();
           console.log("LocateAPI Data:", data);
-          const Speed = data.speed || 'N/A';
-          const movementMode = data.movement_mode || 'N/A';  
-          const tickRate = data.update_rate || 'N/A';
+          const Speed = data.speed || 0;
+          const movementMode = data.movement_mode || 'no movement';  
+          const tickRate = data.update_rate || 4;
           // Process the markers
           data.forEach(p => {
             const marker = new google.maps.Marker({
@@ -219,43 +227,103 @@ permalink: /map/
           return { error: `Error: ${error.message}` };
         }
       };
-      function calculateRoute() {
+      async function calculateRoute() {
         const start = document.getElementById("start").value;
         const end = document.getElementById("end").value;
         if (!start || !end) {
           alert("Please enter both start and destination.");
           return;
         }
-        directionsService.route(
-          {
-            origin: start,
-            destination: end,
-            travelMode: google.maps.TravelMode.DRIVING,
-            drivingOptions: {
-              departureTime: new Date(),
-              trafficModel: "bestguess",
-            },
-          },
-          (response, status) => {
-            if (status === "OK") {
-              directionsRenderer.setDirections(response);
-              const leg = response.routes[0].legs[0];
-              const info = `
-                <strong>Route Info:</strong><br/>
-                From: ${leg.start_address}<br/>
-                To: ${leg.end_address}<br/>
-                Distance: ${leg.distance.text}<br/>
-                Duration (with traffic): ${leg.duration.text}
-              `;
-              const infoWindow = new google.maps.InfoWindow({
-                content: info,
-                position: leg.end_location,
+        // Get user's location
+        if (!navigator.geolocation) {
+          alert("Geolocation is not supported by your browser.");
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLocation = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ address: start }, (results, status) => {
+              if (status !== "OK") {
+                alert("Invalid start location.");
+                return;
+              }
+              const startLatLng = results[0].geometry.location;
+              const isSameLocation = google.maps.geometry.spherical.computeDistanceBetween(
+                new google.maps.LatLng(userLocation.lat, userLocation.lng),
+                startLatLng
+              ) < 50; // 50 meters tolerance
+              // Clear old routes
+              if (window.extraRouteRenderer) {
+                window.extraRouteRenderer.setMap(null);
+              }
+              if (!isSameLocation) {
+                // Route 1: User → Start
+                const route1 = {
+                  origin: userLocation,
+                  destination: startLatLng,
+                  travelMode: google.maps.TravelMode.DRIVING,
+                  drivingOptions: {
+                    departureTime: new Date(),
+                    trafficModel: "bestguess",
+                  },
+                };
+                const extraRenderer = new google.maps.DirectionsRenderer({
+                  map: map,
+                  polylineOptions: { strokeColor: "orange" }
+                });
+                directionsService.route(route1, (res1, stat1) => {
+                  if (stat1 === "OK") {
+                    extraRenderer.setDirections(res1);
+                    window.extraRouteRenderer = extraRenderer;
+                  } else {
+                    alert("Error computing user → start route: " + stat1);
+                  }
+                });
+              }
+              // Route 2: Start → End
+              const route2 = {
+                origin: startLatLng,
+                destination: end,
+                travelMode: google.maps.TravelMode.DRIVING,
+                drivingOptions: {
+                  departureTime: new Date(),
+                  trafficModel: "bestguess",
+                },
+              };
+              directionsService.route(route2, (res2, stat2) => {
+                if (stat2 === "OK") {
+                  directionsRenderer.setDirections(res2);
+                  const leg = res2.routes[0].legs[0];
+                  const info = `
+                    <strong>Route Info:</strong><br/>
+                    From: ${leg.start_address}<br/>
+                    To: ${leg.end_address}<br/>
+                    Distance: ${leg.distance.text}<br/>
+                    Duration (with traffic): ${leg.duration.text}
+                  `;
+                  const infoWindow = new google.maps.InfoWindow({
+                    content: info,
+                    position: leg.end_location,
+                  });
+                  infoWindow.open(map);
+                  findAndStoreParkingSpots(leg.end_location);
+                  focusOnUserLocation();
+                } else {
+                  alert("Could not calculate main route: " + stat2);
+                }
               });
-              infoWindow.open(map);
-              findAndStoreParkingSpots(leg.end_location);
-            } else {
-              alert("Could not calculate route: " + status);
-            }
+            });
+          },
+          (error) => {
+            alert("Error getting user location: " + error.message);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 5000
           }
         );
       }
@@ -439,6 +507,7 @@ permalink: /map/
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
           document.getElementById("start").value = `${lat}, ${lng}`;
+          focusOnUserLocation();
         },
         (error) => {
           alert("Unable to retrieve your location. Permission may be denied.");
@@ -446,7 +515,63 @@ permalink: /map/
         }
       );
     }
-    updDisplay();
+    function focusOnUserLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            const userLatLng = { lat: latitude, lng: longitude };
+            map.setCenter(userLatLng);
+            map.setZoom(18);
+            if (userMarker) {
+              userMarker.setPosition(userLatLng);
+            } else {
+              userMarker = new google.maps.Marker({
+                position: userLatLng,
+                map: map,
+                title: "You are here",
+                icon: {
+                  path: google.maps.SymbolPath.CIRCLE,
+                  scale: 8,
+                  fillColor: "#4285F4",
+                  fillOpacity: 1,
+                  strokeWeight: 2,
+                  strokeColor: "#ffffff",
+                },
+              });
+            }
+          },
+          () => {
+            alert("Unable to retrieve your location.");
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
+      }
+    }
+    window.onLoad = function() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            // Focus on the user's location
+            map.setView([lat, lng], 13);
+            // Optionally, add a marker for the user's location
+            L.marker([lat, lng]).addTo(map)
+              .bindPopup("You are here!")
+              .openPopup();
+          },
+          function(error) {
+            console.error("Geolocation failed: " + error.message);
+          }
+        );
+      } else {
+        console.error("Geolocation is not supported by this browser.");
+      }
+      updDisplay();
+      getCurrentLocation();
+    };
     </script>
   </body>
 </html>
