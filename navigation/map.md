@@ -84,6 +84,10 @@ permalink: /map/
               Use My Location
             </button>
           </div>
+          <div class="info-box" id="eta-panel">
+            <p><strong>ETA Info</strong></p>
+            <p id="eta-output">No route selected yet.</p>
+          </div>
         </div>
         <div style="font-size: 13px; color: #555; text-align: center;">Built with Google Maps API</div>
       </div>
@@ -177,6 +181,14 @@ permalink: /map/
                 Distance: ${leg.distance.text}<br/>
                 Duration (with traffic): ${leg.duration.text}
               `;
+
+              document.getElementById("eta-output").innerHTML = `
+                🧭 <strong>From:</strong> ${leg.start_address}<br/>
+                📍 <strong>To:</strong> ${leg.end_address}<br/>
+                📏 <strong>Distance:</strong> ${leg.distance.text}<br/>
+                ⏱ <strong>ETA (traffic):</strong> ${leg.duration.text}
+              `;
+
 
               const infoWindow = new google.maps.InfoWindow({
                 content: info,
