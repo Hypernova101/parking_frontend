@@ -39,12 +39,12 @@ permalink: /smartpark/history
 </style>
 
 <div class="chart-container animate__animated animate__fadeInUp">
-  <h3 class="text-center">⏰ Occupancy Over Time – 4-1424</h3>
+  <h3 class="text-center">⏰ Occupancy Over Time – 4-1424 STILL UNDER DEVELOPMENT</h3>
   <canvas id="meter001"></canvas>
 </div>
 
 <div class="chart-container animate__animated animate__fadeInUp animate__delay-1s">
-  <h3 class="text-center">⏰ Occupancy Over Time – P-2920</h3>
+  <h3 class="text-center">⏰ Occupancy Over Time – P-2920 STILL UNDER DEVELOPMENT</h3>
   <canvas id="meter002"></canvas>
 </div>
 
