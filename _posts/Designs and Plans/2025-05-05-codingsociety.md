@@ -3,7 +3,7 @@ layout: post
 show_reading_time: false
 permalink: /ocs
 title: Final Project Proposal - Open Coding Society Portal
-categories: [Designs and Plans]
+categories: [Ideation]
 ---
 
 ## Open Coding Society Portal: Final Exam and Showcase Hub
