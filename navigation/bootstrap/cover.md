@@ -1,7 +1,7 @@
 ---
 layout: lesson
 title: Introduction to Functions
-video_url: "https://www.youtube.com/embed/xyz123"
+video_url: "https://www.youtube.com/watch?v=89cGQjB5R4M"
 hack_prompt: "How would you explain a function to a 5th grader?"
 flashcards:
   - "What is a function?"
