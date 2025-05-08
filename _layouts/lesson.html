@@ -1,0 +1,67 @@
+---
+layout: bootstrap
+---
+
+<div class="container mt-5 pt-4">
+  <h1 class="mb-4">{{ page.title }}</h1>
+
+  <!-- 🧠 Team Teach Video Segment -->
+  <div class="mb-5">
+    <h3>📽️ Watch & Learn</h3>
+    <div class="ratio ratio-16x9">
+      <iframe src="{{ page.video_url }}" title="Lesson Video" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <!-- 🍿 Popcorn Hack Prompt -->
+  <div class="mb-5">
+    <h3>🍿 Popcorn Hack</h3>
+    <p>{{ page.hack_prompt }}</p>
+    <textarea id="hack-response" class="form-control" rows="4" placeholder="Write your answer here..."></textarea>
+    <button id="save-hack" class="btn btn-primary mt-2">Save Response</button>
+  </div>
+
+  <!-- 🃏 Flashcards Section -->
+  <div class="mb-5">
+    <h3>🃏 Flashcards</h3>
+    <div id="flashcard-container" class="card p-4 text-center">
+      <p id="flashcard-text">Click "Next" to begin.</p>
+      <button class="btn btn-outline-primary mt-2" onclick="showNextCard()">Next</button>
+    </div>
+  </div>
+
+  <!-- 📊 Poll Section -->
+  <div class="mb-5">
+    <h3>📊 Quick Poll</h3>
+    <div id="poll-container">
+      <p>What was the most confusing part of this lesson?</p>
+      <!-- Replace with real poll embed or API call -->
+      <button class="btn btn-secondary">Submit Answer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 🍿 Popcorn Hack Persistence
+  const hackKey = `hack-${window.location.pathname}`;
+  const textarea = document.getElementById("hack-response");
+  const saveBtn = document.getElementById("save-hack");
+
+  // Load from localStorage
+  textarea.value = localStorage.getItem(hackKey) || "";
+
+  saveBtn.addEventListener("click", () => {
+    localStorage.setItem(hackKey, textarea.value);
+    alert("Response saved!");
+  });
+
+  // 🃏 Flashcard Logic
+  const cards = {{ page.flashcards | jsonify }};
+  let cardIndex = 0;
+
+  function showNextCard() {
+    if (cards.length === 0) return;
+    document.getElementById("flashcard-text").innerText = cards[cardIndex];
+    cardIndex = (cardIndex + 1) % cards.length;
+  }
+</script>
