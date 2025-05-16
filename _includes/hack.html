@@ -1,0 +1,21 @@
+<div class="section-container p-3 mb-4 animate-in" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); animation-delay: 0.15s;">
+  <h2 class="section-title" style="color: white; font-weight: 600; display: flex; align-items: center;">
+    <span class="icon-circle" style="background: rgba(255,255,255,0.2); backdrop-filter: blur(5px); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; margin-right: 10px;">🍿</span> 
+    Popcorn Hack
+  </h2>
+  <div class="section-content p-3 mt-2" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 8px;">
+    <h3 style="color: #2c3e50; font-size: 1.2rem; font-weight: 600;">{{ page.hack_prompt }}</h3>
+    <textarea id="hackResponse" class="form-control custom-input" rows="4" style="margin-top: 15px; margin-bottom: 15px; border: 2px solid #e0e6ed; border-radius: 8px; resize: vertical;"></textarea>
+    <div style="display: flex; gap: 10px;">
+      <button onclick="saveResponse()" class="btn btn-primary" style="background: linear-gradient(to right, #5e72e4, #825ee4); color: white; border: none; border-radius: 6px; padding: 8px 16px; font-weight: 500;">
+        <i class="fas fa-save mr-2"></i> Save Response
+      </button>
+      <button onclick="clearResponse()" class="btn btn-secondary" style="background: #e0e6ed; color: #525f7f; border: none; border-radius: 6px; padding: 8px 16px; font-weight: 500;">
+        <i class="fas fa-trash-alt mr-2"></i> Clear
+      </button>
+    </div>
+    <div id="saveStatus" class="status-message" style="display: none; color: #5e72e4; margin-top: 10px; background: rgba(94, 114, 228, 0.1); padding: 8px 12px; border-radius: 6px; font-weight: 500;">
+      <i class="fas fa-check-circle"></i> Response saved successfully!
+    </div>
+  </div>
+</div>
