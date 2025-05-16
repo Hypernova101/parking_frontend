@@ -5,7 +5,12 @@
   </h2>
   <div class="section-content p-3 mt-2" style="background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border-radius: 8px;">
     <div class="ratio ratio-16x9">
-      <iframe src="{{ page.video_url }}" title="Lesson Video" allowfullscreen></iframe>
+      <iframe 
+        src="https://www.youtube.com/embed/{{ page.video_url | split: 'v=' | last }}" 
+        title="Lesson Video" 
+        allowfullscreen 
+        frameborder="0">
+      </iframe>
     </div>
   </div>
 </div>
