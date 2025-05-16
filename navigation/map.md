@@ -11,46 +11,121 @@ permalink: /map/
     <title>Google Maps Route Planner</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
       body {
         margin: 0;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f4f7fa;
+        font-family: 'Poppins', sans-serif;
+        background-color: #f8fafc;
+        color: #334155;
       }
+      
       #app {
         display: flex;
         flex-direction: row;
         height: 100vh;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
       }
+      
       #sidebar {
-        width: 300px;
-        padding: 20px;
-        background: black;
-        border-right: 1px solid #ddd;
+        width: 340px;
+        padding: 24px;
+        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+        color: #e2e8f0;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        border-radius: 0 10px 10px 0;
+        box-shadow: 5px 0 15px rgba(0, 0, 0, 0.05);
+        overflow-y: auto;
       }
+      
       #sidebar h2 {
         margin-top: 0;
-      }
-      .info-box {
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        padding: 15px;
+        font-weight: 600;
+        color: #f8fafc;
+        font-size: 1.5rem;
+        border-bottom: 2px solid #475569;
+        padding-bottom: 10px;
         margin-bottom: 20px;
-        background-color:rgb(0, 0, 0);
       }
+      
+      .info-box {
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+        background-color: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+      
+      .info-box:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      }
+      
+      .info-box p {
+        margin-top: 0;
+      }
+      
+      .info-box p strong {
+        font-size: 1.1rem;
+        color: #f8fafc;
+      }
+      
       .button-primary {
-        background-color: #357edd;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         color: white;
-        padding: 10px;
+        padding: 12px 16px;
         border: none;
-        border-radius: 5px;
+        border-radius: 8px;
         cursor: pointer;
         font-size: 16px;
         width: 100%;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        margin-top: 12px;
       }
+      
+      .button-primary:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
+      }
+      
+      .button-primary:active {
+        transform: translateY(0);
+      }
+      
+      .button-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: #e2e8f0;
+        padding: 10px 16px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        width: 100%;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .button-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+      }
+      
+      .button-secondary:before {
+        content: "📍";
+        margin-right: 6px;
+        font-size: 16px;
+      }
+      
       #speedometer {
         margin-top: 4px;
         background-color: rgba(0, 0, 0, 0.7);
@@ -58,19 +133,124 @@ permalink: /map/
         padding: 6px 10px;
         border-radius: 8px;
         font-size: 15px;
-        font-family: sans-serif;
       }
+      
       #map {
         flex-grow: 1;
       }
+      
       .slider-group {
         display: flex;
         flex-direction: column;
-        gap: 5px;
-        margin-top: 10px;
+        gap: 8px;
+        margin: 16px 0;
       }
+      
       .slider-group label {
         font-size: 14px;
+        color: #cbd5e1;
+      }
+      
+      input[type="range"] {
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        background: #475569;
+        outline: none;
+        margin: 8px 0;
+        -webkit-appearance: none;
+      }
+      
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #3b82f6;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      
+      input[type="range"]::-webkit-slider-thumb:hover {
+        transform: scale(1.2);
+        background: #2563eb;
+      }
+      
+      input[type="text"] {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        color: #f8fafc;
+        padding: 12px 16px;
+        font-size: 14px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-bottom: 12px;
+        transition: all 0.3s ease;
+      }
+      
+      input[type="text"]:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+      }
+      
+      input[type="text"]::placeholder {
+        color: #94a3b8;
+      }
+      
+      #eta-panel {
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 4px solid #3b82f6;
+      }
+      
+      #eta-output {
+        line-height: 1.6;
+        font-size: 14px;
+      }
+      
+      #speed-display {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(59, 130, 246, 0.1);
+        color: #f8fafc;
+        padding: 10px;
+        border-radius: 8px;
+        margin-top: 16px;
+        font-weight: 500;
+      }
+      
+      #speed-display:before {
+        content: "🚗";
+        margin-right: 8px;
+        font-size: 16px;
+      }
+      
+      .footer {
+        font-size: 12px;
+        color: #94a3b8;
+        text-align: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      @media (max-width: 768px) {
+        #app {
+          flex-direction: column;
+        }
+        
+        #sidebar {
+          width: 100%;
+          max-height: 40%;
+          border-radius: 0 0 10px 10px;
+        }
+        
+        .info-box {
+          margin-bottom: 12px;
+          padding: 15px;
+        }
       }
     </style>
   </head>
@@ -78,28 +258,27 @@ permalink: /map/
     <div id="app">
       <div id="sidebar">
         <div>
-          <h2>Smart Parking Info</h2>
+          <h2>Smart Parking Navigator</h2>
           <div class="info-box">
             <p><strong>Route Planner</strong></p>
-            <input id="start" placeholder="Enter starting point" style="margin-bottom:10px; width:100%; padding:8px;" />
-            <input id="end" placeholder="Enter destination" style="margin-bottom:10px; width:100%; padding:8px;" />
+            <input id="start" type="text" placeholder="Enter starting point" />
+            <input id="end" type="text" placeholder="Enter destination" />
             <div class="slider-group">
-              <label id="radiusLabel">Radius: 0.1 mile</label>
+              <label id="radiusLabel">Parking Search Radius: 0.1 mile</label>
               <input type="range" id="radiusRange" min="0.01" max="0.25" step="0.01" value="0.1" oninput="updateRadiusLabel(this.value)" />
             </div>
-            <button class="button-primary" onclick="calculateRoute()">Get Route</button>
-            <!-- <button class="button-primary" style="margin-top: 10px; background-color:#444;" onclick="toggleHeatmap()">Toggle Heatmap</button> -->
-            <button onclick="useCurrentLocation()" style="width: 100%; padding: 8px; margin-bottom: 10px; font-size: 14px;">
+            <button class="button-secondary" onclick="useCurrentLocation()">
               Use My Location
             </button>
+            <button class="button-primary" onclick="calculateRoute()">Find Route & Parking</button>
             <div id="speed-display">Speed: -- km/h</div>
           </div>
           <div class="info-box" id="eta-panel">
-            <p><strong>ETA Info</strong></p>
+            <p><strong>Journey Details</strong></p>
             <p id="eta-output">No route selected yet.</p>
           </div>
         </div>
-        <div style="font-size: 13px; color: #555; text-align: center;">Built with Google Maps API</div>
+        <div class="footer">Built with Google Maps API | Smart Parking Solutions</div>
       </div>
       <div id="map"></div>
     </div>
@@ -134,7 +313,7 @@ permalink: /map/
       let userMarker = null;
       // var radiusMeter = searchRadiusMeters;
       function updateRadiusLabel(val) {
-        document.getElementById("radiusLabel").innerText = `Radius: ${val} mile${val > 1 ? 's' : ''}`;
+        document.getElementById("radiusLabel").innerText = `Parking Search Radius: ${val} mile${val > 1 ? 's' : ''}`;
         searchRadiusMeters = val * 1609.34;
       }
       function initMap() {
