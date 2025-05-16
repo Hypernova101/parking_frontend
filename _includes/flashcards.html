@@ -175,8 +175,13 @@
   }
 </style>
 
-<div class="flashcards-container">
-  <div class="progress-container">
+<!-- Parent Flex Container -->
+<div style="display: flex; justify-content: center; align-items: flex-start; gap: 2rem; flex-wrap: wrap;">
+
+  <!-- Flashcards Section -->
+  <div class="flashcards-container">
+    <div class="progress-container">
+
     <div class="progress-bar" id="flashcard-progress" style="width: 0%"></div>
   </div>
   
@@ -254,6 +259,15 @@
     </div>
   {% endif %}
 </div>
+
+<!-- Review Sidebar -->
+<div id="review-sidebar" style="width: 300px; max-height: 600px; overflow-y: auto; background: #1e293b; color: white; padding: 1rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 0 10px rgba(0,0,0,0.2);">
+  <h4 style="margin-top: 0;">🔁 Marked for Review</h4>
+  <ul id="review-list" style="list-style: none; padding-left: 0;"></ul>
+</div>
+
+</div> <!-- CLOSES THE FLEX CONTAINER -->
+
 
 <!-- Flashcards Script -->
 <script>
@@ -446,4 +460,45 @@
     // Return optimized order of cards based on learning needs
     return [...data.reviewCards, ...data.knownCards];
   }
+</script>
+
+<script>
+  function populateReviewSidebar() {
+    const data = JSON.parse(localStorage.getItem('flashcardsData'));
+    const reviewList = document.getElementById('review-list');
+    reviewList.innerHTML = "";
+
+    data.reviewCards.forEach(cardIdx => {
+      const cardEl = document.getElementById(`card-${cardIdx}`);
+      if (!cardEl) return;
+
+      const frontText = cardEl.querySelector(".flashcard-front h3").innerText || `Card ${cardIdx}`;
+      const li = document.createElement('li');
+
+      li.innerHTML = `
+        <button onclick="jumpToCard(${cardIdx})" style="width: 100%; background: #334155; border: none; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; text-align: left; cursor: pointer;">
+          ${frontText}
+        </button>
+      `;
+
+      reviewList.appendChild(li);
+    });
+  }
+
+  function jumpToCard(index) {
+    const data = JSON.parse(localStorage.getItem('flashcardsData'));
+    data.currentIndex = index;
+    localStorage.setItem('flashcardsData', JSON.stringify(data));
+    showCard(index);
+    updateNavButtons();
+  }
+
+  // Hook into existing markCard to refresh sidebar
+  const originalMarkCard = markCard;
+  markCard = function(status) {
+    originalMarkCard(status);
+    populateReviewSidebar();
+  };
+
+  document.addEventListener('DOMContentLoaded', populateReviewSidebar);
 </script>
