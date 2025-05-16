@@ -408,11 +408,14 @@
   
   function updateProgressBar() {
     const data = JSON.parse(localStorage.getItem('flashcardsData'));
-    const knownPercentage = (data.knownCards.length / data.totalCards) * 100;
-    
+    const totalCards = document.querySelectorAll('.flashcard').length;
+    const uniqueKnown = new Set(data.knownCards);
+    const knownPercentage = (uniqueKnown.size / totalCards) * 100;
+
     const progressBar = document.getElementById('flashcard-progress');
     progressBar.style.width = `${knownPercentage}%`;
   }
+
   
   // Helper function to implement spaced repetition algorithm
   function initializeSpacedRepetition() {
