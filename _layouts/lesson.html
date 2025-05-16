@@ -2,61 +2,156 @@
 layout: bootstrap
 ---
 
-<div class="container mt-5 pt-4">
-  <h1 class="mb-4">{{ page.title }}</h1>
-
-  <!-- 🧠 Team Teach Video Segment -->
-  <div class="mb-5">
-    <h3>📽️ Watch & Learn</h3>
-    <div class="ratio ratio-16x9">
-      <iframe src="{{ page.video_url }}" title="Lesson Video" allowfullscreen></iframe>
-    </div>
+  
+<h1 class="text-center mb-4" style="color: #3a3a3a; font-weight: 700; text-shadow: 1px 1px 2px rgba(0,0,0,0.1);">{{ page.title }}</h1>
+    
+<div class="section-container p-3 mb-4" style="background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%); border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
+  <h2 class="section-title" style="color: white; font-weight: 600; display: flex; align-items: center;">
+    <span style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; margin-right: 10px;">📽️</span> 
+    Watch & Learn
+  </h2>
+  <div class="section-content p-3 mt-2" style="background: white; border-radius: 8px;">
+    <!-- Content will go here -->
   </div>
-
-  <!-- 🍿 Popcorn Hack Prompt -->
-  <div class="mb-5">
-    <h3>🍿 Popcorn Hack</h3>
-    <p>{{ page.hack_prompt }}</p>
-    <textarea id="hack-response" class="form-control" rows="4" placeholder="Write your answer here..."></textarea>
-    <button id="save-hack" class="btn btn-primary mt-2">Save Response</button>
-  </div>
-
-  <!-- 🃏 Flashcards Section -->
-
-  <!-- 📊 Poll Section -->
-  <div class="mb-5">
-    <h3>📊 Quick Poll</h3>
-    <div id="poll-container">
-      <p>What was the most confusing part of this lesson?</p>
-      <!-- Replace with real poll embed or API call -->
-      <button class="btn btn-secondary">Submit Answer</button>
-    </div>
-  </div>
-
-  {{ content }}
 </div>
+    
+<div class="section-container p-3 mb-4" style="background: linear-gradient(135deg, #20bf6b 0%, #0fb9b1 100%); border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
+  <h2 class="section-title" style="color: white; font-weight: 600; display: flex; align-items: center;">
+    <span style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; margin-right: 10px;">🍿</span> 
+    Popcorn Hack
+  </h2>
+  <div class="section-content p-3 mt-2" style="background: white; border-radius: 8px;">
+    <h3 style="color: #2d3436; font-size: 1.2rem; font-weight: 600;">{{ page.hack_prompt }}</h3>
+    <textarea id="hackResponse" class="form-control" rows="4" style="margin-top: 15px; margin-bottom: 15px; border: 2px solid #dfe6e9; border-radius: 8px; resize: vertical;"></textarea>
+    <div style="display: flex; gap: 10px;">
+      <button onclick="saveResponse()" class="btn" style="background: #20bf6b; color: white; border: none; border-radius: 6px; padding: 8px 16px; font-weight: 500; transition: all 0.3s ease;">
+        <i class="fas fa-save mr-2"></i> Save Response
+      </button>
+      <button onclick="clearResponse()" class="btn" style="background: #dfe6e9; color: #636e72; border: none; border-radius: 6px; padding: 8px 16px; font-weight: 500; transition: all 0.3s ease;">
+        <i class="fas fa-trash-alt mr-2"></i> Clear
+      </button>
+    </div>
+    <div id="saveStatus" style="display: none; color: #20bf6b; margin-top: 10px; background: rgba(32, 191, 107, 0.1); padding: 8px 12px; border-radius: 6px; font-weight: 500;">
+      <i class="fas fa-check-circle"></i> Response saved successfully!
+    </div>
+  </div>
+</div>
+    
+<div class="section-container p-3 mb-4" style="background: linear-gradient(135deg, #0984e3 0%, #74b9ff 100%); border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);">
+  <h2 class="section-title" style="color: white; font-weight: 600; display: flex; align-items: center;">
+    <span style="background: rgba(255,255,255,0.2); border-radius: 50%; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; margin-right: 10px;">📊</span> 
+    Quick Poll
+  </h2>
+  <div class="section-content p-3 mt-2" style="background: white; border-radius: 8px;">
+    <h3 style="color: #2d3436; font-size: 1.2rem; font-weight: 600;">What was the most confusing part of this lesson?</h3>
+    <input type="text" id="pollResponse" class="form-control" style="margin-top: 15px; margin-bottom: 15px; border: 2px solid #dfe6e9; border-radius: 8px;">
+    <button onclick="submitPoll()" class="btn" style="background: #0984e3; color: white; border: none; border-radius: 6px; padding: 8px 16px; font-weight: 500; transition: all 0.3s ease;">
+      <i class="fas fa-paper-plane mr-2"></i> Submit Answer
+    </button>
+    <div id="pollStatus" style="display: none; color: #0984e3; margin-top: 10px; background: rgba(9, 132, 227, 0.1); padding: 8px 12px; border-radius: 6px; font-weight: 500;">
+      <i class="fas fa-check-circle"></i> Answer submitted successfully!
+    </div>
+  </div>
+</div>
+  
+{{ content }}
 
 <script>
-  // 🍿 Popcorn Hack Persistence
-  const hackKey = `hack-${window.location.pathname}`;
-  const textarea = document.getElementById("hack-response");
-  const saveBtn = document.getElementById("save-hack");
-
-  // Load from localStorage
-  textarea.value = localStorage.getItem(hackKey) || "";
-
-  saveBtn.addEventListener("click", () => {
-    localStorage.setItem(hackKey, textarea.value);
-    alert("Response saved!");
+  // Local Storage functionality for Popcorn Hack
+  document.addEventListener('DOMContentLoaded', function() {
+    // Load saved response if exists
+    const savedResponse = localStorage.getItem('popcornHack_' + window.location.pathname);
+    if (savedResponse) {
+      document.getElementById('hackResponse').value = savedResponse;
+    }
+    
+    // Load saved poll response if exists
+    const savedPoll = localStorage.getItem('quickPoll_' + window.location.pathname);
+    if (savedPoll) {
+      document.getElementById('pollResponse').value = savedPoll;
+    }
+    
+    // Add hover effects to buttons
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(btn => {
+      btn.addEventListener('mouseover', function() {
+        this.style.transform = 'translateY(-2px)';
+        this.style.boxShadow = '0 5px 15px rgba(0,0,0,0.1)';
+      });
+      
+      btn.addEventListener('mouseout', function() {
+        this.style.transform = 'translateY(0)';
+        this.style.boxShadow = 'none';
+      });
+    });
   });
 
-  // 🃏 Flashcard Logic
-  const cards = {{ page.flashcards | jsonify }};
-  let cardIndex = 0;
-
-  function showNextCard() {
-    if (cards.length === 0) return;
-    document.getElementById("flashcard-text").innerText = cards[cardIndex];
-    cardIndex = (cardIndex + 1) % cards.length;
+  function saveResponse() {
+    const response = document.getElementById('hackResponse').value;
+    if (response.trim() !== '') {
+      localStorage.setItem('popcornHack_' + window.location.pathname, response);
+      const saveStatus = document.getElementById('saveStatus');
+      saveStatus.style.display = 'block';
+      setTimeout(() => {
+        saveStatus.style.display = 'none';
+      }, 2000);
+    }
+  }
+  
+  function clearResponse() {
+    document.getElementById('hackResponse').value = '';
+    localStorage.removeItem('popcornHack_' + window.location.pathname);
+    document.getElementById('saveStatus').style.display = 'none';
+  }
+  
+  function submitPoll() {
+    const response = document.getElementById('pollResponse').value;
+    if (response.trim() !== '') {
+      localStorage.setItem('quickPoll_' + window.location.pathname, response);
+      const pollStatus = document.getElementById('pollStatus');
+      pollStatus.style.display = 'block';
+      setTimeout(() => {
+        pollStatus.style.display = 'none';
+      }, 2000);
+    }
   }
 </script>
+
+<style>
+  .section-container {
+    transition: all 0.3s ease;
+  }
+  
+  .section-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+  
+  .section-content {
+    transition: all 0.3s ease;
+  }
+  
+  textarea:focus, input:focus {
+    box-shadow: 0 0 5px rgba(81, 203, 238, 1);
+    border: 2px solid rgba(81, 203, 238, 1) !important;
+    outline: none;
+  }
+  
+  .btn {
+    transition: all 0.3s ease;
+  }
+  
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  #saveStatus, #pollStatus {
+    animation: fadeIn 0.5s ease;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
