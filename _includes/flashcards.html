@@ -1,5 +1,8 @@
 {% assign cards = include.cards | default: site.data.flashcards.cards %}
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+
 <!-- Flashcards Styling -->
 <style>
   .flashcards-container {
@@ -374,6 +377,38 @@
       nextBtn.classList.remove('opacity-50');
     }
   }
+
+  function launchConfetti() {
+  confetti({
+    particleCount: 150,
+    spread: 70,
+    origin: { y: 0.6 }
+  });
+
+  // Continue bursting for fun
+  let duration = 2 * 1000;
+  let end = Date.now() + duration;
+
+  (function frame() {
+    confetti({
+      particleCount: 4,
+      angle: 60,
+      spread: 55,
+      origin: { x: 0 },
+    });
+    confetti({
+      particleCount: 4,
+      angle: 120,
+      spread: 55,
+      origin: { x: 1 },
+    });
+
+    if (Date.now() < end) {
+      requestAnimationFrame(frame);
+    }
+  })();
+}
+
   
   function markCard(status) {
     const data = JSON.parse(localStorage.getItem('flashcardsData'));
@@ -396,6 +431,11 @@
     
     // Save updated data
     localStorage.setItem('flashcardsData', JSON.stringify(data));
+
+    // Trigger confetti if all cards are known
+    if (data.knownCards.length === data.totalCards) {
+      launchConfetti();
+    }
     
     // Update progress
     updateProgressBar();
