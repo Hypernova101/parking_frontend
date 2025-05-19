@@ -449,6 +449,40 @@
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
+<script>
+  const socket = io.connect("https://prism.stu.nighthawkcodingsociety.com");
+
+  socket.on("connect", () => {
+    console.log("Connected to game server");
+  });
+
+  // Send player join
+  document.getElementById("startQuizBtn").addEventListener("click", () => {
+    const playerName = document.getElementById("playerName").value.trim();
+    if (playerName) {
+      socket.emit("player_join", { name: playerName });
+    }
+  });
+
+  // Receive broadcast of new player
+  socket.on("player_joined", (data) => {
+    console.log(`${data.name} joined the game`);
+  });
+
+  // Send quiz result after game ends
+  function emitGameEnd(score) {
+    socket.emit("player_score", { name: playerName, score: score });
+  }
+
+  // Receive leaderboard update
+  socket.on("leaderboard_update", (data) => {
+    console.log("Updated leaderboard", data);
+    // OPTIONAL: replace your local leaderboard code with data received from server
+  });
+</script>
+
+
 <!-- Quiz Game Script -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
