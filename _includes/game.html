@@ -1,222 +1,677 @@
-<section id="quiz-module" class="py-5 bg-dark">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-6 mx-auto mb-5" id="quiz-login" data-aos="fade-up">
-                <div class="card glass-card p-5 text-center">
-                    <h2 class="mb-4">Join Quiz Game</h2>
-                    <p class="text-secondary mb-4">Enter your name and the room code to join an in-class quiz game</p>
+{% assign questions = site.data.game_questions.questions %}
 
-                    <div class="form-group mb-4">
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0">
-                                <i class="fas fa-user text-secondary"></i>
-                            </span>
-                            <input type="text" class="form-control border-start-0" id="playerName" placeholder="Your Name">
-                        </div>
-                    </div>
+<!-- Quiz Game Styling -->
+<style>
+  .quiz-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+  
+  .glass-card {
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    color: #f8fafc;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+  }
+  
+  .quiz-login, .active-quiz, .quiz-results {
+    padding: 2rem;
+  }
+  
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+  
+  .input-group {
+    display: flex;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .input-group-text {
+    background-color: rgba(30, 41, 59, 0.5);
+    color: #cbd5e1;
+    border: none;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+  }
+  
+  .form-control {
+    background-color: rgba(30, 41, 59, 0.5);
+    border: none;
+    color: #f8fafc;
+    padding: 0.75rem 1rem;
+    width: 100%;
+  }
+  
+  .form-control::placeholder {
+    color: #64748b;
+  }
+  
+  .btn {
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #6C63FF 0%, #536DFE 100%);
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(108, 99, 255, 0.3);
+  }
+  
+  .btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .quiz-option {
+    background: rgba(45, 55, 72, 0.5);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  
+  .quiz-option:hover {
+    background: rgba(45, 55, 72, 0.8);
+    transform: translateY(-2px);
+  }
+  
+  .option-indicator {
+    background: rgba(108, 99, 255, 0.2);
+    color: #6c63ff;
+    font-weight: 600;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .quiz-option.selected {
+    background: rgba(108, 99, 255, 0.2);
+    border: 1px solid #6c63ff;
+  }
+  
+  .quiz-option.correct {
+    background: rgba(0, 230, 118, 0.2);
+    border: 1px solid #00e676;
+  }
+  
+  .quiz-option.wrong {
+    background: rgba(255, 71, 87, 0.2);
+    border: 1px solid #ff4757;
+  }
+  
+  .countdown-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 2rem;
+  }
+  
+  .countdown-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: rgba(108, 99, 255, 0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #f8fafc;
+  }
+  
+  .countdown-circle.warning {
+    background: rgba(255, 171, 0, 0.2);
+    color: #ffab00;
+  }
+  
+  .countdown-circle.danger {
+    background: rgba(255, 71, 87, 0.2);
+    color: #ff4757;
+  }
+  
+  .progress-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+  }
+  
+  .progress-bar {
+    height: 100%;
+    background: linear-gradient(135deg, #6C63FF 0%, #536DFE 100%);
+    transition: width 0.3s ease;
+  }
+  
+  .badge {
+    background: rgba(108, 99, 255, 0.2);
+    color: #6c63ff;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+  .leaderboard-container {
+    margin-top: 1.5rem;
+  }
+  
+  .leaderboard-item {
+    display: flex;
+    align-items: center;
+    background: rgba(45, 55, 72, 0.5);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .leaderboard-rank {
+    background: rgba(108, 99, 255, 0.2);
+    color: #6c63ff;
+    font-weight: 600;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 1rem;
+  }
+  
+  .leaderboard-item:nth-child(1) .leaderboard-rank {
+    background: rgba(255, 211, 42, 0.2);
+    color: #ffd32a;
+  }
+  
+  .leaderboard-item:nth-child(2) .leaderboard-rank {
+    background: rgba(192, 192, 192, 0.2);
+    color: #c0c0c0;
+  }
+  
+  .leaderboard-item:nth-child(3) .leaderboard-rank {
+    background: rgba(205, 127, 50, 0.2);
+    color: #cd7f32;
+  }
+  
+  .quiz-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  
+  .stats-item {
+    background: rgba(45, 55, 72, 0.5);
+    border-radius: 8px;
+    padding: 1rem;
+    text-align: center;
+    flex: 1;
+    margin: 0 0.5rem;
+  }
+  
+  .stats-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stats-label {
+    font-size: 0.9rem;
+    color: #94a3b8;
+  }
+  
+  .quiz-feedback {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #94a3b8;
+    text-align: center;
+  }
+  
+  .d-none {
+    display: none;
+  }
+  
+  .text-center {
+    text-align: center;
+  }
+  
+  .mb-2 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .mb-4 {
+    margin-bottom: 1rem;
+  }
+  
+  .mb-5 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .mt-4 {
+    margin-top: 1rem;
+  }
+  
+  .mt-5 {
+    margin-top: 1.5rem;
+  }
+  
+  .text-secondary {
+    color: #94a3b8;
+  }
+  
+  .text-danger {
+    color: #ff4757;
+  }
+  
+  .fw-bold {
+    font-weight: 700;
+  }
+  
+  .small {
+    font-size: 0.85rem;
+  }
+  
+  .animate-fade {
+    animation: fadeIn 0.5s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .quiz-container {
+      padding: 1rem;
+    }
+    
+    .quiz-login, .active-quiz, .quiz-results {
+      padding: 1.5rem;
+    }
+    
+    .btn-lg {
+      padding: 0.75rem 1rem;
+    }
+    
+    .countdown-container {
+      width: 60px;
+      height: 60px;
+    }
+    
+    .countdown-circle {
+      font-size: 1.4rem;
+    }
+    
+    .quiz-stats {
+      flex-direction: column;
+    }
+    
+    .stats-item {
+      margin: 0.5rem 0;
+    }
+  }
+</style>
 
-                    <div class="form-group mb-5">
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0">
-                                <i class="fas fa-hashtag text-secondary"></i>
-                            </span>
-                            <input type="text" class="form-control border-start-0" id="roomCode" placeholder="Room Code">
-                        </div>
-                    </div>
-
-                    <button class="btn btn-primary btn-lg w-100 py-3 mb-3" id="joinQuizBtn">
-                        <i class="fas fa-play-circle me-2"></i>Join Game
-                    </button>
-
-                    <p class="small text-secondary mt-4">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Get the room code from your instructor to join the active quiz
-                    </p>
-                </div>
-            </div>
-
-            <div class="col-lg-8 mx-auto mb-5" id="active-quiz" style="display: none;">
-                <div class="card glass-card p-4" data-aos="fade-up">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h3 class="m-0">JavaScript Basics Quiz</h3>
-                        <div>
-                            <span class="badge badge-primary">Question 3/10</span>
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center justify-content-center mb-4">
-                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-                            <span class="fw-bold fs-3" id="countdown">10</span>
-                        </div>
-                    </div>
-
-                    <div class="question-container text-center mb-5">
-                        <h3 class="mb-4">Which of the following is NOT a JavaScript data type?</h3>
-                    </div>
-
-                    <div class="answers-container">
-                        <div class="quiz-option" data-option="A">
-                            <div class="d-flex align-items-center">
-                                <div class="option-indicator me-3">A</div>
-                                <div>Boolean</div>
-                            </div>
-                        </div>
-                        <div class="quiz-option" data-option="B">
-                            <div class="d-flex align-items-center">
-                                <div class="option-indicator me-3">B</div>
-                                <div>String</div>
-                            </div>
-                        </div>
-                        <div class="quiz-option" data-option="C">
-                            <div class="d-flex align-items-center">
-                                <div class="option-indicator me-3">C</div>
-                                <div>Float</div>
-                            </div>
-                        </div>
-                        <div class="quiz-option" data-option="D">
-                            <div class="d-flex align-items-center">
-                                <div class="option-indicator me-3">D</div>
-                                <div>Undefined</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-6 mx-auto mb-5" id="leaderboard" style="display: none;">
-                <div class="card glass-card p-4" data-aos="fade-up">
-                    <div class="text-center mb-4">
-                        <h2 class="mb-3">Leaderboard</h2>
-                        <p class="text-secondary">Top players in this session</p>
-                    </div>
-
-                    <div class="leaderboard-container">
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank">1</div>
-                            <div class="d-flex justify-content-between align-items-center w-100">
-                                <div class="fw-bold">Sophia Chen</div>
-                                <div>950 pts</div>
-                            </div>
-                        </div>
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank">2</div>
-                            <div class="d-flex justify-content-between align-items-center w-100">
-                                <div class="fw-bold">Ethan Davis</div>
-                                <div>820 pts</div>
-                            </div>
-                        </div>
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank">3</div>
-                            <div class="d-flex justify-content-between align-items-center w-100">
-                                <div class="fw-bold">Olivia Martinez</div>
-                                <div>750 pts</div>
-                                </div>
-                        </div>
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank">4</div>
-                            <div class="d-flex justify-content-between align-items-center w-100">
-                                <div class="fw-bold">Noah Johnson</div>
-                                <div>720 pts</div>
-                            </div>
-                        </div>
-                        <div class="leaderboard-item">
-                            <div class="leaderboard-rank">5</div>
-                            <div class="d-flex justify-content-between align-items-center w-100">
-                                <div class="fw-bold">Emma Wilson</div>
-                                <div>690 pts</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 text-center">
-                        <button class="btn btn-primary">
-                            <i class="fas fa-trophy me-2"></i>View Full Results
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<!-- Quiz Game HTML -->
+<div class="quiz-container">
+  <!-- Progress Bar -->
+  <div class="progress-container">
+    <div class="progress-bar" id="quiz-progress" style="width: 0%"></div>
+  </div>
+  
+  <!-- Login Screen -->
+  <div class="glass-card quiz-login" id="quiz-login">
+    <div class="text-center mb-5">
+      <h2 class="mb-2">Join Quiz Game</h2>
+      <p class="text-secondary">Test your Python function knowledge</p>
     </div>
-</section>
+    
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="fas fa-user"></i>
+        </span>
+        <input type="text" class="form-control" id="playerName" placeholder="Your Name">
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="fas fa-gamepad"></i>
+        </span>
+        <select class="form-control" id="difficultyLevel">
+          <option value="easy">Easy (15 seconds per question)</option>
+          <option value="medium" selected>Medium (10 seconds per question)</option>
+          <option value="hard">Hard (5 seconds per question)</option>
+        </select>
+      </div>
+    </div>
+    
+    <button class="btn btn-primary btn-lg" style="width: 100%" id="startQuizBtn">
+      Start Quiz
+    </button>
+    
+    <div class="text-center mt-4">
+      <p class="small text-secondary">
+        <i class="fas fa-info-circle"></i>
+        Answer quickly for higher scores!
+      </p>
+    </div>
+  </div>
+  
+  <!-- Active Quiz -->
+  <div class="glass-card active-quiz d-none" id="active-quiz">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 id="quiz-title">Python Functions Quiz</h3>
+      <div>
+        <span class="badge" id="question-counter">Question 1/10</span>
+      </div>
+    </div>
+    
+    <div class="countdown-container">
+      <div class="countdown-circle" id="countdown">10</div>
+    </div>
+    
+    <div class="text-center mb-5">
+      <h3 id="question-text"></h3>
+    </div>
+    
+    <div id="options-container">
+      <!-- Options will be generated here -->
+    </div>
+    
+    <div class="quiz-feedback" id="question-feedback"></div>
+  </div>
+  
+  <!-- Results Screen -->
+  <div class="glass-card quiz-results d-none" id="quiz-results">
+    <div class="text-center mb-5">
+      <h2 class="mb-2">Quiz Completed!</h2>
+      <p class="text-secondary" id="results-summary">You scored 0 points</p>
+    </div>
+    
+    <div class="quiz-stats">
+      <div class="stats-item">
+        <div class="stats-value" id="stats-correct">0</div>
+        <div class="stats-label">Correct</div>
+      </div>
+      <div class="stats-item">
+        <div class="stats-value" id="stats-wrong">0</div>
+        <div class="stats-label">Wrong</div>
+      </div>
+      <div class="stats-item">
+        <div class="stats-value" id="stats-points">0</div>
+        <div class="stats-label">Points</div>
+      </div>
+    </div>
+    
+    <div class="text-center">
+      <h3 class="mb-4">Leaderboard</h3>
+    </div>
+    
+    <div class="leaderboard-container" id="leaderboard-container">
+      <!-- Leaderboard items will be generated here -->
+    </div>
+    
+    <div class="text-center mt-5">
+      <button class="btn btn-primary" id="play-again-btn">
+        Play Again
+      </button>
+    </div>
+  </div>
+</div>
 
+<!-- Quiz Game Script -->
 <script>
-    // Initialize AOS animation library
-    document.addEventListener('DOMContentLoaded', function() {
-        AOS.init({
-            duration: 800,
-            easing: 'ease-in-out',
-            once: true
-        });
-
-        // Quiz game navigation
-        const joinQuizBtn = document.getElementById('joinQuizBtn');
-        if (joinQuizBtn) {
-            joinQuizBtn.addEventListener('click', function() {
-                const playerName = document.getElementById('playerName').value;
-                const roomCode = document.getElementById('roomCode').value;
-                if (playerName && roomCode) {
-                    document.getElementById('quiz-login').style.display = 'none';
-                    document.getElementById('active-quiz').style.display = 'block';
-
-                    // Start countdown timer
-                    let timeLeft = 10;
-                    const countdownEl = document.getElementById('countdown');
-                    const timer = setInterval(() => {
-                        timeLeft--;
-                        countdownEl.textContent = timeLeft;
-                        if (timeLeft <= 5) {
-                            countdownEl.classList.add('text-danger');
-                        }
-                        if (timeLeft <= 0) {
-                            clearInterval(timer);
-                            // Show leaderboard after timer ends
-                            document.getElementById('active-quiz').style.display = 'none';
-                            document.getElementById('leaderboard').style.display = 'block';
-                        }
-                    }, 1000);
-                } else {
-                    alert('Please enter both your name and the room code to join the quiz!');
-                }
-            });
+    document.addEventListener('DOMContentLoaded', function () {
+      const quizQuestions = [
+        {% for q in questions %}
+          {
+            question: {{ q.question | jsonify }},
+            options: {{ q.options | jsonify }},
+            correctAnswer: {{ q.correct_answer | jsonify }}
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ];
+  
+      if (!quizQuestions.length) {
+        alert('No quiz questions available.');
+        return;
+      }
+  
+      let currentQuestionIndex = 0;
+      let score = 0;
+      let correctAnswers = 0;
+      let wrongAnswers = 0;
+      let timer;
+      let timeLeft;
+      let timerDuration;
+      let playerName = '';
+      let leaderboard = JSON.parse(localStorage.getItem('quizLeaderboard')) || [];
+  
+      const quizLoginEl = document.getElementById('quiz-login');
+      const activeQuizEl = document.getElementById('active-quiz');
+      const quizResultsEl = document.getElementById('quiz-results');
+      const playerNameInput = document.getElementById('playerName');
+      const difficultyLevelSelect = document.getElementById('difficultyLevel');
+      const startQuizBtn = document.getElementById('startQuizBtn');
+      const questionCounterEl = document.getElementById('question-counter');
+      const questionTextEl = document.getElementById('question-text');
+      const optionsContainerEl = document.getElementById('options-container');
+      const countdownEl = document.getElementById('countdown');
+      const questionFeedbackEl = document.getElementById('question-feedback');
+      const progressBarEl = document.getElementById('quiz-progress');
+      const playAgainBtn = document.getElementById('play-again-btn');
+      const resultsEl = {
+        summary: document.getElementById('results-summary'),
+        correct: document.getElementById('stats-correct'),
+        wrong: document.getElementById('stats-wrong'),
+        points: document.getElementById('stats-points')
+      };
+  
+      function initQuiz() {
+        playerName = playerNameInput.value.trim() || 'Anonymous';
+  
+        const difficulty = difficultyLevelSelect.value;
+        timerDuration = difficulty === 'easy' ? 15 : difficulty === 'medium' ? 10 : 5;
+  
+        currentQuestionIndex = 0;
+        score = 0;
+        correctAnswers = 0;
+        wrongAnswers = 0;
+  
+        quizLoginEl.classList.add('d-none');
+        activeQuizEl.classList.remove('d-none');
+  
+        loadQuestion();
+      }
+  
+      function loadQuestion() {
+        const progress = (currentQuestionIndex / quizQuestions.length) * 100;
+        progressBarEl.style.width = `${progress}%`;
+  
+        if (currentQuestionIndex >= quizQuestions.length) {
+          endQuiz();
+          return;
         }
-
-        // Quiz option selection
-        const quizOptions = document.querySelectorAll('.quiz-option');
-        quizOptions.forEach(option => {
-            option.addEventListener('click', function() {
-                // Remove selected class from all options
-                quizOptions.forEach(opt => opt.classList.remove('selected'));
-
-                // Add selected class to clicked option
-                this.classList.add('selected');
-
-                // For demo purposes, mark option C as correct after a short delay
-                setTimeout(() => {
-                    quizOptions.forEach(opt => {
-                        if (opt.getAttribute('data-option') === 'C') {
-                            opt.classList.add('correct');
-                        } else if (opt.classList.contains('selected') && opt.getAttribute('data-option') !== 'C') {
-                            opt.classList.add('wrong');
-                        }
-                        // Disable all options
-                        opt.style.pointerEvents = 'none';
-                    });
-                }, 1000);
-            });
+  
+        const currentQuestion = quizQuestions[currentQuestionIndex];
+        questionCounterEl.textContent = `Question ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+        questionTextEl.textContent = currentQuestion.question;
+        optionsContainerEl.innerHTML = '';
+        questionFeedbackEl.innerHTML = '';
+  
+        const optionLetters = ['A', 'B', 'C', 'D'];
+        currentQuestion.options.forEach((option, index) => {
+          const optionEl = document.createElement('div');
+          optionEl.className = 'quiz-option animate-fade';
+          optionEl.dataset.option = optionLetters[index];
+          optionEl.dataset.value = option;
+  
+          optionEl.innerHTML = `
+            <div style="display: flex; align-items: center;">
+              <div class="option-indicator">${optionLetters[index]}</div>
+              <div style="margin-left: 1rem;">${option}</div>
+            </div>
+          `;
+  
+          optionEl.addEventListener('click', () => selectOption(optionEl, option));
+          optionsContainerEl.appendChild(optionEl);
         });
-
-        // Smooth scroll for navigation
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    window.scrollTo({
-                        top: target.offsetTop - 80, // Adjust for fixed navbar height
-                        behavior: 'smooth'
-                    });
-                }
-            });
+  
+        startTimer();
+      }
+  
+      function startTimer() {
+        timeLeft = timerDuration;
+        countdownEl.textContent = timeLeft;
+        countdownEl.parentElement.className = 'countdown-circle';
+  
+        if (timer) clearInterval(timer);
+  
+        timer = setInterval(() => {
+          timeLeft--;
+          countdownEl.textContent = timeLeft;
+  
+          if (timeLeft <= 3) {
+            countdownEl.parentElement.className = 'countdown-circle danger';
+          } else if (timeLeft <= 5) {
+            countdownEl.parentElement.className = 'countdown-circle warning';
+          }
+  
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+            timeUp();
+          }
+        }, 1000);
+      }
+  
+      function timeUp() {
+        document.querySelectorAll('.quiz-option').forEach(option => {
+          option.style.pointerEvents = 'none';
+          if (option.dataset.value === quizQuestions[currentQuestionIndex].correctAnswer) {
+            option.classList.add('correct');
+          }
         });
+  
+        questionFeedbackEl.innerHTML = `<span class="text-danger">Time's up! The correct answer was: ${quizQuestions[currentQuestionIndex].correctAnswer}</span>`;
+        wrongAnswers++;
+  
+        setTimeout(() => {
+          currentQuestionIndex++;
+          loadQuestion();
+        }, 2000);
+      }
+  
+      function selectOption(optionEl, selectedAnswer) {
+        clearInterval(timer);
+        document.querySelectorAll('.quiz-option').forEach(option => option.style.pointerEvents = 'none');
+  
+        const currentQuestion = quizQuestions[currentQuestionIndex];
+        const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
+        optionEl.classList.add('selected');
+  
+        setTimeout(() => {
+          if (isCorrect) {
+            optionEl.classList.add('correct');
+            const points = Math.max(50, 100 + (timeLeft * 10));
+            score += points;
+            correctAnswers++;
+            questionFeedbackEl.innerHTML = `<span style="color: #00e676;">Correct! +${points} points</span>`;
+          } else {
+            optionEl.classList.add('wrong');
+            wrongAnswers++;
+            document.querySelectorAll('.quiz-option').forEach(option => {
+              if (option.dataset.value === currentQuestion.correctAnswer) {
+                option.classList.add('correct');
+              }
+            });
+            questionFeedbackEl.innerHTML = `<span class="text-danger">Wrong! The correct answer was: ${currentQuestion.correctAnswer}</span>`;
+          }
+  
+          setTimeout(() => {
+            currentQuestionIndex++;
+            loadQuestion();
+          }, 2000);
+        }, 500);
+      }
+  
+      function endQuiz() {
+        activeQuizEl.classList.add('d-none');
+        quizResultsEl.classList.remove('d-none');
+  
+        resultsEl.summary.textContent = `You scored ${score} points`;
+        resultsEl.correct.textContent = correctAnswers;
+        resultsEl.wrong.textContent = wrongAnswers;
+        resultsEl.points.textContent = score;
+  
+        updateLeaderboard();
+      }
+  
+      function updateLeaderboard() {
+        leaderboard.push({ name: playerName, score, date: new Date().toISOString() });
+        leaderboard.sort((a, b) => b.score - a.score);
+        leaderboard = leaderboard.slice(0, 10);
+        localStorage.setItem('quizLeaderboard', JSON.stringify(leaderboard));
+  
+        const leaderboardContainer = document.getElementById('leaderboard-container');
+        leaderboardContainer.innerHTML = '';
+  
+        leaderboard.forEach((player, index) => {
+          const item = document.createElement('div');
+          item.className = 'leaderboard-item animate-fade';
+          item.style.animationDelay = `${index * 0.1}s`;
+          item.innerHTML = `
+            <div class="leaderboard-rank">${index + 1}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <div class="fw-bold">${player.name}</div>
+              <div>${player.score} pts</div>
+            </div>
+          `;
+          leaderboardContainer.appendChild(item);
+        });
+      }
+  
+      startQuizBtn.addEventListener('click', () => {
+        if (playerNameInput.value.trim()) {
+          initQuiz();
+        } else {
+          alert('Please enter your name to start the quiz');
+        }
+      });
+  
+      playAgainBtn.addEventListener('click', () => {
+        quizResultsEl.classList.add('d-none');
+        quizLoginEl.classList.remove('d-none');
+      });
     });
-</script>
+  </script>
+  
