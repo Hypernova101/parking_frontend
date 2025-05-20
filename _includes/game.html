@@ -378,7 +378,14 @@
     <button class="btn btn-primary btn-lg" style="width: 100%" id="startQuizBtn">
       Start Quiz
     </button>
-    
+
+    <button class="btn btn-secondary btn-lg mt-3" style="width: 100%" id="viewLeaderboardBtn">
+      View Leaderboard
+    </button>
+
+    <div id="live-leaderboard" class="mt-4"></div>
+
+
     <div class="text-center mt-4">
       <p class="small text-secondary">
         <i class="fas fa-info-circle"></i>
@@ -492,11 +499,6 @@ function updateLeaderboardUI(serverLeaderboard) {
     console.log(`${data.name} joined the game`);
   });
 
-  // Send quiz result after game ends
-  function emitGameEnd(score) {
-    socket.emit("player_score", { name: playerName, score: score });
-  }
-
   // Receive leaderboard update
   socket.on("leaderboard_update", (data) => {
     console.log("Updated leaderboard", data);
@@ -532,6 +534,52 @@ function updateLeaderboardUI(serverLeaderboard) {
       let timeLeft;
       let timerDuration;
       let playerName = '';
+
+      function emitGameEnd(score) {
+        socket.emit("player_score", { name: playerName, score: score });
+      }
+
+      const leaderboardBtn = document.getElementById("viewLeaderboardBtn");
+      const leaderboardDiv = document.getElementById("live-leaderboard");
+      let leaderboardVisible = false;
+
+      leaderboardBtn.addEventListener("click", () => {
+        leaderboardVisible = !leaderboardVisible;
+
+        if (leaderboardVisible) {
+          socket.emit("get_leaderboard");
+          leaderboardBtn.textContent = "HIDE LEADERBOARD";
+          leaderboardDiv.style.display = "block";
+        } else {
+          leaderboardBtn.textContent = "VIEW LEADERBOARD";
+          leaderboardDiv.style.display = "none";
+        }
+      });
+
+      socket.on("leaderboard_update", (data) => {
+        leaderboardDiv.innerHTML = ""; // Clear previous content
+
+        if (data.length === 0) {
+          leaderboardDiv.innerHTML = "<p class='text-secondary'>No players yet.</p>";
+          return;
+        }
+
+        data.forEach((player, index) => {
+          const item = document.createElement("div");
+          item.className = "leaderboard-item animate-fade";
+          item.innerHTML = `
+            <div class="leaderboard-rank">${index + 1}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <div class="fw-bold">${player.name}</div>
+              <div>${player.score} pts</div>
+            </div>
+          `;
+          leaderboardDiv.appendChild(item);
+        });
+      });
+
+
+
       let leaderboard = JSON.parse(localStorage.getItem('quizLeaderboard')) || [];
   
       const quizLoginEl = document.getElementById('quiz-login');
