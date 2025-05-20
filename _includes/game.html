@@ -449,9 +449,31 @@
   </div>
 </div>
 
+<script>
+function updateLeaderboardUI(serverLeaderboard) {
+  const leaderboardContainer = document.getElementById('leaderboard-container');
+  leaderboardContainer.innerHTML = '';
+
+  serverLeaderboard.forEach((player, index) => {
+    const item = document.createElement('div');
+    item.className = 'leaderboard-item animate-fade';
+    item.style.animationDelay = `${index * 0.1}s`;
+    item.innerHTML = `
+      <div class="leaderboard-rank">${index + 1}</div>
+      <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+        <div class="fw-bold">${player.name}</div>
+        <div>${player.score} pts</div>
+      </div>
+    `;
+    leaderboardContainer.appendChild(item);
+  });
+}
+</script>
+
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
 <script>
-  const socket = io.connect("https://prism.stu.nighthawkcodingsociety.com");
+  const socket = io(window.location.hostname === "localhost" ? "http://localhost:8505" : "http://127.0.0.1:8505");
 
   socket.on("connect", () => {
     console.log("Connected to game server");
@@ -478,8 +500,9 @@
   // Receive leaderboard update
   socket.on("leaderboard_update", (data) => {
     console.log("Updated leaderboard", data);
-    // OPTIONAL: replace your local leaderboard code with data received from server
+    updateLeaderboardUI(data);
   });
+
 </script>
 
 
@@ -667,32 +690,9 @@
         resultsEl.wrong.textContent = wrongAnswers;
         resultsEl.points.textContent = score;
   
-        updateLeaderboard();
+        emitGameEnd(score);
       }
-  
-      function updateLeaderboard() {
-        leaderboard.push({ name: playerName, score, date: new Date().toISOString() });
-        leaderboard.sort((a, b) => b.score - a.score);
-        leaderboard = leaderboard.slice(0, 10);
-        localStorage.setItem('quizLeaderboard', JSON.stringify(leaderboard));
-  
-        const leaderboardContainer = document.getElementById('leaderboard-container');
-        leaderboardContainer.innerHTML = '';
-  
-        leaderboard.forEach((player, index) => {
-          const item = document.createElement('div');
-          item.className = 'leaderboard-item animate-fade';
-          item.style.animationDelay = `${index * 0.1}s`;
-          item.innerHTML = `
-            <div class="leaderboard-rank">${index + 1}</div>
-            <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-              <div class="fw-bold">${player.name}</div>
-              <div>${player.score} pts</div>
-            </div>
-          `;
-          leaderboardContainer.appendChild(item);
-        });
-      }
+
   
       startQuizBtn.addEventListener('click', () => {
         if (playerNameInput.value.trim()) {
