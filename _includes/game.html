@@ -480,7 +480,7 @@ function updateLeaderboardUI(serverLeaderboard) {
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.min.js"></script>
 <script>
-  const socket = io(window.location.hostname === "localhost" ? "http://localhost:8505" : "http://127.0.0.1:8505");
+  const socket = io("https://parking.stu.nighthawkcodingsociety.com");
 
   socket.on("connect", () => {
     console.log("Connected to game server");
