@@ -104,22 +104,52 @@ async function runPythonCode(code) {
 
 async function runCode() {
   const code = document.getElementById('hackResponse').value;
-  const output = document.getElementById('output');
-  
-  if (code.startsWith('#python')) { // example: if code starts with #python, run Python
-    const pythonCode = code.replace('#python', '').trim();
-    const result = await runPythonCode(pythonCode);
-    output.innerText = result;
+
+  if (code.startsWith('#python') || code.startsWith('print') || code.includes('def ') || code.includes('import ')) {
+    // Run as Python
+    const output = await runPythonCode(code);
+    document.getElementById('output').innerText = output;
   } else {
+    // Run as JS (or other language you support)
     try {
       const result = eval(code);
-      output.innerText = result === undefined ? 'Done.' : result;
-    } catch (error) {
-      output.innerText = `JS Error: ${error.message}`;
+      document.getElementById('output').innerText = result;
+    } catch (err) {
+      document.getElementById('output').innerText = 'JS Error: ' + err.message;
     }
   }
 }
 
+// Helper to run Python and capture prints
+async function runPythonCode(code) {
+  const pyodide = await pyodideReadyPromise;
+
+  let output = "";
+  pyodide.setStdout({
+    batched: (data) => {
+      output += data + "\n";
+    }
+  });
+  pyodide.setStderr({
+    batched: (data) => {
+      output += "Error: " + data + "\n";
+    }
+  });
+
+  try {
+    let result = await pyodide.runPythonAsync(code);
+    if (result !== undefined && result !== null && result.toString() !== "None") {
+      output += result.toString();
+    }
+  } catch (err) {
+    output += `Python Error: ${err.message}`;
+  }
+
+  pyodide.setStdout();
+  pyodide.setStderr();
+
+  return output.trim();
+}
 
 </script>
 
