@@ -88,6 +88,39 @@ layout: bootstrap
       }, 500);
     }, 1500);
   }
+
+  let pyodideReadyPromise = loadPyodide();
+
+async function runPythonCode(code) {
+  const pyodide = await pyodideReadyPromise;
+  try {
+    let result = await pyodide.runPythonAsync(code);
+    return result;
+  } catch (err) {
+    return `Error: ${err.message}`;
+  }
+}
+
+
+async function runCode() {
+  const code = document.getElementById('hackResponse').value;
+  const output = document.getElementById('output');
+  
+  if (code.startsWith('#python')) { // example: if code starts with #python, run Python
+    const pythonCode = code.replace('#python', '').trim();
+    const result = await runPythonCode(pythonCode);
+    output.innerText = result;
+  } else {
+    try {
+      const result = eval(code);
+      output.innerText = result === undefined ? 'Done.' : result;
+    } catch (error) {
+      output.innerText = `JS Error: ${error.message}`;
+    }
+  }
+}
+
+
 </script>
 
 <style>
