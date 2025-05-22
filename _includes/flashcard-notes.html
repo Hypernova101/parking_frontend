@@ -1,141 +1,142 @@
-<div class="container">
+<div class="notes-container">
     <h1>📚 Flashcards</h1>
   
-    <form id="flashcard-form">
-      <input type="text" id="term" placeholder="Term" required />
-      <textarea id="definition" placeholder="Definition" required></textarea>
-      <input type="hidden" id="flashcard-id" />
+    <form id="notes-form">
+      <input type="text" id="note-term" placeholder="Term" required />
+      <textarea id="note-definition" placeholder="Definition" required></textarea>
+      <input type="hidden" id="note-id" />
       <button type="submit">Save Flashcard</button>
     </form>
   
-    <div id="carousel-container">
-      <button id="prev-btn" class="nav-btn">← Prev</button>
-      <div id="carousel" class="carousel"></div>
-      <button id="next-btn" class="nav-btn">Next →</button>
+    <div id="notes-carousel-container">
+      <button id="notes-prev-btn" class="notes-nav-btn">← Prev</button>
+      <div id="notes-carousel" class="notes-carousel"></div>
+      <button id="notes-next-btn" class="notes-nav-btn">Next →</button>
     </div>
   
-    <div class="card-counter" id="card-counter">0 / 0</div>
-  </div>
+    <div class="notes-card-counter" id="notes-card-counter">0 / 0</div>
+</div>
   
   
-  <style>
-    :root {
-      --bg-color: #0f172a;
-      --card-bg: #1e293b;
-      --text-color: #f8fafc;
-      --accent: #6366f1;
-      --border: rgba(255, 255, 255, 0.1);
-    }
-  
-    body {
-      background: var(--bg-color);
-      color: var(--text-color);
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-  
-    .container {
-      max-width: 800px;
-      margin: auto;
-      padding: 2rem;
-    }
-  
-    h1 {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: var(--text-color);
-    }
-  
-    .flashcard {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      margin: 15px 0;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      transition: transform 0.5s;
-      cursor: pointer;
-      perspective: 1000px;
-    }
-  
-    .flashcard.flipped .term,
-    .flashcard:not(.flipped) .definition {
-      display: none;
-    }
-  
-    .flashcard.flipped .definition,
-    .flashcard:not(.flipped) .term {
-      display: block;
-    }
-  
-    .term, .definition {
-      font-size: 1.1rem;
-      line-height: 1.6;
-      color: var(--text-color);
-    }
-  
-    .flashcard-controls {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 1.2rem;
-    }
-  
-    .flashcard-controls button {
-      background: var(--accent);
-      border: none;
-      padding: 0.5rem 1rem;
-      color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-weight: 500;
-    }
-  
-    .flashcard-controls button:hover {
-      background: #4f46e5;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-    }
-  
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-  
-    input, textarea {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      color: var(--text-color);
-      padding: 12px;
-      border-radius: 10px;
-      width: 100%;
-      font-size: 1rem;
-    }
-  
-    input:focus, textarea:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-  
-    button[type="submit"] {
-      background: var(--accent);
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      width: 100%;
-    }
-  
-    button[type="submit"]:hover {
-      background: #4f46e5;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-    }
-    #carousel-container {
+<style>
+  :root {
+    --notes-bg-color: #0f172a;
+    --notes-card-bg: #1e293b;
+    --notes-text-color: #f8fafc;
+    --notes-accent: #6366f1;
+    --notes-border: rgba(255, 255, 255, 0.1);
+  }
+
+  body {
+    background: var(--notes-bg-color);
+    color: var(--notes-text-color);
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  .notes-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 2rem;
+  }
+
+  h1 {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--notes-text-color);
+  }
+
+  .notes-flashcard {
+    background: var(--notes-card-bg);
+    border: 1px solid var(--notes-border);
+    border-radius: 16px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: transform 0.5s;
+    cursor: pointer;
+    perspective: 1000px;
+  }
+
+  .notes-flashcard.flipped .notes-term,
+  .notes-flashcard:not(.flipped) .notes-definition {
+    display: none;
+  }
+
+  .notes-flashcard.flipped .notes-definition,
+  .notes-flashcard:not(.flipped) .notes-term {
+    display: block;
+  }
+
+  .notes-term, .notes-definition {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--notes-text-color);
+  }
+
+  .notes-flashcard-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.2rem;
+  }
+
+  .notes-flashcard-controls button {
+    background: var(--notes-accent);
+    border: none;
+    padding: 0.5rem 1rem;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+
+  .notes-flashcard-controls button:hover {
+    background: #4f46e5;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  input, textarea {
+    background: var(--notes-card-bg);
+    border: 1px solid var(--notes-border);
+    color: var(--notes-text-color);
+    padding: 12px;
+    border-radius: 10px;
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: var(--notes-accent);
+  }
+
+  button[type="submit"] {
+    background: var(--notes-accent);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+
+  button[type="submit"]:hover {
+    background: #4f46e5;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  }
+
+  #notes-carousel-container {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -143,16 +144,16 @@
     margin-top: 2rem;
     position: relative;
   }
-  
-  .carousel {
+
+  .notes-carousel {
     width: 100%;
     max-width: 600px;
     height: 260px;
     position: relative;
     overflow: hidden;
   }
-  
-  .flashcard {
+
+  .notes-flashcard {
     position: absolute;
     top: 0;
     left: 0;
@@ -163,38 +164,37 @@
     transform: scale(0.9);
     z-index: 0;
   }
-  
-  .flashcard.active {
+
+  .notes-flashcard.active {
     opacity: 1;
     transform: scale(1);
     z-index: 1;
   }
-  
-  .nav-btn {
+
+  .notes-nav-btn {
     background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text-color);
+    border: 1px solid var(--notes-border);
+    color: var(--notes-text-color);
     padding: 0.5rem 1.2rem;
     border-radius: 8px;
     cursor: pointer;
     font-size: 1rem;
     transition: all 0.3s ease;
   }
-  
-  .nav-btn:hover {
+
+  .notes-nav-btn:hover {
     background: rgba(255, 255, 255, 0.1);
   }
-  
-  .card-counter {
+
+  .notes-card-counter {
     text-align: center;
     margin-top: 1rem;
-    color: var(--text-color);
+    color: var(--notes-text-color);
     font-size: 0.9rem;
   }
+</style>
   
-  </style>
-  
-  <script>
+<script>
     const lessonId = 1;
     let flashcards = [];
     let currentIndex = 0;
@@ -217,7 +217,7 @@
       })
       .then(res => res.json())
       .then(() => {
-        document.getElementById('flashcard-form').reset();
+        document.getElementById('notes-form').reset();
         fetchFlashcards();
       });
     }
@@ -230,7 +230,7 @@
       })
       .then(res => res.json())
       .then(() => {
-        document.getElementById('flashcard-form').reset();
+        document.getElementById('notes-form').reset();
         fetchFlashcards();
       });
     }
@@ -246,19 +246,19 @@
     }
   
     function renderCarousel() {
-      const carousel = document.getElementById('carousel');
-      const counter = document.getElementById('card-counter');
+      const carousel = document.getElementById('notes-carousel');
+      const counter = document.getElementById('notes-card-counter');
       carousel.innerHTML = '';
       
       flashcards.forEach((card, index) => {
         const div = document.createElement('div');
-        div.className = 'flashcard';
+        div.className = 'notes-flashcard';
         if (index === currentIndex) div.classList.add('active');
   
         div.innerHTML = `
-          <div class="term"><strong>Term:</strong> ${card.term}</div>
-          <div class="definition"><strong>Definition:</strong> ${card.definition}</div>
-          <div class="flashcard-controls">
+          <div class="notes-term"><strong>Term:</strong> ${card.term}</div>
+          <div class="notes-definition"><strong>Definition:</strong> ${card.definition}</div>
+          <div class="notes-flashcard-controls">
             <button onclick="loadFlashcardIntoForm(${card.id}, \`${card.term.replace(/`/g, "\\`")}\`, \`${card.definition.replace(/`/g, "\\`")}\`)">✏️ Edit</button>
             <button onclick="deleteFlashcard(${card.id})">🗑️ Delete</button>
           </div>
@@ -271,16 +271,16 @@
     }
   
     function loadFlashcardIntoForm(id, term, definition) {
-      document.getElementById('flashcard-id').value = id;
-      document.getElementById('term').value = term;
-      document.getElementById('definition').value = definition;
+      document.getElementById('note-id').value = id;
+      document.getElementById('note-term').value = term;
+      document.getElementById('note-definition').value = definition;
     }
   
-    document.getElementById('flashcard-form').onsubmit = function(e) {
+    document.getElementById('notes-form').onsubmit = function(e) {
       e.preventDefault();
-      const term = document.getElementById('term').value;
-      const definition = document.getElementById('definition').value;
-      const id = document.getElementById('flashcard-id').value;
+      const term = document.getElementById('note-term').value;
+      const definition = document.getElementById('note-definition').value;
+      const id = document.getElementById('note-id').value;
   
       if (id) {
         updateFlashcard(parseInt(id), term, definition);
@@ -289,18 +289,17 @@
       }
     };
   
-    document.getElementById('next-btn').onclick = function () {
+    document.getElementById('notes-next-btn').onclick = function () {
       if (flashcards.length === 0) return;
       currentIndex = (currentIndex + 1) % flashcards.length;
       renderCarousel();
     };
   
-    document.getElementById('prev-btn').onclick = function () {
+    document.getElementById('notes-prev-btn').onclick = function () {
       if (flashcards.length === 0) return;
       currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
       renderCarousel();
     };
   
     fetchFlashcards();
-  </script>
-  
+</script>
