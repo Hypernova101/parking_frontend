@@ -1,0 +1,306 @@
+<div class="container">
+    <h1>📚 Flashcards</h1>
+  
+    <form id="flashcard-form">
+      <input type="text" id="term" placeholder="Term" required />
+      <textarea id="definition" placeholder="Definition" required></textarea>
+      <input type="hidden" id="flashcard-id" />
+      <button type="submit">Save Flashcard</button>
+    </form>
+  
+    <div id="carousel-container">
+      <button id="prev-btn" class="nav-btn">← Prev</button>
+      <div id="carousel" class="carousel"></div>
+      <button id="next-btn" class="nav-btn">Next →</button>
+    </div>
+  
+    <div class="card-counter" id="card-counter">0 / 0</div>
+  </div>
+  
+  
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-color: #f8fafc;
+      --accent: #6366f1;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+  
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+  
+    .container {
+      max-width: 800px;
+      margin: auto;
+      padding: 2rem;
+    }
+  
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--text-color);
+    }
+  
+    .flashcard {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 15px 0;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transition: transform 0.5s;
+      cursor: pointer;
+      perspective: 1000px;
+    }
+  
+    .flashcard.flipped .term,
+    .flashcard:not(.flipped) .definition {
+      display: none;
+    }
+  
+    .flashcard.flipped .definition,
+    .flashcard:not(.flipped) .term {
+      display: block;
+    }
+  
+    .term, .definition {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--text-color);
+    }
+  
+    .flashcard-controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1.2rem;
+    }
+  
+    .flashcard-controls button {
+      background: var(--accent);
+      border: none;
+      padding: 0.5rem 1rem;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+  
+    .flashcard-controls button:hover {
+      background: #4f46e5;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+  
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+  
+    input, textarea {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-color);
+      padding: 12px;
+      border-radius: 10px;
+      width: 100%;
+      font-size: 1rem;
+    }
+  
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+  
+    button[type="submit"] {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+  
+    button[type="submit"]:hover {
+      background: #4f46e5;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+    #carousel-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+    position: relative;
+  }
+  
+  .carousel {
+    width: 100%;
+    max-width: 600px;
+    height: 260px;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .flashcard {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    opacity: 0;
+    transform: scale(0.9);
+    z-index: 0;
+  }
+  
+  .flashcard.active {
+    opacity: 1;
+    transform: scale(1);
+    z-index: 1;
+  }
+  
+  .nav-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-color);
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .nav-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  .card-counter {
+    text-align: center;
+    margin-top: 1rem;
+    color: var(--text-color);
+    font-size: 0.9rem;
+  }
+  
+  </style>
+  
+  <script>
+    const lessonId = 1;
+    let flashcards = [];
+    let currentIndex = 0;
+  
+    function fetchFlashcards() {
+      fetch(`http://127.0.0.1:8000/api/flashcard?lesson_id=${lessonId}`)
+        .then(res => res.json())
+        .then(data => {
+          flashcards = data;
+          currentIndex = 0;
+          renderCarousel();
+        });
+    }
+  
+    function createFlashcard(term, definition) {
+      fetch('http://127.0.0.1:8000/api/flashcard', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ term, definition, lesson_id: lessonId })
+      })
+      .then(res => res.json())
+      .then(() => {
+        document.getElementById('flashcard-form').reset();
+        fetchFlashcards();
+      });
+    }
+  
+    function updateFlashcard(id, term, definition) {
+      fetch('http://127.0.0.1:8000/api/flashcard', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, term, definition, lesson_id: lessonId })
+      })
+      .then(res => res.json())
+      .then(() => {
+        document.getElementById('flashcard-form').reset();
+        fetchFlashcards();
+      });
+    }
+  
+    function deleteFlashcard(id) {
+      fetch('http://127.0.0.1:8000/api/flashcard', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id })
+      })
+      .then(res => res.json())
+      .then(() => fetchFlashcards());
+    }
+  
+    function renderCarousel() {
+      const carousel = document.getElementById('carousel');
+      const counter = document.getElementById('card-counter');
+      carousel.innerHTML = '';
+      
+      flashcards.forEach((card, index) => {
+        const div = document.createElement('div');
+        div.className = 'flashcard';
+        if (index === currentIndex) div.classList.add('active');
+  
+        div.innerHTML = `
+          <div class="term"><strong>Term:</strong> ${card.term}</div>
+          <div class="definition"><strong>Definition:</strong> ${card.definition}</div>
+          <div class="flashcard-controls">
+            <button onclick="loadFlashcardIntoForm(${card.id}, \`${card.term.replace(/`/g, "\\`")}\`, \`${card.definition.replace(/`/g, "\\`")}\`)">✏️ Edit</button>
+            <button onclick="deleteFlashcard(${card.id})">🗑️ Delete</button>
+          </div>
+        `;
+        div.onclick = () => div.classList.toggle('flipped');
+        carousel.appendChild(div);
+      });
+  
+      counter.textContent = `${flashcards.length ? currentIndex + 1 : 0} / ${flashcards.length}`;
+    }
+  
+    function loadFlashcardIntoForm(id, term, definition) {
+      document.getElementById('flashcard-id').value = id;
+      document.getElementById('term').value = term;
+      document.getElementById('definition').value = definition;
+    }
+  
+    document.getElementById('flashcard-form').onsubmit = function(e) {
+      e.preventDefault();
+      const term = document.getElementById('term').value;
+      const definition = document.getElementById('definition').value;
+      const id = document.getElementById('flashcard-id').value;
+  
+      if (id) {
+        updateFlashcard(parseInt(id), term, definition);
+      } else {
+        createFlashcard(term, definition);
+      }
+    };
+  
+    document.getElementById('next-btn').onclick = function () {
+      if (flashcards.length === 0) return;
+      currentIndex = (currentIndex + 1) % flashcards.length;
+      renderCarousel();
+    };
+  
+    document.getElementById('prev-btn').onclick = function () {
+      if (flashcards.length === 0) return;
+      currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+      renderCarousel();
+    };
+  
+    fetchFlashcards();
+  </script>
+  
