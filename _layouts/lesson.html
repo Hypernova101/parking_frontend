@@ -121,35 +121,36 @@ async function runCode() {
 }
 
 // Helper to run Python and capture prints
-async function runPythonCode(code) {
-  const pyodide = await pyodideReadyPromise;
+document.addEventListener("DOMContentLoaded", () => {
+    window.runCode = async function () {
+      const language = document.getElementById("languageSelect").value;
+      const code = document.getElementById("hackResponse").value;
+      const outputElement = document.getElementById("output");
 
-  let output = "";
-  pyodide.setStdout({
-    batched: (data) => {
-      output += data + "\n";
-    }
+      outputElement.textContent = "Running...";
+
+      if (language === "python") {
+        if (!window.pyodide) {
+          outputElement.textContent = "Loading Python runtime...";
+          window.pyodide = await loadPyodide();
+        }
+
+        try {
+          const result = await window.pyodide.runPythonAsync(code);
+          outputElement.textContent = result;
+        } catch (err) {
+          outputElement.textContent = "Error: " + err;
+        }
+      } else if (language === "javascript") {
+        try {
+          const result = eval(code);
+          outputElement.textContent = result;
+        } catch (err) {
+          outputElement.textContent = "Error: " + err;
+        }
+      }
+    };
   });
-  pyodide.setStderr({
-    batched: (data) => {
-      output += "Error: " + data + "\n";
-    }
-  });
-
-  try {
-    let result = await pyodide.runPythonAsync(code);
-    if (result !== undefined && result !== null && result.toString() !== "None") {
-      output += result.toString();
-    }
-  } catch (err) {
-    output += `Python Error: ${err.message}`;
-  }
-
-  pyodide.setStdout();
-  pyodide.setStderr();
-
-  return output.trim();
-}
 
 </script>
 
