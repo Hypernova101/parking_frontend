@@ -263,5 +263,66 @@ sys.stdout = StringIO()
   };
 });
 
+
+  let selectedSentiment = null;
+
+  function selectFeedback(type) {
+    selectedSentiment = type;
+    document.getElementById('feedbackForm').style.display = 'block';
+    document.getElementById('feedbackTitle').innerText =
+      type === 'up' ? 'Awesome! What did you like?' : 'Oh no! What could be better?';
+
+    document.getElementById('thumbsUp').classList.toggle('selected', type === 'up');
+    document.getElementById('thumbsDown').classList.toggle('selected', type === 'down');
+  }
+
+  async function submitFeedback() {
+  const comment = document.getElementById('feedbackText').value.trim();
+
+  if (!selectedSentiment || !comment) {
+    alert('Please select thumbs up/down and enter feedback.');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/feedback', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        sentiment: selectedSentiment,
+        comment: comment
+      })
+    });
+
+    if (!response.ok) throw new Error('Server error submitting feedback.');
+
+    const data = await response.json();
+
+    // Show success message
+    const statusDiv = document.getElementById('feedbackStatus');
+    const statusText = document.getElementById('statusText');
+    statusText.textContent = data.message;
+    statusDiv.style.display = 'block';
+
+    // Hide form and reset input
+    document.getElementById('feedbackForm').style.display = 'none';
+    document.getElementById('feedbackText').value = '';
+
+    // Auto-hide success message
+    setTimeout(() => {
+      resetFeedback();
+    }, 3000);
+
+  } catch (err) {
+    alert('Failed to submit feedback: ' + err.message);
+    console.error('Feedback submission error:', err);
+  }
+}
+
+CORS(app, origins=["http://localhost:8000"])
+
+
 </script>
 
