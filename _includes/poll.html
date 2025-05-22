@@ -7,30 +7,53 @@
   <!-- Header with enhanced styling -->
   <h2 class="section-title" style="color: white; font-weight: 700; display: flex; align-items: center; position: relative; z-index: 2; text-shadow: 0 2px 4px rgba(0,0,0,0.2); letter-spacing: 0.5px;">
     <span class="icon-circle" style="background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; width: 46px; height: 46px; display: flex; justify-content: center; align-items: center; margin-right: 12px; box-shadow: 0 0 20px rgba(121, 209, 195, 0.5);">
-      <span style="font-size: 1.25rem; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));">📊</span>
+      <span style="font-size: 1.25rem; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.2));">💭</span>
     </span> 
-    <span style="background: linear-gradient(to right, #ffffff, #e0f7fa); -webkit-background-clip: text; background-clip: text; color: transparent;">Quick Poll</span>
+    <span style="background: linear-gradient(to right, #ffffff, #e0f7fa); -webkit-background-clip: text; background-clip: text; color: transparent;">How was this lesson?</span>
   </h2>
   
   <!-- Content area with glass morphism effect -->
   <div class="section-content p-4 mt-3" style="background: rgba(255,255,255,0.85); backdrop-filter: blur(12px); border-radius: 12px; border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 8px 32px rgba(31,38,135,0.1); transition: all 0.3s ease;">
-    <!-- Question with accent styling -->
-    <h3 style="color: #0B486B; font-size: 1.2rem; font-weight: 600; border-left: 4px solid #3A8BCA; padding-left: 12px; margin-bottom: 1.2rem;">What was the most confusing part of this lesson?</h3>
     
-    <!-- Input field with enhanced styling -->
-    <input type="text" id="pollResponse" class="form-control custom-input" style="margin-top: 15px; margin-bottom: 20px; border: 2px solid rgba(58, 139, 202, 0.3); border-radius: 10px; padding: 12px 15px; background-color: rgba(255,255,255,0.7); transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+    <!-- Thumbs up/down buttons -->
+    <div class="feedback-buttons" style="display: flex; justify-content: center; gap: 30px; margin-bottom: 25px;">
+      <button id="thumbsUp" onclick="selectFeedback('up')" class="thumb-btn" style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%); color: white; border: none; border-radius: 50%; width: 80px; height: 80px; font-size: 2rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); position: relative; overflow: hidden;">
+        <i class="fas fa-thumbs-up"></i>
+        <div style="position: absolute; top: 0; left: -100%; width: 200%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform: skewX(-15deg); transition: all 0.5s ease; z-index: 1;"></div>
+      </button>
+      
+      <button id="thumbsDown" onclick="selectFeedback('down')" class="thumb-btn" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); color: white; border: none; border-radius: 50%; width: 80px; height: 80px; font-size: 2rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4); position: relative; overflow: hidden;">
+        <i class="fas fa-thumbs-down"></i>
+        <div style="position: absolute; top: 0; left: -100%; width: 200%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform: skewX(-15deg); transition: all 0.5s ease; z-index: 1;"></div>
+      </button>
+    </div>
     
-    <!-- Button with more futuristic styling -->
-    <button onclick="submitPoll()" class="btn btn-primary" style="background: linear-gradient(135deg, #0B486B 0%, #3A8BCA 100%); color: white; border: none; border-radius: 8px; padding: 10px 20px; font-weight: 500; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 15px rgba(58, 139, 202, 0.4); position: relative; overflow: hidden;">
-      <span style="position: relative; z-index: 2; display: flex; align-items: center; justify-content: center;">
-        <i class="fas fa-paper-plane mr-2" style="margin-right: 8px;"></i> Submit Answer
-      </span>
-      <div style="position: absolute; top: 0; left: -100%; width: 200%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform: skewX(-15deg); transition: all 0.5s ease; z-index: 1;"></div>
-    </button>
+    <!-- Feedback form (initially hidden) -->
+    <div id="feedbackForm" class="feedback-form" style="display: none; animation: fadeInUp 0.5s ease; border-top: 1px solid rgba(58, 139, 202, 0.2); padding-top: 20px;">
+      <h3 id="feedbackTitle" style="color: #0B486B; font-size: 1.2rem; font-weight: 600; border-left: 4px solid #3A8BCA; padding-left: 12px; margin-bottom: 1.2rem;"></h3>
+      
+      <textarea id="feedbackText" class="form-control custom-input" placeholder="Share your thoughts..." style="width: 100%; height: 120px; border: 2px solid rgba(58, 139, 202, 0.3); border-radius: 10px; padding: 12px 15px; background-color: rgba(255,255,255,0.7); transition: all 0.3s ease; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05); resize: vertical; font-family: inherit; font-size: 14px; box-sizing: border-box; margin-bottom: 15px;"></textarea>
+      
+      <div style="display: flex; gap: 10px;">
+        <button onclick="submitFeedback()" class="btn btn-primary" style="background: linear-gradient(135deg, #0B486B 0%, #3A8BCA 100%); color: white; border: none; border-radius: 8px; padding: 10px 20px; font-weight: 500; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 15px rgba(58, 139, 202, 0.4); position: relative; overflow: hidden; flex: 1;">
+          <span style="position: relative; z-index: 2; display: flex; align-items: center; justify-content: center;">
+            <i class="fas fa-paper-plane mr-2" style="margin-right: 8px;"></i> Submit Feedback
+          </span>
+          <div style="position: absolute; top: 0; left: -100%; width: 200%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); transform: skewX(-15deg); transition: all 0.5s ease; z-index: 1;"></div>
+        </button>
+        
+        <button onclick="resetFeedback()" class="btn btn-secondary" style="background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); color: white; border: none; border-radius: 8px; padding: 10px 20px; font-weight: 500; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 15px rgba(108, 117, 125, 0.4); position: relative; overflow: hidden;">
+          <span style="position: relative; z-index: 2;">
+            <i class="fas fa-undo mr-2" style="margin-right: 8px;"></i> Reset
+          </span>
+        </button>
+      </div>
+    </div>
     
     <!-- Status message with improved styling -->
-    <div id="pollStatus" class="status-message" style="display: none; color: #0B486B; margin-top: 15px; background: rgba(121, 209, 195, 0.15); padding: 10px 15px; border-radius: 8px; font-weight: 500; border-left: 3px solid #79D1C3; animation: fadeInUp 0.5s ease;">
-      <i class="fas fa-check-circle" style="margin-right: 6px;"></i> Answer submitted successfully!
+    <div id="feedbackStatus" class="status-message" style="display: none; color: #0B486B; margin-top: 15px; background: rgba(121, 209, 195, 0.15); padding: 15px; border-radius: 8px; font-weight: 500; border-left: 3px solid #79D1C3; animation: fadeInUp 0.5s ease;">
+      <i class="fas fa-check-circle" style="margin-right: 6px;"></i> 
+      <span id="statusText">Feedback submitted successfully!</span>
     </div>
   </div>
   
@@ -41,23 +64,41 @@
       to { opacity: 1; transform: translateY(0); }
     }
     
-    @keyframes shimmer {
-      to { left: 100%; }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    .thumb-btn:hover {
+      transform: translateY(-3px) scale(1.1);
+      box-shadow: 0 7px 20px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    .thumb-btn:hover div {
+      left: 100%;
+    }
+    
+    .thumb-btn.selected {
+      transform: scale(1.1);
+      animation: pulse 2s infinite;
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.5) !important;
     }
     
     .btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 7px 20px rgba(58, 139, 202, 0.5) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 7px 20px rgba(0, 0, 0, 0.3) !important;
     }
     
     .btn:hover div {
       left: 100%;
     }
     
-    input:focus {
+    textarea:focus {
       border-color: #3A8BCA !important;
       box-shadow: 0 0 0 3px rgba(58, 139, 202, 0.25) !important;
-      background-color: rgba(44, 43, 43, 0.95) !important;
+      background-color: rgba(255, 255, 255, 0.95) !important;
+      outline: none;
     }
   </style>
 </div>

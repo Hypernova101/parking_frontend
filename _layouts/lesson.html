@@ -54,27 +54,93 @@ layout: bootstrap
     });
   });
 
-  function saveResponse() {
-    const response = document.getElementById('hackResponse').value;
-    if (response.trim() !== '') {
-      localStorage.setItem('popcornHack_' + window.location.pathname, response);
-      showStatusMessage('saveStatus');
+// Feedback poll JS from your provided code
+
+let selectedFeedback = null;
+
+function selectFeedback(type) {
+    selectedFeedback = type;
+    
+    // Reset button states
+    document.getElementById('thumbsUp').classList.remove('selected');
+    document.getElementById('thumbsDown').classList.remove('selected');
+    
+    // Add selected state to clicked button
+    const selectedBtn = document.getElementById(type === 'up' ? 'thumbsUp' : 'thumbsDown');
+    selectedBtn.classList.add('selected');
+    
+    // Show feedback form
+    const feedbackForm = document.getElementById('feedbackForm');
+    const feedbackTitle = document.getElementById('feedbackTitle');
+    const feedbackText = document.getElementById('feedbackText');
+    
+    if (type === 'up') {
+        feedbackTitle.textContent = 'What did you like about this lesson?';
+        feedbackText.placeholder = 'Tell us what worked well and any suggestions for improvement...';
+        feedbackTitle.style.borderLeftColor = '#4CAF50';
+    } else {
+        feedbackTitle.textContent = 'What could we do better?';
+        feedbackText.placeholder = 'Help us improve by sharing what didn\'t work or what was confusing...';
+        feedbackTitle.style.borderLeftColor = '#f44336';
     }
+    
+    feedbackForm.style.display = 'block';
+    feedbackText.focus();
+    
+    // Hide status message if visible
+    document.getElementById('feedbackStatus').style.display = 'none';
+}
+
+async function submitFeedback() {
+  const feedbackText = document.getElementById('feedbackText').value.trim();
+
+  if (!feedbackText) {
+    alert('Please provide some feedback before submitting.');
+    return;
   }
-  
-  function clearResponse() {
-    document.getElementById('hackResponse').value = '';
-    localStorage.removeItem('popcornHack_' + window.location.pathname);
-    document.getElementById('saveStatus').style.display = 'none';
+
+  // Hide form and show success message (same as before)
+  document.getElementById('feedbackForm').style.display = 'none';
+  const statusDiv = document.getElementById('feedbackStatus');
+  const statusText = document.getElementById('statusText');
+
+  if (selectedFeedback === 'up') {
+    statusText.textContent = 'Thank you for your positive feedback! 🎉';
+    statusDiv.style.background = 'rgba(76, 175, 80, 0.15)';
+    statusDiv.style.borderLeftColor = '#4CAF50';
+  } else {
+    statusText.textContent = 'Thank you for helping us improve! 🚀';
+    statusDiv.style.background = 'rgba(255, 152, 0, 0.15)';
+    statusDiv.style.borderLeftColor = '#ff9800';
   }
-  
-  function submitPoll() {
-    const response = document.getElementById('pollResponse').value;
-    if (response.trim() !== '') {
-      localStorage.setItem('quickPoll_' + window.location.pathname, response);
-      showStatusMessage('pollStatus');
-    }
-  }
+
+  statusDiv.style.display = 'block';
+
+  // Send feedback to the backend
+  await sendFeedbackToServer(selectedFeedback, feedbackText);
+
+  // Reset after 3 seconds
+  setTimeout(() => {
+    resetFeedback();
+  }, 3000);
+}
+
+
+function resetFeedback() {
+    selectedFeedback = null;
+    
+    // Reset button states
+    document.getElementById('thumbsUp').classList.remove('selected');
+    document.getElementById('thumbsDown').classList.remove('selected');
+    
+    // Hide form and status
+    document.getElementById('feedbackForm').style.display = 'none';
+    document.getElementById('feedbackStatus').style.display = 'none';
+    
+    // Clear textarea
+    document.getElementById('feedbackText').value = '';
+}
+
   
   function showStatusMessage(id) {
     const statusElement = document.getElementById(id);
@@ -151,6 +217,24 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     };
   });
+
+  async function sendFeedbackToServer(type, message) {
+  try {
+    const response = await fetch('/save_feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, message })
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.error || 'Failed to save feedback');
+    }
+    return result;
+  } catch (error) {
+    alert('Error saving feedback: ' + error.message);
+  }
+}
+
 
 </script>
 
