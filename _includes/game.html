@@ -1,6 +1,4 @@
-<script>
-  const roomQuestionsData = {{ site.data.game_questions.rooms | jsonify }};
-</script>
+{% assign questions = site.data.game_questions.questions %}
 
 <!-- Quiz Game Styling -->
 <style>
@@ -363,16 +361,7 @@
         <input type="text" class="form-control" id="playerName" placeholder="Your Name">
       </div>
     </div>
-
-    <div class="form-group">
-      <div class="input-group">
-        <span class="input-group-text">
-          <i class="fas fa-hashtag"></i>
-        </span>
-        <input type="text" class="form-control" id="roomCode" placeholder="Room Code (e.g. 123)">
-      </div>
-    </div>
-
+    
     <div class="form-group">
       <div class="input-group">
         <span class="input-group-text">
@@ -468,11 +457,6 @@
 </div>
 
 <script>
-  var quizQuestions = []; // ✅ make it accessible outside the DOMContentLoaded
-</script>
-
-
-<script>
 function updateLeaderboardUI(serverLeaderboard) {
   const leaderboardContainer = document.getElementById('leaderboard-container');
   leaderboardContainer.innerHTML = '';
@@ -503,30 +487,12 @@ function updateLeaderboardUI(serverLeaderboard) {
   });
 
   // Send player join
-  const roomCodeInput = document.getElementById("roomCode");
-
   document.getElementById("startQuizBtn").addEventListener("click", () => {
     const playerName = document.getElementById("playerName").value.trim();
-    const roomCode = roomCodeInput.value.trim();
-
-    if (playerName && roomCode) {
-      socket.emit("join_room", { name: playerName, room: roomCode });
-
-      // Load questions client-side (e.g., use YAML via Liquid templating if using Jekyll/GitHub Pages)
-      // You'll need to have `site.data.game_questions.rooms[roomCode].questions` available
-      const roomQuestions = roomQuestionsData[roomCode]?.questions || [];
-      if (roomQuestions.length === 0) {
-        alert("No questions found for this room.");
-        return;
-      }
-
-      quizQuestions = roomQuestions;
-      initQuiz(); // your function that starts the quiz
-    } else {
-      alert("Please enter your name and room code.");
+    if (playerName) {
+      socket.emit("player_join", { name: playerName });
     }
   });
-
 
   // Receive broadcast of new player
   socket.on("player_joined", (data) => {
@@ -545,6 +511,16 @@ function updateLeaderboardUI(serverLeaderboard) {
 <!-- Quiz Game Script -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+      const quizQuestions = [
+        {% for q in questions %}
+          {
+            question: {{ q.question | jsonify }},
+            options: {{ q.options | jsonify }},
+            correctAnswer: {{ q.correct_answer | jsonify }}
+          }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ];
+  
       if (!quizQuestions.length) {
         alert('No quiz questions available.');
         return;
@@ -560,11 +536,7 @@ function updateLeaderboardUI(serverLeaderboard) {
       let playerName = '';
 
       function emitGameEnd(score) {
-        socket.emit("player_score", {
-          name: playerName,
-          room: roomCode,
-          score: score
-        });
+        socket.emit("player_score", { name: playerName, score: score });
       }
 
       const leaderboardBtn = document.getElementById("viewLeaderboardBtn");
@@ -575,7 +547,7 @@ function updateLeaderboardUI(serverLeaderboard) {
         leaderboardVisible = !leaderboardVisible;
 
         if (leaderboardVisible) {
-          socket.emit("get_leaderboard", { room: roomCode });
+          socket.emit("get_leaderboard");
           leaderboardBtn.textContent = "HIDE LEADERBOARD";
           leaderboardDiv.style.display = "block";
         } else {
@@ -770,26 +742,14 @@ function updateLeaderboardUI(serverLeaderboard) {
       }
 
   
-      startQuizBtn.addEventListener("click", () => {
-        const playerName = playerNameInput.value.trim();
-        const roomCode = roomCodeInput.value.trim();
-
-        if (playerName && roomCode) {
-          socket.emit("join_room", { name: playerName, room: roomCode });
-
-          const roomQuestions = roomQuestionsData[roomCode]?.questions || [];
-          if (roomQuestions.length === 0) {
-            alert("No questions found for this room.");
-            return;
-          }
-
-          quizQuestions = roomQuestions;
-          initQuiz(); // ✅ Now this works because we're inside the DOMContentLoaded scope
+      startQuizBtn.addEventListener('click', () => {
+        if (playerNameInput.value.trim()) {
+          initQuiz();
         } else {
-          alert("Please enter your name and room code.");
+          alert('Please enter your name to start the quiz');
         }
       });
-
+  
       playAgainBtn.addEventListener('click', () => {
         quizResultsEl.classList.add('d-none');
         quizLoginEl.classList.remove('d-none');
