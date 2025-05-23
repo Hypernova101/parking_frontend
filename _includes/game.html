@@ -1,4 +1,6 @@
-{% assign rooms = site.data.game_questions.rooms %}
+<script>
+  const roomQuestionsData = {{ site.data.game_questions.rooms | jsonify }};
+</script>
 
 <!-- Quiz Game Styling -->
 <style>
@@ -507,7 +509,7 @@ function updateLeaderboardUI(serverLeaderboard) {
 
       // Load questions client-side (e.g., use YAML via Liquid templating if using Jekyll/GitHub Pages)
       // You'll need to have `site.data.game_questions.rooms[roomCode].questions` available
-      const roomQuestions = site.data.game_questions.rooms[roomCode]?.questions || [];
+      const roomQuestions = roomQuestionsData[roomCode]?.questions || [];
       if (roomQuestions.length === 0) {
         alert("No questions found for this room.");
         return;
