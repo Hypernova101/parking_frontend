@@ -468,6 +468,11 @@
 </div>
 
 <script>
+  var quizQuestions = []; // ✅ make it accessible outside the DOMContentLoaded
+</script>
+
+
+<script>
 function updateLeaderboardUI(serverLeaderboard) {
   const leaderboardContainer = document.getElementById('leaderboard-container');
   leaderboardContainer.innerHTML = '';
@@ -540,16 +545,6 @@ function updateLeaderboardUI(serverLeaderboard) {
 <!-- Quiz Game Script -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-      const quizQuestions = [
-        {% for q in questions %}
-          {
-            question: {{ q.question | jsonify }},
-            options: {{ q.options | jsonify }},
-            correctAnswer: {{ q.correct_answer | jsonify }}
-          }{% unless forloop.last %},{% endunless %}
-        {% endfor %}
-      ];
-  
       if (!quizQuestions.length) {
         alert('No quiz questions available.');
         return;
@@ -775,14 +770,26 @@ function updateLeaderboardUI(serverLeaderboard) {
       }
 
   
-      startQuizBtn.addEventListener('click', () => {
-        if (playerNameInput.value.trim()) {
-          initQuiz();
+      startQuizBtn.addEventListener("click", () => {
+        const playerName = playerNameInput.value.trim();
+        const roomCode = roomCodeInput.value.trim();
+
+        if (playerName && roomCode) {
+          socket.emit("join_room", { name: playerName, room: roomCode });
+
+          const roomQuestions = roomQuestionsData[roomCode]?.questions || [];
+          if (roomQuestions.length === 0) {
+            alert("No questions found for this room.");
+            return;
+          }
+
+          quizQuestions = roomQuestions;
+          initQuiz(); // ✅ Now this works because we're inside the DOMContentLoaded scope
         } else {
-          alert('Please enter your name to start the quiz');
+          alert("Please enter your name and room code.");
         }
       });
-  
+
       playAgainBtn.addEventListener('click', () => {
         quizResultsEl.classList.add('d-none');
         quizLoginEl.classList.remove('d-none');
