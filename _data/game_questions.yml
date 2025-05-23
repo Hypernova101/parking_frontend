@@ -1,80 +1,82 @@
-questions:
-  - question: "What is the correct syntax to define a function in Python?"
-    options:
-      - "def function_name():"
-      - "function function_name():"
-      - "define function_name():"
-      - "func function_name():"
-    correct_answer: "def function_name():"
+rooms:
+  123:
+    questions:
+      - question: "What is the correct syntax to define a function in Python?"
+        options:
+          - "def function_name():"
+          - "function function_name():"
+          - "define function_name():"
+          - "func function_name():"
+        correct_answer: "def function_name():"
 
-  - question: "What does the `return` statement do in a Python function?"
-    options:
-      - "It prints a value to the console."
-      - "It stops the function execution and gives back a value."
-      - "It calls another function."
-      - "It starts a loop inside the function."
-    correct_answer: "It stops the function execution and gives back a value."
+      - question: "What does the `return` statement do in a Python function?"
+        options:
+          - "It prints a value to the console."
+          - "It stops the function execution and gives back a value."
+          - "It calls another function."
+          - "It starts a loop inside the function."
+        correct_answer: "It stops the function execution and gives back a value."
 
-  - question: "How can you call a function named `greet` in Python?"
-    options:
-      - "greet()"
-      - "call greet()"
-      - "greet()"
-      - "call function greet()"
-    correct_answer: "greet()"
+      - question: "How can you call a function named `greet` in Python?"
+        options:
+          - "greet()"
+          - "call greet()"
+          - "greet()"
+          - "call function greet()"
+        correct_answer: "greet()"
 
-  - question: "What is the default return value of a Python function that doesn't explicitly return anything?"
-    options:
-      - "0"
-      - "None"
-      - "False"
-      - '""'
-    correct_answer: "None"
+      - question: "What is the default return value of a Python function that doesn't explicitly return anything?"
+        options:
+          - "0"
+          - "None"
+          - "False"
+          - '""'
+        correct_answer: "None"
 
-  - question: "Which of the following is the correct way to pass an argument to a function in Python?"
-    options:
-      - "function(arg)"
-      - "function = arg"
-      - "function(arg=1)"
-      - "pass function(arg)"
-    correct_answer: "function(arg=1)"
+      - question: "Which of the following is the correct way to pass an argument to a function in Python?"
+        options:
+          - "function(arg)"
+          - "function = arg"
+          - "function(arg=1)"
+          - "pass function(arg)"
+        correct_answer: "function(arg=1)"
 
-  - question: "What does the `*args` syntax do in a function definition?"
-    options:
-      - "It defines a keyword argument."
-      - "It allows for variable numbers of arguments."
-      - "It is used to define a global variable."
-      - "It returns a tuple of arguments."
-    correct_answer: "It allows for variable numbers of arguments."
+      - question: "What does the `*args` syntax do in a function definition?"
+        options:
+          - "It defines a keyword argument."
+          - "It allows for variable numbers of arguments."
+          - "It is used to define a global variable."
+          - "It returns a tuple of arguments."
+        correct_answer: "It allows for variable numbers of arguments."
 
-  - question: "What is the purpose of the `lambda` function in Python?"
-    options:
-      - "It creates a function that can take multiple lines of code."
-      - "It defines a function that is used to return simple values."
-      - "It returns a function without a name."
-      - "It is used for data validation inside functions."
-    correct_answer: "It defines a function that is used to return simple values."
+      - question: "What is the purpose of the `lambda` function in Python?"
+        options:
+          - "It creates a function that can take multiple lines of code."
+          - "It defines a function that is used to return simple values."
+          - "It returns a function without a name."
+          - "It is used for data validation inside functions."
+        correct_answer: "It defines a function that is used to return simple values."
 
-  - question: "How do you specify a default parameter value in a Python function?"
-    options:
-      - "def function(arg=5):"
-      - "def function(arg:5):"
-      - "def function(arg->5):"
-      - "def function(arg==5):"
-    correct_answer: "def function(arg=5):"
+      - question: "How do you specify a default parameter value in a Python function?"
+        options:
+          - "def function(arg=5):"
+          - "def function(arg:5):"
+          - "def function(arg->5):"
+          - "def function(arg==5):"
+        correct_answer: "def function(arg=5):"
 
-  - question: "What is the scope of a variable declared inside a function?"
-    options:
-      - "Local to that function."
-      - "Global to the entire program."
-      - "Accessible only in loops."
-      - "Available only in modules."
-    correct_answer: "Local to that function."
+      - question: "What is the scope of a variable declared inside a function?"
+        options:
+          - "Local to that function."
+          - "Global to the entire program."
+          - "Accessible only in loops."
+          - "Available only in modules."
+        correct_answer: "Local to that function."
 
-  - question: "What is the difference between `*args` and `**kwargs` in a function definition?"
-    options:
-      - "`*args` is for variable arguments, while `**kwargs` is for keyword arguments."
-      - "`**kwargs` is used for default arguments, while `*args` is for normal ones."
-      - "`*args` stores arguments in a list, while `**kwargs` stores them in a dictionary."
-      - "Both are used for the same purpose in Python."
-    correct_answer: "`*args` is for variable arguments, while `**kwargs` is for keyword arguments."
+      - question: "What is the difference between `*args` and `**kwargs` in a function definition?"
+        options:
+          - "`*args` is for variable arguments, while `**kwargs` is for keyword arguments."
+          - "`**kwargs` is used for default arguments, while `*args` is for normal ones."
+          - "`*args` stores arguments in a list, while `**kwargs` stores them in a dictionary."
+          - "Both are used for the same purpose in Python."
+        correct_answer: "`*args` is for variable arguments, while `**kwargs` is for keyword arguments."

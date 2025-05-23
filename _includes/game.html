@@ -1,4 +1,4 @@
-{% assign questions = site.data.game_questions.questions %}
+{% assign rooms = site.data.game_questions.rooms %}
 
 <!-- Quiz Game Styling -->
 <style>
@@ -361,7 +361,16 @@
         <input type="text" class="form-control" id="playerName" placeholder="Your Name">
       </div>
     </div>
-    
+
+    <div class="form-group">
+      <div class="input-group">
+        <span class="input-group-text">
+          <i class="fas fa-hashtag"></i>
+        </span>
+        <input type="text" class="form-control" id="roomCode" placeholder="Room Code (e.g. 123)">
+      </div>
+    </div>
+
     <div class="form-group">
       <div class="input-group">
         <span class="input-group-text">
@@ -487,12 +496,30 @@ function updateLeaderboardUI(serverLeaderboard) {
   });
 
   // Send player join
+  const roomCodeInput = document.getElementById("roomCode");
+
   document.getElementById("startQuizBtn").addEventListener("click", () => {
     const playerName = document.getElementById("playerName").value.trim();
-    if (playerName) {
-      socket.emit("player_join", { name: playerName });
+    const roomCode = roomCodeInput.value.trim();
+
+    if (playerName && roomCode) {
+      socket.emit("join_room", { name: playerName, room: roomCode });
+
+      // Load questions client-side (e.g., use YAML via Liquid templating if using Jekyll/GitHub Pages)
+      // You'll need to have `site.data.game_questions.rooms[roomCode].questions` available
+      const roomQuestions = site.data.game_questions.rooms[roomCode]?.questions || [];
+      if (roomQuestions.length === 0) {
+        alert("No questions found for this room.");
+        return;
+      }
+
+      quizQuestions = roomQuestions;
+      initQuiz(); // your function that starts the quiz
+    } else {
+      alert("Please enter your name and room code.");
     }
   });
+
 
   // Receive broadcast of new player
   socket.on("player_joined", (data) => {
@@ -536,7 +563,11 @@ function updateLeaderboardUI(serverLeaderboard) {
       let playerName = '';
 
       function emitGameEnd(score) {
-        socket.emit("player_score", { name: playerName, score: score });
+        socket.emit("player_score", {
+          name: playerName,
+          room: roomCode,
+          score: score
+        });
       }
 
       const leaderboardBtn = document.getElementById("viewLeaderboardBtn");
@@ -547,7 +578,7 @@ function updateLeaderboardUI(serverLeaderboard) {
         leaderboardVisible = !leaderboardVisible;
 
         if (leaderboardVisible) {
-          socket.emit("get_leaderboard");
+          socket.emit("get_leaderboard", { room: roomCode });
           leaderboardBtn.textContent = "HIDE LEADERBOARD";
           leaderboardDiv.style.display = "block";
         } else {
