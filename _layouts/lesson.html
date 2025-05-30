@@ -263,6 +263,20 @@ sys.stdout = StringIO()
   };
 });
 
+const pythonURI = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
+  ? "http://localhost:8000"
+  : "https://parking.stu.nighthawkcodingsociety.com";
+
+const fetchOptions = {
+  mode: 'cors',
+  cache: 'default',
+  credentials: 'include',
+  headers: {
+    'Content-Type': 'application/json',
+    'X-Origin': 'client'
+  }
+};
+
 
   let selectedSentiment = null;
 
@@ -320,8 +334,6 @@ sys.stdout = StringIO()
     console.error('Feedback submission error:', err);
   }
 }
-
-CORS(app, origins=["http://localhost:8000"])
 
 
 </script>
