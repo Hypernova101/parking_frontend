@@ -194,33 +194,40 @@
   }
 </style>
   
-<script>
+<script type="module">
+
+    import { pythonURI, fetchOptions } from '{{site.baseurl}}/assets/js/api/config.js';
+
     const lessonId = 1;
     let flashcards = [];
     let currentIndex = 0;
   
-    function fetchFlashcards() {
-      fetch(`http://127.0.0.1:8000/api/flashcard?lesson_id=${lessonId}`)
-        .then(res => res.json())
-        .then(data => {
-          flashcards = data;
-          currentIndex = 0;
-          renderCarousel();
-        });
+    async function fetchFlashcards() {
+      try {
+        const response = await fetch(`${pythonURI}/api/flashcard?lesson_id=${lessonId}`, fetchOptions);
+        flashcards = await response.json();
+        currentIndex = 0;
+        renderCarousel();
+      } catch (error) {
+        console.error("Failed to fetch flashcards:", error);
+      }
     }
-  
-    function createFlashcard(term, definition) {
-      fetch('http://127.0.0.1:8000/api/flashcard', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ term, definition, lesson_id: lessonId })
-      })
-      .then(res => res.json())
-      .then(() => {
+
+    async function createFlashcard(term, definition) {
+      try {
+        const response = await fetch(`${pythonURI}/api/flashcard`, {
+          ...fetchOptions,
+          method: 'POST',
+          body: JSON.stringify({ term, definition, lesson_id: lessonId })
+        });
+        await response.json();
         document.getElementById('notes-form').reset();
         fetchFlashcards();
-      });
+      } catch (error) {
+        console.error("Failed to create flashcard:", error);
+      }
     }
+
   
     function updateFlashcard(id, term, definition) {
       fetch('http://127.0.0.1:8000/api/flashcard', {
