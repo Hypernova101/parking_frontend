@@ -241,7 +241,7 @@
         fetchFlashcards();
       });
     }
-  
+
     function deleteFlashcard(id) {
       fetch('http://127.0.0.1:8000/api/flashcard', {
         method: 'DELETE',
@@ -262,14 +262,39 @@
         div.className = 'notes-flashcard';
         if (index === currentIndex) div.classList.add('active');
   
-        div.innerHTML = `
-          <div class="notes-term"><strong>Term:</strong> ${card.term}</div>
-          <div class="notes-definition"><strong>Definition:</strong> ${card.definition}</div>
-          <div class="notes-flashcard-controls">
-            <button onclick="loadFlashcardIntoForm(${card.id}, \`${card.term.replace(/`/g, "\\`")}\`, \`${card.definition.replace(/`/g, "\\`")}\`)">✏️ Edit</button>
-            <button onclick="deleteFlashcard(${card.id})">🗑️ Delete</button>
-          </div>
-        `;
+        const termDiv = document.createElement('div');
+        termDiv.className = 'notes-term';
+        termDiv.innerHTML = `<strong>Term:</strong> ${card.term}`;
+
+        const defDiv = document.createElement('div');
+        defDiv.className = 'notes-definition';
+        defDiv.innerHTML = `<strong>Definition:</strong> ${card.definition}`;
+
+        const controls = document.createElement('div');
+        controls.className = 'notes-flashcard-controls';
+
+        const editBtn = document.createElement('button');
+        editBtn.textContent = '✏️ Edit';
+        editBtn.onclick = (e) => {
+          e.stopPropagation(); // 🛑 Stop the flip
+          loadFlashcardIntoForm(card.id, card.term, card.definition);
+        };
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.textContent = '🗑️ Delete';
+        deleteBtn.onclick = (e) => {
+          e.stopPropagation(); // 🛑 Stop the flip
+          deleteFlashcard(card.id);
+        };
+
+        controls.appendChild(editBtn);
+        controls.appendChild(deleteBtn);
+
+        // Add everything to the card
+        div.appendChild(termDiv);
+        div.appendChild(defDiv);
+        div.appendChild(controls);
+
         div.onclick = () => div.classList.toggle('flipped');
         carousel.appendChild(div);
       });
