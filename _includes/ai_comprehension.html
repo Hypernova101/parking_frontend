@@ -1,5 +1,6 @@
-
-    
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <title>AI Comprehension Checker</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -144,8 +145,8 @@
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
     </style>
-
-
+</head>
+<body>
     <div class="main-card">
         <div class="header">
             <div class="brain-icon">🧠</div>
@@ -190,81 +191,121 @@
             <div id="result"></div>
         </div>
     </div>
-    
-    <div id="lessonContent" style="display:none;">
-        JavaScript is a programming language used to create dynamic website content. It can manipulate HTML elements, respond to user events, and communicate with web servers.
-    </div>
-    
+
     <script>
         const API_URL = "https://api.groq.com/openai/v1/chat/completions";
         const API_KEY = "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";
         
-        async function sendToGroqAPI(userMessage) {
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: "llama3-8b-8192",
-                        messages: [{ role: "user", content: userMessage }]
-                    })
-                });
-                if (!response.ok) throw new Error(`Error: ${response.status}`);
-                const data = await response.json();
-                return data.choices[0].message.content;
-            } catch (error) {
-                console.error('Error:', error);
-                return "An error occurred while communicating with the AI.";
+        let askedQuestions = [];
+        let currentQuestion = null;
+
+        function getLessonContent() {
+            const lessonElement = document.getElementById('lesson-content');
+            if (lessonElement) {
+                return lessonElement.innerText || lessonElement.textContent || '';
+            }
+            return "Functions in programming are reusable blocks of code that perform specific tasks. They help organize code and avoid repetition.";
+        }
+
+        async function sendToGroqAPI(userMessage, maxRetries = 3) {
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${API_KEY}`
+                        },
+                        body: JSON.stringify({
+                            model: "llama3-8b-8192",
+                            messages: [{ role: "user", content: userMessage }],
+                            temperature: 0.7
+                        })
+                    });
+                    
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const data = await response.json();
+                    return data.choices[0].message.content;
+                } catch (error) {
+                    console.error(`Attempt ${attempt + 1} failed:`, error);
+                    if (attempt === maxRetries - 1) {
+                        return "Error: Unable to generate question. Please try again.";
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
             }
         }
-        
+
+        function extractJSON(text) {
+            text = text.trim();
+            let start = text.indexOf('{');
+            let end = text.lastIndexOf('}');
+            
+            if (start === -1 || end === -1) throw new Error('No JSON found');
+            
+            let jsonStr = text.substring(start, end + 1);
+            return JSON.parse(jsonStr);
+        }
+
         async function generateQuestion() {
             const type = document.getElementById("questionType").value;
             const difficulty = document.getElementById("difficulty").value;
-            const lesson = document.getElementById("lessonContent").innerText;
+            const lesson = getLessonContent();
             
-            const prompt = `You are an AI tutor. Based on the following lesson, generate a comprehension question.
+            const questionPrompts = [
+                "practical application", "real-world scenario", "comparison with other concepts",
+                "cause and effect", "problem-solving", "creative thinking", "analysis",
+                "synthesis", "evaluation", "deeper understanding"
+            ];
             
-            Lesson: """${lesson}"""
-            Type: ${type === 'multiple' ? 'multiple choice' : 'short answer'}
-            Difficulty: ${difficulty}
+            const randomPrompt = questionPrompts[Math.floor(Math.random() * questionPrompts.length)];
             
-            Respond strictly in raw JSON format with no explanation or extra text.
-            If it is a multiple choice question, include the "options" array.
-            If it is a short answer, omit the "options" array.
-            
-            Example format:
-            {
-                "question": "What is JavaScript used for?",
-                "answer": "Creating dynamic website content",
-                "options": ["Creating static templates", "Creating dynamic website content", "Designing CSS", "Handling images"],
-                "explanation": "JavaScript makes web pages interactive and dynamic."
-            }`;
-            
-            const rawText = await sendToGroqAPI(prompt);
-            const cleanText = rawText.replace(/```json|```/g, "").trim();
+            let prompt = `Create a ${difficulty} ${type === 'multiple' ? 'multiple choice' : 'short answer'} question about this lesson content focusing on ${randomPrompt}:
+
+"${lesson}"
+
+Requirements:
+- Be creative and go beyond basic recall
+- Focus on understanding, not memorization
+- Make it engaging and thought-provoking
+- Avoid questions already asked: ${askedQuestions.join(', ')}
+
+Respond with ONLY valid JSON in this exact format:
+${type === 'multiple' ? 
+`{
+  "question": "Your question here",
+  "options": ["Option A", "Option B", "Option C", "Option D"],
+  "correct_index": 1,
+  "explanation": "Why this answer is correct"
+}` :
+`{
+  "question": "Your question here", 
+  "sample_answer": "A good example answer",
+  "explanation": "What makes a good answer"
+}`}`;
+
+            const response = await sendToGroqAPI(prompt);
             
             try {
-                let parsed;
-                try {
-                    parsed = JSON.parse(cleanText);
-                } catch {
-                    const jsonStart = cleanText.indexOf("{");
-                    const jsonEnd = cleanText.lastIndexOf("}") + 1;
-                    const jsonSnippet = cleanText.slice(jsonStart, jsonEnd);
-                    parsed = JSON.parse(jsonSnippet);
-                }
-                displayQuestion(parsed, type);
-            } catch (e) {
-                alert("Failed to parse AI response:\n" + cleanText);
+                const questionData = extractJSON(response);
+                
+                if (!questionData.question) throw new Error('Invalid question format');
+                
+                askedQuestions.push(questionData.question);
+                if (askedQuestions.length > 10) askedQuestions.shift();
+                
+                currentQuestion = questionData;
+                displayQuestion(questionData, type);
+                
+            } catch (error) {
+                console.error('Parse error:', error, response);
+                document.getElementById('result').innerHTML = 
+                    '<div class="warning">⚠️ Error generating question. Please try again.</div>';
             }
         }
-        
-        function displayQuestion(parsed, type) {
-            document.getElementById("questionText").innerText = parsed.question;
+
+        function displayQuestion(questionData, type) {
+            document.getElementById("questionText").innerText = questionData.question;
             const optionsContainer = document.getElementById("optionsContainer");
             const studentAnswerInput = document.getElementById("studentAnswer");
             const result = document.getElementById("result");
@@ -273,18 +314,18 @@
             result.innerHTML = "";
             studentAnswerInput.value = "";
             
-            if (type === "multiple" && parsed.options) {
+            if (type === "multiple" && questionData.options) {
                 studentAnswerInput.style.display = "none";
-                parsed.options.forEach((opt, i) => {
+                questionData.options.forEach((opt, i) => {
                     const radioId = `option${i}`;
                     const radioInput = document.createElement("input");
                     radioInput.type = "radio";
                     radioInput.id = radioId;
                     radioInput.name = "mcq";
-                    radioInput.value = opt.toLowerCase();
+                    radioInput.value = i.toString();
                     
                     const label = document.createElement("label");
-                    label.htmlFor = radioId;
+                    label.htmlFor = radioId; 
                     label.className = "option-label";
                     label.textContent = `${String.fromCharCode(65 + i)}. ${opt}`;
                     
@@ -296,38 +337,64 @@
             }
             
             document.getElementById("question-card").style.display = "block";
-            window.correctAnswer = parsed.answer.toLowerCase();
-            window.explanation = parsed.explanation || "";
         }
-        
-        function checkAnswer() {
+
+        async function checkAnswer() {
             const type = document.getElementById("questionType").value;
             const result = document.getElementById("result");
-            let userInput = "";
             
             if (type === "multiple") {
                 const selected = document.querySelector('input[name="mcq"]:checked');
                 if (!selected) {
-                    result.innerHTML = "⚠️ Please select an option before checking.";
-                    result.className = "warning";
+                    result.innerHTML = '<div class="warning">⚠️ Please select an option.</div>';
                     return;
                 }
-                userInput = selected.value;
+                
+                const selectedIndex = parseInt(selected.value);
+                const isCorrect = selectedIndex === currentQuestion.correct_index;
+                
+                if (isCorrect) {
+                    result.innerHTML = `<div class="correct">✅ Correct! ${currentQuestion.explanation}</div>`;
+                } else {
+                    const correctOption = currentQuestion.options[currentQuestion.correct_index];
+                    result.innerHTML = `<div class="incorrect">❌ Incorrect. The correct answer is: <strong>${correctOption}</strong><br>${currentQuestion.explanation}</div>`;
+                }
             } else {
-                userInput = document.getElementById("studentAnswer").value.trim().toLowerCase();
-                if (!userInput) {
-                    result.innerHTML = "⚠️ Please enter an answer before checking.";
-                    result.className = "warning";
+                const userAnswer = document.getElementById("studentAnswer").value.trim();
+                if (!userAnswer) {
+                    result.innerHTML = '<div class="warning">⚠️ Please enter an answer.</div>';
                     return;
                 }
-            }
-            
-            if (userInput === window.correctAnswer) {
-                result.innerHTML = "✅ Correct! " + window.explanation;
-                result.className = "correct";
-            } else {
-                result.innerHTML = `❌ Incorrect. The correct answer is: <b>${window.correctAnswer}</b><br>${window.explanation}`;
-                result.className = "incorrect";
+                
+                result.innerHTML = '<div class="warning">⏳ Checking your answer...</div>';
+                
+                const prompt = `Question: "${currentQuestion.question}"
+Student Answer: "${userAnswer}"
+Sample Good Answer: "${currentQuestion.sample_answer}"
+
+Is the student's answer acceptable? Consider if it demonstrates understanding of the concept, even if worded differently, and don't require too many specifications, if there are multiple ways to answer a question or multiple answer options, one decent explanation should be enough.
+
+Respond with ONLY valid JSON:
+{
+  "is_correct": true/false,
+  "feedback": "Your feedback message explaining why the answer is right/wrong and what could be improved"
+}`;
+                
+                const response = await sendToGroqAPI(prompt);
+                
+                try {
+                    const evaluation = extractJSON(response);
+                    
+                    if (evaluation.is_correct) {
+                        result.innerHTML = `<div class="correct">✅ Good answer! ${evaluation.feedback}</div>`;
+                    } else {
+                        result.innerHTML = `<div class="incorrect">❌ ${evaluation.feedback}<br><br><strong>Sample answer:</strong> ${currentQuestion.sample_answer}</div>`;
+                    }
+                } catch (error) {
+                    result.innerHTML = '<div class="warning">⚠️ Error checking answer. Please try again.</div>';
+                }
             }
         }
     </script>
+</body>
+</html>

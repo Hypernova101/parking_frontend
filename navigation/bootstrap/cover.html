@@ -7,34 +7,51 @@ permalink: /demo
 ---
 
 <div id="lesson-content">
-  Functions are blocks of code that do a specific job when called.
+  <h1>Introduction to Functions</h1>
+
+  <p>In programming, a <strong>function</strong> is like a little machine that does a specific job whenever you ask it to.</p>
+
+  <h2>What is a Function?</h2>
+  <p>Think of a function as a recipe in a cookbook. Just like a recipe tells you how to make a cake step-by-step, a function tells the computer how to do a task step-by-step.</p>
+
+  <p>When you want to use the recipe, you "call" it. The function then follows the instructions inside and gives you the result.</p>
+
+  <h2>Why Use Functions?</h2>
+  <ul>
+    <li><strong>Save Time:</strong> Instead of writing the same code over and over, you write a function once and reuse it.</li>
+    <li><strong>Keep Things Organized:</strong> Functions help break a big problem into smaller parts.</li>
+    <li><strong>Make Code Easier to Understand:</strong> Functions have names that describe what they do.</li>
+  </ul>
+  
+  <h2>Example of a Function</h2>
+  <p>Here is a simple example in JavaScript:</p>
+
+  <p>If you call <code>greet("Alice")</code>, it will give back <em>"Hello, Alice!"</em>.</p>
+
+  <h2>Try It Yourself!</h2>
+  <p>Imagine you want to add two numbers. You could write a function like this:</p>
+
+  <p>Calling <code>addNumbers(3, 5)</code> will give you <em>8</em>.</p>
 
   {% include whiteboard.html %}
   {% include video.html %}
-
   {% include ai_comprehension.html %}
 
-  Try this one out for yourself:
-
+  <p>Try this one out for yourself:</p>
   {% include hack.html %}
 
   {% include flashcards.html %}
-
-  this is student created flashcards
-
+  <p>This is student-created flashcards.</p>
   {% include flashcard-notes.html %}
 
-  Practice game!
-
+  <p>Practice game!</p>
   {% include game.html %}
 
-  We'd love your feedback:
-
+  <p>We'd love your feedback:</p>
   {% include poll.html %}
 </div>
 
 {% include slim_sidebar.html %}
-
 
 <style>
 #lesson-content {
@@ -43,5 +60,19 @@ permalink: /demo
   -moz-user-select: text !important;
   -ms-user-select: text !important;
   pointer-events: auto !important; /* make sure it accepts pointer events */
+  max-width: 700px;
+  margin: auto;
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+}
+pre {
+  background-color: #f4f4f4;
+  padding: 12px;
+  border-radius: 6px;
+  overflow-x: auto;
+}
+code {
+  font-family: "Courier New", Courier, monospace;
+  color: #c7254e;
 }
 </style>
