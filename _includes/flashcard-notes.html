@@ -238,6 +238,7 @@
         });
         await response.json();
         document.getElementById('notes-form').reset();
+        document.getElementById('note-id').value = ""; // 👈 Clear the ID field here
         fetchFlashcards();
       } catch (error) {
         console.error("Failed to update flashcard:", error);
