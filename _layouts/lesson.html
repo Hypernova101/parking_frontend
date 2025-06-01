@@ -263,38 +263,133 @@ sys.stdout = StringIO()
   };
 });
 
-  function selectFeedback(type) {
-    const formContainer = document.getElementById('feedbackForm');
-    const thumbsUp = document.getElementById('thumbsUp');
-    const thumbsDown = document.getElementById('thumbsDown');
+let dataVisible = false;
 
-    // Clear previous selection
-    thumbsUp.classList.remove('selected');
-    thumbsDown.classList.remove('selected');
+function selectFeedback(type) {
+  const formContainer = document.getElementById('feedbackForm');
+  const thumbsUp = document.getElementById('thumbsUp');
+  const thumbsDown = document.getElementById('thumbsDown');
 
-    // Highlight selected button
-    if (type === 'up') {
-      thumbsUp.classList.add('selected');
-    } else {
-      thumbsDown.classList.add('selected');
-    }
+  // Clear previous selection
+  thumbsUp.classList.remove('selected');
+  thumbsDown.classList.remove('selected');
 
-    // Define values
-    const entryId = "entry.2118665550";
-    const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfLtJ379pka0HiBUrKfhg3iMoqNe_CTq8GyKh4Teb4aXq3VEA/viewform?usp=pp_url";
-    const feedbackValue = type === 'up' ? 'Great! 👍' : 'Needs Improvement 👎';
-    const formUrl = `${baseUrl}&${entryId}=${encodeURIComponent(feedbackValue)}`;
-
-    // Show Google Form
-    formContainer.innerHTML = `
-      <iframe
-        src="${formUrl}"
-        style="width: 100%; height: 600px; border: none; border-radius: 10px;"
-        allowfullscreen
-      ></iframe>
-    `;
-    formContainer.style.display = 'block';
+  // Highlight selected button
+  if (type === 'up') {
+    thumbsUp.classList.add('selected');
+  } else {
+    thumbsDown.classList.add('selected');
   }
+
+  // Define values
+  const entryId = "entry.2118665550";
+  const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfLtJ379pka0HiBUrKfhg3iMoqNe_CTq8GyKh4Teb4aXq3VEA/viewform?usp=pp_url";
+  const feedbackValue = type === 'up' ? 'Great! 👍' : 'Needs Improvement 👎';
+  const formUrl = `${baseUrl}&${entryId}=${encodeURIComponent(feedbackValue)}`;
+
+  // Show Google Form
+  formContainer.innerHTML = `
+    <iframe
+      src="${formUrl}"
+      style="width: 100%; height: 600px; border: none; border-radius: 10px;"
+      allowfullscreen
+    ></iframe>
+  `;
+  formContainer.style.display = 'block';
+}
+
+function toggleDataView() {
+  const container = document.getElementById('dataContainer');
+  const toggleBtn = document.getElementById('dataToggle');
+  const toggleText = document.getElementById('toggleText');
+  const toggleArrow = document.querySelector('.toggle-arrow');
+  
+  dataVisible = !dataVisible;
+  
+  if (dataVisible) {
+    container.style.display = 'block';
+    // Force reflow to ensure display change is processed
+    container.offsetHeight;
+    container.classList.add('show');
+    toggleText.textContent = 'Hide Response Data';
+    toggleArrow.classList.add('rotated');
+    
+    // Update last updated time
+    const lastUpdatedElement = document.getElementById('lastUpdated');
+    if (lastUpdatedElement) {
+      lastUpdatedElement.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+    }
+  } else {
+    container.classList.remove('show');
+    toggleText.textContent = 'View Response Data';
+    toggleArrow.classList.remove('rotated');
+    
+    // Hide after animation completes
+    setTimeout(() => {
+      if (!dataVisible) {
+        container.style.display = 'none';
+      }
+    }, 500);
+  }
+}
+
+function hideLoadingOverlay() {
+  const overlay = document.getElementById('loadingOverlay');
+  if (overlay) {
+    setTimeout(() => {
+      overlay.style.opacity = '0';
+      setTimeout(() => {
+        overlay.style.display = 'none';
+      }, 300);
+    }, 1000);
+  }
+}
+
+function refreshData() {
+  const iframe = document.getElementById('dataIframe');
+  const overlay = document.getElementById('loadingOverlay');
+  
+  if (overlay) {
+    // Show loading overlay
+    overlay.style.display = 'flex';
+    overlay.style.opacity = '1';
+  }
+  
+  if (iframe) {
+    // Refresh iframe by reloading its source
+    iframe.src = iframe.src;
+  }
+  
+  // Update timestamp after a delay to simulate loading
+  setTimeout(() => {
+    const lastUpdatedElement = document.getElementById('lastUpdated');
+    if (lastUpdatedElement) {
+      lastUpdatedElement.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+    }
+  }, 1500);
+}
+
+// Auto-refresh data every 5 minutes when visible
+setInterval(() => {
+  if (dataVisible) {
+    const lastUpdatedElement = document.getElementById('lastUpdated');
+    if (lastUpdatedElement) {
+      lastUpdatedElement.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+    }
+  }
+}, 300000); // 300000ms = 5 minutes
+
+// Optional: Reset feedback function (if you want to add a reset button)
+function resetFeedback() {
+  const thumbsUp = document.getElementById('thumbsUp');
+  const thumbsDown = document.getElementById('thumbsDown');
+  const formContainer = document.getElementById('feedbackForm');
+  
+  thumbsUp.classList.remove('selected');
+  thumbsDown.classList.remove('selected');
+  formContainer.style.display = 'none';
+  formContainer.innerHTML = '';
+}
 </script>
 
 
