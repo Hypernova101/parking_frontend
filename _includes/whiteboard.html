@@ -1,90 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Whiteboard Viewer</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      crossorigin="anonymous"
+    />
+    <style>
+      :root {
+        --wb-primary-color: #6366f1;
+        --wb-secondary-color: #4f46e5;
+        --wb-accent-color: #06d6a0;
+        --wb-background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --wb-card-gradient: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%);
+        --wb-input-bg: rgba(255, 255, 255, 0.95);
+        --wb-glass-border: 1px solid rgba(255, 255, 255, 0.2);
+        --wb-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: var(--wb-background-gradient);
+        min-height: 100vh;
+        padding: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .wb-container {
+        display: flex;
+        max-width: 1200px;
+        width: 100%;
+        min-height: 600px;
+        background: var(--wb-card-gradient);
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+        position: relative;
+        animation: slideUp 0.8s ease-out;
+        transition: all 0.5s ease;
+      }
+
+      .wb-container.fullscreen {
+        max-width: 100%;
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+        animation: expandToFullscreen 0.5s ease-out;
+      }
+
+      /* Decorative elements */
+      .wb-container::before {
+        content: '';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 1;
+      }
+
+      .wb-container::after {
+        content: '';
+        position: absolute;
+        bottom: -30px;
+        left: -30px;
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+        border-radius: 50%;
+        z-index: 1;
+      }
+
+      .wb-container.fullscreen::before,
+      .wb-container.fullscreen::after {
+        display: none;
+      }
+
+      /* Sidebar */
+      .wb-sidebar {
+        flex: 0 0 350px;
+        background: var(--wb-input-bg);
+        backdrop-filter: blur(15px);
+        border-radius: 20px 0 0 20px;
+        border: var(--wb-glass-border);
+        padding: 2.5rem 3.5rem 2.5rem 2rem; /* Adjusted padding-right for toggle button */
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        z-index: 2;
+        transition: all 0.5s ease;
+      }
+
+      /* NEW: Hidden state for sidebar */
+      .wb-sidebar.hidden {
+        flex: 0 0 70px; /* Keep a small sliver for the button/indicator */
+        padding: 2.5rem 1rem; /* Adjust padding to center button in sliver */
+        overflow: hidden; /* Hide internal content */
+        /* opacity: 0; */ /* Removed to keep button visible in sliver */
+        /* transform: translateX(-100%); */ /* Removed for static sliver */
+        border-radius: 20px 0 0 20px; /* Ensure border-radius stays */
+        justify-content: flex-start; /* Align content from top if hidden */
+        align-items: center; /* Center horizontally if content remains */
+      }
+
+      .wb-sidebar.hidden .wb-title-section,
+      .wb-sidebar.hidden .wb-input-group,
+      .wb-sidebar.hidden .wb-button-container,
+      .wb-sidebar.hidden .wb-status-message {
+          display: none; /* Hide internal content when collapsed */
+      }
+
+      /* NEW: Sidebar Toggle Button */
+      .wb-toggle-btn {
+        position: absolute;
+        top: 25px; /* Adjust as needed for positioning */
+        right: 15px; /* Adjust as needed for positioning */
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        font-size: 1.1rem;
+        color: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        z-index: 10; /* Ensure it's above other sidebar content */
+      }
+
+      .wb-toggle-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transform: scale(1.05);
+      }
+
+      /* Rotation for the icon when sidebar is hidden */
+      .wb-toggle-btn.rotated {
+        transform: rotate(180deg);
+      }
+
+      /* Ensure button is hidden when sidebar is completely hidden (e.g., on mobile) */
+      .wb-sidebar.hidden .wb-toggle-btn {
+          /* opacity: 0; */ /* Keep visible for the sliver */
+          /* pointer-events: none; */ /* Keep clickable */
+      }
 
 
-<style>
-  body {
-    font-family: 'Segoe UI', sans-serif;
-    background: #f9f9f9;
-    margin: 0;
-    padding: 0;
-  }
+      .wb-title-section {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2.5rem;
+      }
 
-  .container {
-    max-width: 1000px;
-    margin: 2rem auto;
-    padding: 1rem;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-  }
+      .wb-icon-circle {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: 1rem;
+        box-shadow: 0 0 20px rgba(121, 209, 195, 0.4);
+        animation: pulseGlow 3s infinite ease-in-out;
+      }
 
-  header {
-    background-color: #2c3e50;
-    color: white;
-    padding: 1rem;
-    text-align: center;
-    font-size: 1.5rem;
-  }
+      .wb-icon-circle .fas {
+        color: white;
+        font-size: 1.3rem;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      }
 
-  .info {
-    font-size: 0.95rem;
-    margin-bottom: 1rem;
-    color: #444;
-  }
+      .wb-title {
+        color: #1e293b;
+        font-size: 1.8rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        line-height: 1.2;
+        margin: 0;
+        text-shadow: none;
+      }
 
-  #whiteboardWrapper {
-    position: relative;
-    width: 100%;
-    height: 600px;
-    border-radius: 10px;
-    overflow: hidden;
-  }
+      .wb-subtitle {
+        color: #475569;
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        font-weight: 500;
+      }
 
-  iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
+      .wb-input-group {
+        margin-bottom: 2rem;
+        flex-grow: 1;
+      }
 
-  /* This transparent div blocks interaction */
-  .overlay-blocker {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10;
-    background: transparent;
-    cursor: not-allowed;
-  }
-</style>
+      .wb-input-label {
+        display: flex;
+        align-items: center;
+        color: #1e293b;
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        font-size: 1rem;
+      }
 
-<header>Live Whiteboard Viewer</header>
+      .wb-input-label .fas {
+        margin-right: 0.5rem;
+        color: var(--wb-accent-color);
+      }
 
-<div class="container">
-  <p class="info">
-    This page will display the teacher’s live drawing whiteboard. Paste the exact Excalidraw room link below:
-  </p>
+      .wb-input-field {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid rgba(30, 41, 59, 0.2);
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #1e293b;
+        background: rgba(255, 255, 255, 0.95);
+        transition: all 0.3s ease;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
 
-  <label for="roomInput"><strong>Excalidraw Room Link:</strong></label><br />
-  <input type="text" id="roomInput" placeholder="https://excalidraw.com/#room=abc123,def456" style="width:100%; padding:8px; margin:10px 0;" />
-  <button onclick="loadWhiteboard()" style="padding: 8px 12px; font-size: 1rem;">Load Whiteboard</button>
+      .wb-input-field:focus {
+        border-color: var(--wb-primary-color);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        outline: none;
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-1px);
+      }
 
-  <div id="whiteboardWrapper" style="margin-top: 20px; display: none;">
-    <iframe id="whiteboardFrame"></iframe>
-    <div class="overlay-blocker"></div> <!-- blocks student interaction -->
-  </div>
-</div>
+      .wb-input-field::placeholder {
+        color: #64748b;
+        opacity: 0.7;
+      }
 
-<script>
-  function loadWhiteboard() {
-    const input = document.getElementById('roomInput').value.trim();
+      .wb-example-text {
+        color: #64748b;
+        font-size: 0.85rem;
+        font-style: italic;
+        margin-top: 0.75rem;
+        line-height: 1.4;
+      }
 
-    
-    // Set iframe source
-    const frame = document.getElementById('whiteboardFrame');
-    frame.src = input;
+      .wb-button-container {
+        display: flex;
+        gap: 1rem;
+        margin-top: auto;
+      }
 
-    // Show iframe
-    document.getElementById('whiteboardWrapper').style.display = 'block';
-  }
-</script>
+      .wb-btn {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        text-decoration: none;
+      }
+
+      .wb-btn-primary {
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+      }
+
+      .wb-btn-secondary {
+        background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(100, 116, 139, 0.3);
+      }
+
+      .wb-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .wb-btn:active {
+        transform: translateY(0);
+      }
+
+      .wb-btn::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 200%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+        transform: skewX(-15deg);
+        transition: all 0.5s ease;
+        z-index: 1;
+      }
+
+      .wb-btn:hover::after {
+        left: 100%;
+      }
+
+      .wb-btn span {
+        position: relative;
+        z-index: 2;
+      }
+
+      .wb-status-message {
+        margin-top: 1.5rem;
+        background: rgba(6, 214, 160, 0.15);
+        color: #1e293b;
+        padding: 1rem;
+        border-left: 4px solid #06d6a0;
+        border-radius: 8px;
+        font-weight: 500;
+        display: none;
+        animation: fadeInUp 0.5s ease;
+      }
+
+      .wb-status-message.error {
+        background: rgba(239, 68, 68, 0.15);
+        color: #7f1d1d;
+        border-left-color: #ef4444;
+      }
+
+      /* Iframe container */
+      .wb-iframe-container {
+        flex: 1;
+        position: relative;
+        background: white;
+        display: flex; /* Always flex to control content */
+        transition: all 0.5s ease;
+        border-radius: 0 20px 20px 0; /* Original radius */
+      }
+
+      .wb-iframe-container.fullscreen {
+        border-radius: 0;
+      }
+
+      .wb-loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.95);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+        transition: opacity 0.3s ease;
+      }
+
+      .wb-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid var(--wb-primary-color);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 1rem;
+      }
+
+      .wb-loading-text {
+        color: var(--wb-secondary-color);
+        font-weight: 500;
+        font-size: 1rem;
+      }
+
+      .wb-whiteboard-frame {
+        width: 100%;
+        height: 100%;
+        border: none;
+        background: white;
+        transition: opacity 0.3s ease;
+      }
+
+      /* Restart button for fullscreen mode */
+      .wb-restart-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: none; /* Hidden by default */
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .wb-restart-btn:hover {
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+      }
+
+      .wb-restart-btn:active {
+        transform: translateY(0) scale(1);
+      }
+
+      /* NEW: Class to make restart button visible */
+      .wb-restart-btn.visible {
+        display: flex;
+        animation: slideInFromTop 0.5s ease-out;
+      }
+
+      /* Animations */
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes expandToFullscreen {
+        from {
+          max-width: 1200px;
+          width: 100%;
+          min-height: 600px;
+          border-radius: 20px;
+        }
+        to {
+          max-width: 100%;
+          width: 100vw;
+          height: 100vh;
+          border-radius: 0;
+        }
+      }
+
+      @keyframes slideInFromTop {
+        from {
+          opacity: 0;
+          transform: translateY(-50px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes pulseGlow {
+        0%, 100% {
+          box-shadow: 0 0 15px rgba(6, 214, 160, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 30px rgba(6, 214, 160, 0.8);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      /* Responsive design */
+      @media (max-width: 1024px) {
+        .wb-sidebar {
+          flex: 0 0 320px;
+          padding-right: 3rem; /* Adjust for button */
+        }
+      }
+
+      @media (max-width: 900px) {
+        body {
+          padding: 0.5rem;
+          align-items: stretch;
+        }
+
+        .wb-container {
+          flex-direction: column;
+          min-height: 100vh;
+          border-radius: 12px;
+          max-width: 100%;
+        }
+
+        .wb-container.fullscreen {
+          border-radius: 0;
+          padding: 0;
+        }
+
+        .wb-sidebar {
+          flex: none; /* Reset flex-basis on mobile */
+          border-radius: 12px 12px 0 0;
+          padding: 1.5rem;
+          min-height: auto;
+          transition: all 0.5s ease; /* Maintain transition on mobile */
+          padding-right: 1.5rem; /* Reset padding for mobile */
+        }
+
+        /* NEW: Hidden state for sidebar on mobile */
+        .wb-sidebar.hidden {
+          transform: translateY(-100%); /* Slide up */
+          flex: 0 0 0px; /* Collapse height */
+          padding: 0;
+          overflow: hidden;
+          opacity: 0;
+        }
+
+        /* Hide the toggle button on mobile when sidebar is fully hidden */
+        .wb-sidebar.hidden .wb-toggle-btn {
+          display: none;
+        }
+
+        .wb-iframe-container {
+          flex: 1;
+          min-height: 400px;
+          border-radius: 0 0 12px 12px;
+        }
+
+        .wb-iframe-container.fullscreen {
+          border-radius: 0;
+        }
+
+        .wb-container::before,
+        .wb-container::after {
+          display: none;
+        }
+
+        .wb-restart-btn {
+          top: 10px;
+          right: 10px;
+          padding: 10px 16px;
+          font-size: 0.85rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .wb-sidebar {
+          padding: 1rem;
+        }
+
+        .wb-title-section {
+          margin-bottom: 1.5rem;
+        }
+
+        .wb-title {
+          font-size: 1.3rem;
+        }
+
+        .wb-input-field {
+          padding: 0.875rem 1rem;
+        }
+
+        .wb-btn {
+          padding: 0.875rem 1.25rem;
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wb-container">
+      <aside class="wb-sidebar">
+          <button id="wbSidebarToggle" onclick="wbToggleSidebar()" class="wb-toggle-btn">
+              <i class="fas fa-chevron-left"></i>
+          </button>
+        <div class="wb-title-section">
+          <div class="wb-icon-circle">
+            <i class="fas fa-chalkboard-teacher"></i>
+          </div>
+          <div>
+            <h1 class="wb-title">Live Whiteboard</h1>
+            <p class="wb-subtitle">Connect to your teacher's shared whiteboard</p>
+          </div>
+        </div>
+
+        <div class="wb-input-group">
+          <label class="wb-input-label" for="wbBoardCode">
+            <i class="fas fa-key"></i> Board Code
+          </label>
+          <input
+            type="text"
+            id="wbBoardCode"
+            class="wb-input-field"
+            placeholder="Enter board code (e.g., svVDABAW)"
+            maxlength="20"
+            autocomplete="off"
+          />
+          <div class="wb-example-text">
+            Example: From https://www.whiteboard.team/app/board/<strong>svVDABAW</strong>,
+            enter <strong>svVDABAW</strong>
+          </div>
+        </div>
+
+        <div class="wb-button-container">
+          <button onclick="wbLoadBoard()" class="wb-btn wb-btn-primary">
+            <span><i class="fas fa-play"></i> Load Whiteboard</span>
+          </button>
+          <button onclick="wbClearBoard()" class="wb-btn wb-btn-secondary">
+            <span><i class="fas fa-times"></i> Clear</span>
+          </button>
+        </div>
+
+        <div id="wbStatusMessage" class="wb-status-message"></div>
+      </aside>
+
+      <section class="wb-iframe-container" id="wbIframeContainer">
+        <div id="wbLoadingOverlay" class="wb-loading-overlay">
+          <div class="wb-spinner"></div>
+          <p class="wb-loading-text">Loading whiteboard...</p>
+        </div>
+        <iframe
+          id="wbWhiteboardFrame"
+          class="wb-whiteboard-frame"
+          title="Live Whiteboard"
+          allowfullscreen
+          onload="wbHideLoadingOverlay()"
+        ></iframe>
+      </section>
+    </div>
+
+    <button onclick="wbRestartSession()" class="wb-restart-btn" id="wbRestartBtn">
+      <i class="fas fa-redo"></i> New Board
+    </button>
+
+    <script>
+      // NEW: Toggle Sidebar Function
+      function wbToggleSidebar() {
+          const sidebar = document.querySelector('.wb-sidebar');
+          const iframeContainer = document.getElementById('wbIframeContainer');
+          const toggleButton = document.getElementById('wbSidebarToggle');
+
+          sidebar.classList.toggle('hidden');
+          toggleButton.classList.toggle('rotated'); // Rotate icon
+
+          // Adjust iframe container's border-radius when sidebar is collapsed/expanded
+          if (sidebar.classList.contains('hidden')) {
+              iframeContainer.style.borderRadius = '20px'; /* Match main container radius when sidebar is gone */
+          } else {
+              iframeContainer.style.borderRadius = '0 20px 20px 0'; /* Original radius when sidebar is visible */
+          }
+      }
+
+      function wbLoadBoard() {
+        const boardCode = document.getElementById('wbBoardCode').value.trim();
+        const iframe = document.getElementById('wbWhiteboardFrame');
+        const container = document.getElementById('wbIframeContainer');
+        const sidebar = document.querySelector('.wb-sidebar');
+        const mainContainer = document.querySelector('.wb-container');
+        const statusMessage = document.getElementById('wbStatusMessage');
+        const loadingOverlay = document.getElementById('wbLoadingOverlay');
+        const restartBtn = document.getElementById('wbRestartBtn');
+
+        if (!boardCode) {
+          showStatusMessage('Please enter a board code!', 'error');
+          return;
+        }
+
+        // Validate board code format (basic validation)
+        if (!/^[a-zA-Z0-9]+$/.test(boardCode)) {
+          showStatusMessage('Invalid board code format. Use only letters and numbers.', 'error');
+          return;
+        }
+
+        // Show loading state
+        loadingOverlay.style.opacity = '1';
+        loadingOverlay.style.display = 'flex';
+        iframe.style.opacity = '0';
+
+        // Load the whiteboard
+        iframe.src = `https://www.whiteboard.team/app/board/${boardCode}`;
+        container.style.display = 'flex';
+
+        // Show success message briefly, then hide sidebar and go fullscreen
+        showStatusMessage('Whiteboard loaded successfully!', 'success');
+
+        setTimeout(() => {
+          // Trigger sidebar collapse via the new toggle function
+          if (!sidebar.classList.contains('hidden')) { // Only collapse if not already hidden
+            wbToggleSidebar();
+          }
+
+          mainContainer.classList.add('fullscreen');
+          container.classList.add('fullscreen');
+          restartBtn.classList.add('visible'); // Show the restart button when fullscreen
+
+          // Adjust body styling for fullscreen
+          document.body.style.padding = '0';
+          document.body.style.alignItems = 'stretch';
+        }, 1500);
+      }
+
+      function wbClearBoard() {
+        const iframe = document.getElementById('wbWhiteboardFrame');
+        const container = document.getElementById('wbIframeContainer');
+        const boardCodeInput = document.getElementById('wbBoardCode');
+        const statusMessage = document.getElementById('wbStatusMessage');
+        const loadingOverlay = document.getElementById('wbLoadingOverlay');
+
+        iframe.src = '';
+        container.style.display = 'none';
+        boardCodeInput.value = '';
+        statusMessage.style.display = 'none';
+        loadingOverlay.style.display = 'none';
+        iframe.style.opacity = '1';
+
+        boardCodeInput.focus();
+      }
+
+      function wbRestartSession() {
+        const iframe = document.getElementById('wbWhiteboardFrame');
+        const container = document.getElementById('wbIframeContainer');
+        const sidebar = document.querySelector('.wb-sidebar');
+        const mainContainer = document.querySelector('.wb-container');
+        const boardCodeInput = document.getElementById('wbBoardCode');
+        const statusMessage = document.getElementById('wbStatusMessage');
+        const loadingOverlay = document.getElementById('wbLoadingOverlay');
+        const restartBtn = document.getElementById('wbRestartBtn');
+
+        // Reset iframe
+        iframe.src = '';
+        container.style.display = 'none';
+        container.classList.remove('fullscreen');
+
+        // Ensure sidebar is visible when restarting
+        if (sidebar.classList.contains('hidden')) {
+            wbToggleSidebar(); // Call toggle to make it visible
+        }
+
+        mainContainer.classList.remove('fullscreen');
+        restartBtn.classList.remove('visible'); // Hide the restart button
+
+        // Reset form
+        boardCodeInput.value = '';
+        statusMessage.style.display = 'none';
+        loadingOverlay.style.display = 'none';
+        iframe.style.opacity = '1';
+
+        // Reset body styling
+        document.body.style.padding = '1rem';
+        document.body.style.alignItems = 'center';
+
+        // Focus on input
+        setTimeout(() => {
+          boardCodeInput.focus();
+        }, 300);
+      }
+
+      function wbHideLoadingOverlay() {
+        const loadingOverlay = document.getElementById('wbLoadingOverlay');
+        const iframe = document.getElementById('wbWhiteboardFrame');
+
+        loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+          loadingOverlay.style.display = 'none';
+          iframe.style.opacity = '1';
+        }, 300);
+      }
+
+      function showStatusMessage(message, type = 'success') {
+        const statusMessage = document.getElementById('wbStatusMessage');
+        const icon = type === 'error' ? 'fas fa-exclamation-triangle' : 'fas fa-check-circle';
+
+        statusMessage.className = `wb-status-message ${type}`;
+        statusMessage.innerHTML = `<i class="${icon}"></i> ${message}`;
+        statusMessage.style.display = 'block';
+
+        setTimeout(() => {
+          statusMessage.style.display = 'none';
+        }, 4000);
+      }
+
+      // Event listeners
+      document.getElementById('wbBoardCode').addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+          wbLoadBoard();
+        }
+      });
+
+      document.getElementById('wbBoardCode').addEventListener('input', (event) => {
+        // Auto-clean input to only allow alphanumeric characters
+        event.target.value = event.target.value.replace(/[^a-zA-Z0-9]/g, '');
+      });
+
+      window.addEventListener('load', () => {
+        document.getElementById('wbBoardCode').focus();
+      });
+
+      // Handle iframe load errors
+      document.getElementById('wbWhiteboardFrame').addEventListener('error', () => {
+        showStatusMessage('Failed to load whiteboard. Please check the board code.', 'error');
+        wbHideLoadingOverlay();
+      });
+
+      // Handle ESC key to restart session when in fullscreen
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && document.querySelector('.wb-container').classList.contains('fullscreen')) {
+          wbRestartSession();
+        }
+      });
+    </script>
+  </body>
+</html>

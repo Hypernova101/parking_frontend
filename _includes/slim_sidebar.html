@@ -1,187 +1,209 @@
 <div id="sidebar">
-    <div class="sidebar-button" id="dictionary-button" data-tooltip="Dictionary">
-        <span class="icon">📚</span>
-        <span class="label">Dictionary</span>
-    </div>
-    <div class="sidebar-button" data-tooltip="Navigation">
+  <div class="sidebar-button" id="dictionary-button" data-tooltip="Dictionary">
+      <span class="icon">📚</span>
+      <span class="label">Dictionary</span>
+  </div>
+  <div class="sidebar-button" data-tooltip="Navigation">
       <span class="icon">🧭</span>
       <span class="label">Navigation</span>
-    </div>
-    <div class="sidebar-separator"></div>
-    <div class="sidebar-button" data-tooltip="Voice Input">
+  </div>
+  <div class="sidebar-separator"></div>
+  <div class="sidebar-button" data-tooltip="Voice Input">
       <span class="icon">🎤</span>
       <span class="label">Voice Input</span>
-    </div>
-    <div class="sidebar-button" data-tooltip="Bookmarks">
+  </div>
+  <div class="sidebar-button" data-tooltip="Bookmarks">
       <span class="icon">🔖</span>
       <span class="label">Bookmarks</span>
-    </div>
-    <div class="sidebar-button" data-tooltip="Notes">
+  </div>
+  <div class="sidebar-button" data-tooltip="Notes">
       <span class="icon">📝</span>
       <span class="label">Notes</span>
-    </div>
-    <div class="sidebar-separator"></div>
-    <!-- Text to Speech Button -->
-    <div class="sidebar-button" id="tts-button" data-tooltip="Read Selected Text">
+  </div>
+  <div class="sidebar-separator"></div>
+  <div class="sidebar-button" id="tts-button" data-tooltip="Read Selected Text">
       <span class="icon">🔊</span>
       <span class="label">Read Text</span>
-    </div>
-    <div class="sidebar-separator"></div>
-    <div class="sidebar-button" data-tooltip="Settings">
+  </div>
+  <div class="sidebar-separator"></div>
+  <div class="sidebar-button" data-tooltip="Settings">
       <span class="icon">⚙️</span>
       <span class="label">Settings</span>
-    </div>
   </div>
-  <!-- Dictionary Modal -->
-<div id="dictionary-modal" style="display:none; position:fixed; right:0; top:0; height:100vh; width:320px; background:#fff; border-left:1px solid #ccc; box-shadow:-5px 0 15px rgba(0,0,0,0.1); padding:20px; overflow-y:auto; z-index:1100; font-family:sans-serif;">
-    <button id="close-dict" style="float:right; font-size:18px; cursor:pointer; border:none; background:none;">✖</button>
-    <h3 style="margin-top:0; margin-bottom:12px;">Dictionary Lookup</h3>
-    <input type="text" id="dict-input" placeholder="Enter a word" style="width:100%; padding:8px; font-size:16px; border:1px solid #ccc; border-radius:4px;"/>
-    <button id="search-dict" style="margin-top:10px; padding:10px; width:100%; font-size:16px; background:#667eea; border:none; border-radius:6px; color:#fff; cursor:pointer;">Search</button>
-    <div id="dict-result" style="margin-top:20px; line-height:1.4; color:#333;"></div>
 </div>
-  
-  <style>
-    
-    /* Reset and basic styling */
-    * {
+
+<!-- Dictionary Modal -->
+<div id="dictionary-modal" class="modal-overlay">
+  <div class="modal-content">
+      <div class="modal-header">
+          <h3>Dictionary Lookup</h3>
+          <button id="close-dict" class="close-btn">✖</button>
+      </div>
+      <div class="modal-body">
+          <div class="search-container">
+              <input type="text" id="dict-input" placeholder="Enter a word..." />
+              <button id="search-dict" class="search-btn">Search</button>
+          </div>
+          <div id="dict-result" class="result-container"></div>
+      </div>
+  </div>
+</div>
+
+<style>
+  * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-    }
-    #sidebar {
+  }
+
+  body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  #sidebar {
       position: fixed;
       top: 50%;
-      left: 30px;
+      left: 24px;
       transform: translateY(-50%);
-      width: 70px;
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 24px;
+      width: 68px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px) saturate(150%);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
       display: flex;
       flex-direction: column;
-      padding: 20px 0;
-      gap: 8px;
+      padding: 16px 0;
+      gap: 6px;
       z-index: 1000;
       box-shadow: 
-        0 20px 40px rgba(0, 0, 0, 0.1),
-        0 8px 24px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9);
-      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow: visible;
-    }
-    #sidebar:hover {
+          0 24px 48px rgba(0, 0, 0, 0.15),
+          0 12px 24px rgba(0, 0, 0, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  #sidebar:hover {
       width: 200px;
-      padding: 20px 12px;
-    }
-    .sidebar-button {
+      padding: 16px 12px;
+      background: rgba(255, 255, 255, 0.98);
+  }
+
+  .sidebar-button {
       display: flex;
       align-items: center;
-      width: 50px;
-      height: 50px;
+      width: 52px;
+      height: 52px;
       margin: 0 auto;
-      background: rgba(0, 0, 0, 0.03);
-      border: 1px solid rgba(0, 0, 0, 0.06);
-      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
       position: relative;
       overflow: hidden;
-      text-align: center;
-    }
-    #sidebar:hover .sidebar-button {
+  }
+
+  .sidebar-button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
-      gap: 14px;
-    }
-    .icon {
-      font-size: 22px;
-      line-height: 1;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      border-radius: inherit;
+  }
+
+  #sidebar:hover .sidebar-button {
+      width: 100%;
+      gap: 12px;
+  }
+
+  .icon {
+      font-size: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 50px;
-      height: 50px;
+      width: 52px;
+      height: 52px;
       flex-shrink: 0;
-      transition: all 0.3s ease;
+      transition: all 0.35s ease;
       user-select: none;
-      position: absolute;
-      left: 0;
-      top: 0;
-    }
-    #sidebar:hover .icon {
-      position: static;
-      width: 22px;
-      height: 22px;
+      position: relative;
+      z-index: 2;
+      filter: brightness(1.2) contrast(1.1);
+  }
+
+  #sidebar:hover .icon {
+      width: 20px;
+      height: 20px;
       margin-left: 16px;
-    }
-    .sidebar-button:hover {
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      border-color: rgba(102, 126, 234, 0.3);
-      transform: translateY(-2px);
+  }
+
+  .sidebar-button:hover {
+      transform: translateY(-3px) scale(1.05);
       box-shadow: 
-        0 8px 20px rgba(102, 126, 234, 0.2),
-        0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-    .sidebar-button:hover .icon {
-      transform: scale(1.1);
-      filter: brightness(1.1) contrast(1.1);
-    }
-    .sidebar-button:active {
-      transform: translateY(0);
-      box-shadow: 
-        0 4px 12px rgba(102, 126, 234, 0.15),
-        0 2px 6px rgba(0, 0, 0, 0.08);
-    }
-    .label {
+          0 12px 28px rgba(102, 126, 234, 0.4),
+          0 6px 16px rgba(0, 0, 0, 0.3);
+      border-color: rgba(102, 126, 234, 0.6);
+  }
+
+  .sidebar-button:hover::before {
+      opacity: 1;
+  }
+
+  .sidebar-button:hover .icon {
+      transform: scale(1.15);
+      filter: brightness(1.4) drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+  }
+
+  .sidebar-button:active {
+      transform: translateY(-1px) scale(1.02);
+  }
+
+  .label {
       font-size: 14px;
-      font-weight: 500;
-      color: #2d3748;
+      font-weight: 600;
+      color: #1e293b;
       white-space: nowrap;
       opacity: 0;
-      transform: translateX(-10px);
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      pointer-events: none;
-      position: absolute;
-      left: 60px;
-    }
-    #sidebar:hover .label {
-      position: static;
-      margin-left: 0;
-    }
-    #sidebar:hover .label {
+      transform: translateX(-15px);
+      transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+      position: relative;
+      z-index: 2;
+  }
+
+  #sidebar:hover .label {
       opacity: 1;
       transform: translateX(0);
-      pointer-events: all;
-    }
-    .sidebar-button:hover .label {
-      color: white;
-      font-weight: 600;
-    }
-    .sidebar-separator {
+  }
+
+  .sidebar-button:hover .label {
+      color: #ffffff;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+  }
+
+  .sidebar-separator {
       width: 60%;
-      height: 1px;
-      background: linear-gradient(90deg, 
-        transparent, 
-        rgba(0, 0, 0, 0.08), 
-        transparent
-      );
-      margin: 8px auto;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.15), transparent);
+      margin: 6px auto;
+      border-radius: 1px;
       transition: all 0.3s ease;
-    }
-    #sidebar:hover .sidebar-separator {
+  }
+
+  #sidebar:hover .sidebar-separator {
       width: 80%;
-      background: linear-gradient(90deg, 
-        transparent, 
-        rgba(0, 0, 0, 0.12), 
-        transparent
-      );
-    }
-    /* Tooltip for minimized state */
-    .sidebar-button::before {
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.6), transparent);
+  }
+
+  /* Tooltips */
+  .sidebar-button::after {
       content: attr(data-tooltip);
       position: absolute;
-      left: calc(100% + 15px);
+      left: calc(100% + 12px);
       top: 50%;
       transform: translateY(-50%);
       background: rgba(0, 0, 0, 0.9);
@@ -196,155 +218,354 @@
       transition: all 0.3s ease;
       pointer-events: none;
       z-index: 1001;
-    }
-    .sidebar-button::after {
-      content: '';
-      position: absolute;
-      left: calc(100% + 8px);
-      top: 50%;
-      transform: translateY(-50%);
-      border: 6px solid transparent;
-      border-right-color: rgba(0, 0, 0, 0.9);
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.3s ease;
-      z-index: 1001;
-    }
-    #sidebar:not(:hover) .sidebar-button:hover::before,
-    #sidebar:not(:hover) .sidebar-button:hover::after {
-      opacity: 1;
-      visibility: visible;
-    }
-    /* Hide tooltips when sidebar is expanded */
-    #sidebar:hover .sidebar-button::before,
-    #sidebar:hover .sidebar-button::after {
-      opacity: 0 !important;
-      visibility: hidden !important;
-    }
-  </style>
-  
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-    const ttsButton = document.getElementById('tts-button');
-
-    ttsButton.addEventListener('mousedown', () => {
-        const selection = window.getSelection();
-        const container = document.getElementById('lesson-content');
-
-        if (!selection || selection.rangeCount === 0) {
-        alert('Please select some text in the lesson to read.');
-        return;
-        }
-
-        if (!container) {
-        alert('Lesson content area not found.');
-        return;
-        }
-
-        let selectedText = '';
-        for (let i = 0; i < selection.rangeCount; i++) {
-        const range = selection.getRangeAt(i);
-
-        // Check if any part of the selection intersects lesson-content
-        const rangeContent = range.cloneContents();
-        const tempDiv = document.createElement('div');
-        tempDiv.appendChild(rangeContent);
-
-        if (container.contains(range.startContainer) || container.contains(range.endContainer)) {
-            selectedText += selection.toString();
-            break;
-        }
-        }
-
-        selectedText = selectedText.trim();
-
-        if (!selectedText) {
-        alert('Please select text within the lesson content.');
-        return;
-        }
-
-        const API_KEY = '56c7e2a8367048b8ae6c5278adb13c46';
-        const ttsUrl = `https://api.voicerss.org/?key=${API_KEY}&hl=en-us&src=${encodeURIComponent(selectedText)}&c=MP3&f=44khz_16bit_stereo`;
-
-        let audio = document.getElementById('tts-audio');
-        if (!audio) {
-        audio = document.createElement('audio');
-        audio.id = 'tts-audio';
-        document.body.appendChild(audio);
-        }
-        audio.src = ttsUrl;
-        audio.play().catch(err => {
-        alert('Failed to play TTS audio: ' + err.message);
-        });
-    });
-    });
-    document.addEventListener('DOMContentLoaded', () => {
-  const dictionaryButton = document.getElementById('dictionary-button');
-  const dictionaryModal = document.getElementById('dictionary-modal');
-  const closeDictBtn = document.getElementById('close-dict');
-  const searchDictBtn = document.getElementById('search-dict');
-  const dictInput = document.getElementById('dict-input');
-  const dictResult = document.getElementById('dict-result');
-
-  // Open modal on sidebar button click
-  dictionaryButton.addEventListener('click', () => {
-    dictionaryModal.style.display = 'block';
-    dictInput.focus();
-  });
-
-  // Close modal on close button click
-  closeDictBtn.addEventListener('click', () => {
-    dictionaryModal.style.display = 'none';
-    dictInput.value = '';
-    dictResult.innerHTML = '';
-  });
-
-  // Search dictionary function
-  function searchDictionary() {
-    const word = dictInput.value.trim();
-    if (!word) {
-      alert('Please enter a word to look up.');
-      return;
-    }
-
-    dictResult.innerHTML = '<em>Loading...</em>';
-
-    fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`)
-      .then(res => {
-        if (!res.ok) throw new Error('Word not found');
-        return res.json();
-      })
-      .then(data => {
-        const meanings = data[0].meanings;
-        let html = `<h4 style="margin-bottom:10px;">${data[0].word}</h4>`;
-
-        meanings.forEach(meaning => {
-          html += `<b style="text-transform: capitalize;">${meaning.partOfSpeech}</b><br/>`;
-          meaning.definitions.forEach((def, i) => {
-            html += `${i + 1}. ${def.definition}<br/>`;
-            if (def.example) html += `<i style="color:#555;">Example: ${def.example}</i><br/>`;
-          });
-          html += '<br/>';
-        });
-
-        dictResult.innerHTML = html;
-      })
-      .catch(() => {
-        dictResult.innerHTML = '<span style="color:red;">No definition found. Try another word.</span>';
-      });
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   }
 
-  // Search on button click
-  searchDictBtn.addEventListener('click', searchDictionary);
+  #sidebar:not(:hover) .sidebar-button:hover::after {
+      opacity: 1;
+      visibility: visible;
+  }
 
-  // Also allow Enter key in input to trigger search
-  dictInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      searchDictionary();
-    }
+  #sidebar:hover .sidebar-button::after {
+      opacity: 0 !important;
+      visibility: hidden !important;
+  }
+
+  .modal-overlay {
+      display: none;
+      position: fixed;
+      right: 0;
+      top: 0;
+      height: 100vh;
+      width: 380px;
+      background: rgba(15, 15, 25, 0.98);
+      backdrop-filter: blur(25px) saturate(120%);
+      border-left: 1px solid rgba(102, 126, 234, 0.3);
+      box-shadow: 
+          -12px 0 40px rgba(0, 0, 0, 0.4),
+          -4px 0 20px rgba(102, 126, 234, 0.1);
+      z-index: 1100;
+      animation: slideIn 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  @keyframes slideIn {
+      from { 
+          transform: translateX(100%); 
+          opacity: 0;
+      }
+      to { 
+          transform: translateX(0); 
+          opacity: 1;
+      }
+  }
+
+  .modal-content {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+  }
+
+  .modal-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.6), transparent);
+  }
+
+  .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 28px 28px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .modal-header h3 {
+      color: #f8fafc;
+      font-size: 22px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+  }
+
+  .close-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      font-size: 16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+  }
+
+  .close-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      transform: scale(1.05);
+  }
+
+  .modal-body {
+      flex: 1;
+      padding: 28px;
+      overflow-y: auto;
+  }
+
+  .search-container {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+      position: relative;
+  }
+
+  .search-container::before {
+      content: '';
+      position: absolute;
+      bottom: -16px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+  }
+
+  #dict-input {
+      flex: 1;
+      padding: 16px 20px;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      color: #f1f5f9;
+      transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      font-weight: 500;
+  }
+
+  #dict-input:focus {
+      outline: none;
+      border-color: rgba(102, 126, 234, 0.6);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 
+          0 0 0 4px rgba(102, 126, 234, 0.15),
+          0 8px 25px rgba(102, 126, 234, 0.2);
+      transform: translateY(-2px);
+  }
+
+  #dict-input::placeholder {
+      color: rgba(148, 163, 184, 0.7);
+      font-weight: 400;
+  }
+
+  .search-btn {
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 16px;
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      position: relative;
+      overflow: hidden;
+  }
+
+  .search-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+  }
+
+  .search-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+      background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+  }
+
+  .search-btn:hover::before {
+      left: 100%;
+  }
+
+  .search-btn:active {
+      transform: translateY(-1px) scale(1.01);
+  }
+
+  .result-container {
+      color: #1f2937;
+      line-height: 1.7;
+      font-size: 15px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      min-height: 120px;
+  }
+
+  .result-container:empty {
+      display: none;
+  }
+
+  .result-container h4 {
+      color: #f8fafc;
+      font-size: 28px;
+      margin-bottom: 20px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #667eea, #a78bfa, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-transform: capitalize;
+  }
+
+  .result-container b {
+      color: #a78bfa;
+      font-size: 17px;
+      font-weight: 700;
+      display: inline-block;
+      margin: 16px 0 8px 0;
+      padding: 6px 12px;
+      background: rgba(167, 139, 250, 0.1);
+      border-radius: 8px;
+      border-left: 3px solid #a78bfa;
+  }
+
+  .result-container br + br {
+      display: block;
+      margin: 12px 0;
+      content: "";
+  }
+
+  .result-container i {
+      color: #374151 !important;
+      font-style: italic;
+      margin-left: 8px;
+      padding: 4px 8px;
+      background: rgba(55, 65, 81, 0.05);
+      border-radius: 6px;
+      font-size: 14px;
+  }
+
+  .result-container em {
+      color: #fbbf24;
+      font-style: normal;
+      font-weight: 600;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+      const ttsButton = document.getElementById('tts-button');
+      ttsButton.addEventListener('mousedown', () => {
+          const selection = window.getSelection();
+          const container = document.getElementById('lesson-content');
+          if (!selection || selection.rangeCount === 0) {
+              alert('Please select some text in the lesson to read.');
+              return;
+          }
+          if (!container) {
+              alert('Lesson content area not found.');
+              return;
+          }
+          let selectedText = '';
+          for (let i = 0; i < selection.rangeCount; i++) {
+              const range = selection.getRangeAt(i);
+              const rangeContent = range.cloneContents();
+              const tempDiv = document.createElement('div');
+              tempDiv.appendChild(rangeContent);
+              if (container.contains(range.startContainer) || container.contains(range.endContainer)) {
+                  selectedText += selection.toString();
+                  break;
+              }
+          }
+          selectedText = selectedText.trim();
+          if (!selectedText) {
+              alert('Please select text within the lesson content.');
+              return;
+          }
+          const API_KEY = '56c7e2a8367048b8ae6c5278adb13c46';
+          const ttsUrl = `https://api.voicerss.org/?key=${API_KEY}&hl=en-us&src=${encodeURIComponent(selectedText)}&c=MP3&f=44khz_16bit_stereo`;
+          let audio = document.getElementById('tts-audio');
+          if (!audio) {
+              audio = document.createElement('audio');
+              audio.id = 'tts-audio';
+              document.body.appendChild(audio);
+          }
+          audio.src = ttsUrl;
+          audio.play().catch(err => {
+              alert('Failed to play TTS audio: ' + err.message);
+          });
+      });
+
+      const dictionaryButton = document.getElementById('dictionary-button');
+      const dictionaryModal = document.getElementById('dictionary-modal');
+      const closeDictBtn = document.getElementById('close-dict');
+      const searchDictBtn = document.getElementById('search-dict');
+      const dictInput = document.getElementById('dict-input');
+      const dictResult = document.getElementById('dict-result');
+
+      dictionaryButton.addEventListener('click', () => {
+          dictionaryModal.style.display = 'block';
+          dictInput.focus();
+      });
+
+      closeDictBtn.addEventListener('click', () => {
+          dictionaryModal.style.display = 'none';
+          dictInput.value = '';
+          dictResult.innerHTML = '';
+      });
+
+      function searchDictionary() {
+          const word = dictInput.value.trim();
+          if (!word) {
+              alert('Please enter a word to look up.');
+              return;
+          }
+          dictResult.innerHTML = '<em>Loading...</em>';
+          fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`)
+              .then(res => {
+                  if (!res.ok) throw new Error('Word not found');
+                  return res.json();
+              })
+              .then(data => {
+                  const meanings = data[0].meanings;
+                  let html = `<h4>${data[0].word}</h4>`;
+                  meanings.forEach(meaning => {
+                      html += `<b>${meaning.partOfSpeech}</b><br/>`;
+                      meaning.definitions.forEach((def, i) => {
+                          html += `${i + 1}. ${def.definition}<br/>`;
+                          if (def.example) html += `<i style="color:#94a3b8;">Example: ${def.example}</i><br/>`;
+                      });
+                      html += '<br/>';
+                  });
+                  dictResult.innerHTML = html;
+              })
+              .catch(() => {
+                  dictResult.innerHTML = '<span style="color:#ef4444;">No definition found. Try another word.</span>';
+              });
+      }
+
+      searchDictBtn.addEventListener('click', searchDictionary);
+      dictInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+              e.preventDefault();
+              searchDictionary();
+          }
+      });
   });
-});
-
 </script>
-  
