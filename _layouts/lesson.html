@@ -263,75 +263,38 @@ sys.stdout = StringIO()
   };
 });
 
-const pythonURI = (location.hostname === "localhost" || location.hostname === "127.0.0.1")
-  ? "http://localhost:8000"
-  : "https://parking.stu.nighthawkcodingsociety.com";
-
-const fetchOptions = {
-  mode: 'cors',
-  cache: 'default',
-  credentials: 'include',
-  headers: {
-    'Content-Type': 'application/json',
-    'X-Origin': 'client'
-  }
-};
-
-
-  let selectedSentiment = null;
-
   function selectFeedback(type) {
-    selectedSentiment = type;
-    document.getElementById('feedbackForm').style.display = 'block';
-    document.getElementById('feedbackTitle').innerText =
-      type === 'up' ? 'Awesome! What did you like?' : 'Oh no! What could be better?';
+    const formContainer = document.getElementById('feedbackForm');
+    const thumbsUp = document.getElementById('thumbsUp');
+    const thumbsDown = document.getElementById('thumbsDown');
 
-    document.getElementById('thumbsUp').classList.toggle('selected', type === 'up');
-    document.getElementById('thumbsDown').classList.toggle('selected', type === 'down');
+    // Clear previous selection
+    thumbsUp.classList.remove('selected');
+    thumbsDown.classList.remove('selected');
+
+    // Highlight selected button
+    if (type === 'up') {
+      thumbsUp.classList.add('selected');
+    } else {
+      thumbsDown.classList.add('selected');
+    }
+
+    // Define values
+    const entryId = "entry.2118665550";
+    const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfLtJ379pka0HiBUrKfhg3iMoqNe_CTq8GyKh4Teb4aXq3VEA/viewform?usp=pp_url";
+    const feedbackValue = type === 'up' ? 'Great! 👍' : 'Needs Improvement 👎';
+    const formUrl = `${baseUrl}&${entryId}=${encodeURIComponent(feedbackValue)}`;
+
+    // Show Google Form
+    formContainer.innerHTML = `
+      <iframe
+        src="${formUrl}"
+        style="width: 100%; height: 600px; border: none; border-radius: 10px;"
+        allowfullscreen
+      ></iframe>
+    `;
+    formContainer.style.display = 'block';
   }
-
-  async function submitFeedback() {
-  const comment = document.getElementById('feedbackText').value.trim();
-
-  if (!selectedSentiment || !comment) {
-    alert('Please select thumbs up/down and enter feedback.');
-    return;
-  }
-
-  try {
-    const response = await fetch(`${pythonURI}/api/feedback`, {
-      ...fetchOptions,
-      method: 'POST',
-      body: JSON.stringify({
-        sentiment: selectedSentiment,
-        comment: comment
-      })
-    });
-
-    if (!response.ok) throw new Error('Server error submitting feedback.');
-
-    const data = await response.json();
-
-    // Show success message
-    const statusDiv = document.getElementById('feedbackStatus');
-    const statusText = document.getElementById('statusText');
-    statusText.textContent = data.message || 'Feedback submitted successfully!';
-    statusDiv.style.display = 'block';
-
-    // Hide form and reset input
-    document.getElementById('feedbackForm').style.display = 'none';
-    document.getElementById('feedbackText').value = '';
-
-    setTimeout(() => {
-      resetFeedback();
-    }, 3000);
-  } catch (err) {
-    alert('Failed to submit feedback: ' + err.message);
-    console.error('Feedback submission error:', err);
-  }
-
-}
-
-
 </script>
+
 
