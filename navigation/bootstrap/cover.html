@@ -6,30 +6,41 @@ hack_prompt: "How would you explain a function to a 5th grader?"
 permalink: /demo
 ---
 
-Functions are blocks of code that do a specific job when called.
+<div id="lesson-content">
+  Functions are blocks of code that do a specific job when called.
 
-{% include video.html %}
+  {% include video.html %}
 
-{% include ai_comprehension.html %}
+  {% include ai_comprehension.html %}
 
-Try this one out for yourself:
+  Try this one out for yourself:
 
-{% include hack.html %}
+  {% include hack.html %}
+
+  {% include flashcards.html %}
+
+  this is student created flashcards
+
+  {% include flashcard-notes.html %}
+
+  Practice game!
+
+  {% include game.html %}
+
+  We'd love your feedback:
+
+  {% include poll.html %}
+</div>
+
+{% include slim_sidebar.html %}
 
 
-{% include flashcards.html %}
-
-
-this is student created flashcards
-
-{% include flashcard-notes.html %}
-
-
-Practice game!
-
-{% include game.html %}
-
-
-We'd love your feedback:
-
-{% include poll.html %}
+<style>
+#lesson-content {
+  user-select: text !important; /* ensure text is selectable */
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  pointer-events: auto !important; /* make sure it accepts pointer events */
+}
+</style>
