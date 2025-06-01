@@ -1,7 +1,95 @@
 ---
 layout: lesson
 title: Loops and Iteration
-video_url: "https://www.youtube.com/watch?v=VIDEO_ID" TESTING FOR NOW
+video_url: "https://www.youtube.com/watch?v=94UHCEmprCY"
 hack_prompt: "What is the difference between a while loop and a for loop?"
 permalink: /loops
 ---
+
+<div id="lesson-content">
+
+  <p>Loops let you run a block of code over and over again. This is called <strong>iteration</strong>. Instead of copying and pasting code 10 times, loops do the repeating for you.</p>
+
+  <h2>Why Use Loops?</h2>
+  <ul>
+    <li><strong>Efficiency:</strong> Save time by repeating code automatically.</li>
+    <li><strong>Automation:</strong> Useful for lists, counting, checking input, and more.</li>
+    <li><strong>Cleaner Code:</strong> Fewer lines, better structure.</li>
+  </ul>
+
+  {% include video.html %}
+  <p>Let’s start by watching a short video to understand how loops work in programming.</p>
+
+  <h2>The <code>for</code> Loop</h2>
+  <p><code>for</code> loops are great when you know how many times something should run. It repeats a fixed number of times.</p>
+  <pre><code>for i in range(5):
+    print(i)</code></pre>
+  <p>This prints: <code>0 1 2 3 4</code></p>
+
+  <h2>The <code>while</code> Loop</h2>
+  <p><code>while</code> loops run as long as a condition is true. It’s useful when you don’t know how many times the loop needs to run.</p>
+  <pre><code>x = 0
+while x < 5:
+    print(x)
+    x += 1</code></pre>
+
+  <p>This also prints: <code>0 1 2 3 4</code></p>
+
+  {% include whiteboard.html %}
+  <p>Follow along as your teacher draws on the <strong>live whiteboard</strong>! </p>
+
+  <h2>Comparing <code>for</code> and <code>while</code></h2>
+  <ul>
+    <li><strong>For loop:</strong> Use when you know how many times to repeat.</li>
+    <li><strong>While loop:</strong> Use when you repeat until something changes.</li>
+  </ul>
+
+  <h2>Looping Through Lists</h2>
+  <p>We can use loops to go through all items in a list.</p>
+  <pre><code>fruits = ["apple", "banana", "cherry"]
+for fruit in fruits:
+    print(fruit)</code></pre>
+
+  {% include hack.html %}
+  <p>Try these short challenges on your own or with your group.</p>
+
+  <h2>Loop Control</h2>
+  <p>Sometimes, you want to stop or skip parts of a loop. Use <code>break</code> and <code>continue</code>.</p>
+  <pre><code>for i in range(5):
+    if i == 3:
+        break
+    print(i)</code></pre>
+  <p>This prints: <code>0 1 2</code></p>
+
+  {% include flashcards.html %}
+  <p>Review key terms like <em>iteration</em>, <em>range</em>, and <em>loop variable</em>.</p>
+
+  {% include flashcard-notes.html %}
+  <p>Students can add their own custom flashcards here.</p>
+
+  {% include game.html %}
+  <p>Let’s play a quiz game on loops! Join using the game code shared by your teacher.</p>
+
+  {% include poll.html %}
+  <p>We’d love your feedback. What was clear, what was confusing, and what should we add?</p>
+
+  <h2>Homework Hacks</h2>
+  <ol>
+    <li><strong>Count Down:</strong> Use a <code>while</code> loop to print numbers from 10 to 1, then "Liftoff!".</li>
+    <li><strong>Sum of Numbers:</strong> Write a <code>for</code> loop to find the sum of numbers 1 through 100.</li>
+    <li><strong>Filter Even Numbers:</strong> Loop through a list and print only the even ones.</li>
+  </ol>
+</div>
+
+{% include slim_sidebar.html %}
+
+
+
+<br>
+<br>
+<br>
+<br>
+
+
+{% include ai_comprehension.html %}
+<p>Optional: Try AI-generated questions to test your understanding, or if you're studying after the lesson is done.</p>

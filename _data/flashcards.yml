@@ -1,25 +1,25 @@
 cards:
-  - term: Algorithm
-    definition: A step-by-step set of instructions to solve a problem.
-  - term: Sequencing
-    definition: The order in which steps are executed in a program.
-  - term: Selection
-    definition: Using conditions to control which code runs (e.g. if/else).
+  - term: Loop
+    definition: A programming structure that repeats a block of code.
   - term: Iteration
-    definition: Repeating a set of instructions (e.g. for/while loops).
-  - term: Variable
-    definition: A named container that stores data.
-  - term: Procedure
-    definition: A reusable block of code designed to perform a task.
-  - term: Modulus
-    definition: Returns the remainder after division.
-  - term: Boolean
-    definition: A data type that is either true or false.
-  - term: List
-    definition: An ordered collection of items.
-  - term: String
-    definition: A sequence of characters.
-  - term: API
-    definition: A set of tools for building software and interacting with other software.
-  - term: Big O
-    definition: Describes the performance or complexity of an algorithm.
+    definition: Each time a loop runs.
+  - term: For Loop
+    definition: A loop that repeats a fixed number of times.
+  - term: While Loop
+    definition: A loop that continues as long as a condition is true.
+  - term: Infinite Loop
+    definition: A loop that never stops because the condition is always true.
+  - term: Break
+    definition: A command that stops the loop before it finishes normally.
+  - term: Continue
+    definition: A command that skips the current loop iteration and moves to the next.
+  - term: Range
+    definition: A function used with for loops to specify how many times to repeat.
+  - term: Nested Loop
+    definition: A loop inside another loop.
+  - term: Condition
+    definition: An expression that evaluates to true or false, used in while loops.
+  - term: Index
+    definition: The position number of an item in a list, often used in loops.
+  - term: Loop Variable
+    definition: A variable that changes value in each iteration of the loop.
