@@ -79,12 +79,7 @@
   function loadWhiteboard() {
     const input = document.getElementById('roomInput').value.trim();
 
-    // Check for valid room hash
-    if (!input.includes('#room=')) {
-      alert('Please enter a valid Excalidraw live collaboration link that includes "#room=".');
-      return;
-    }
-
+    
     // Set iframe source
     const frame = document.getElementById('whiteboardFrame');
     frame.src = input;
