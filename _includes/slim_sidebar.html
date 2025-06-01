@@ -16,7 +16,7 @@
       <span class="icon">🔖</span>
       <span class="label">Bookmarks</span>
   </div>
-  <div class="sidebar-button" data-tooltip="Notes">
+  <div class="sidebar-button" id="notes-button" data-tooltip="Notes">
       <span class="icon">📝</span>
       <span class="label">Notes</span>
   </div>
@@ -30,9 +30,14 @@
       <span class="icon">⚙️</span>
       <span class="label">Settings</span>
   </div>
+  <div class="sidebar-separator"></div>
+  <div class="sidebar-button" id="highlight-button" data-tooltip="Highlight">
+      <span class="icon">🎨</span>
+      <span class="label">Highlight</span>
+  </div>
+  <input type="color" id="highlight-color" value="#FFFF00" style="margin: 8px auto; width: 40px; height: 30px; border: none; border-radius: 5px; cursor: pointer; opacity: 0; transition: opacity 0.3s ease;">
 </div>
 
-<!-- Dictionary Modal -->
 <div id="dictionary-modal" class="modal-overlay">
   <div class="modal-content">
       <div class="modal-header">
@@ -48,6 +53,26 @@
       </div>
   </div>
 </div>
+
+<div id="notes-sidebar" class="notes-panel">
+    <div class="notes-panel-header">
+        <h3>Your Notes</h3>
+        <button id="close-notes-sidebar" class="close-btn">✖</button>
+    </div>
+    <div class="notes-panel-body">
+        <div class="notes-list" id="notes-list-container">
+            </div>
+        <div class="note-input-area">
+            <textarea id="new-note-text" placeholder="Add a new note..." rows="3"></textarea>
+            <button id="add-note-btn" class="search-btn">Add Note</button>
+            <button id="update-note-btn" class="search-btn" style="display: none;">Update Note</button>
+            <button id="cancel-edit-note-btn" class="close-btn" style="display: none;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div id="highlight-note-popover" class="note-popover"></div>
+
 
 <style>
   * {
@@ -75,7 +100,7 @@
       padding: 16px 0;
       gap: 6px;
       z-index: 1000;
-      box-shadow: 
+      box-shadow:
           0 24px 48px rgba(0, 0, 0, 0.15),
           0 12px 24px rgba(0, 0, 0, 0.1),
           inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -144,7 +169,7 @@
 
   .sidebar-button:hover {
       transform: translateY(-3px) scale(1.05);
-      box-shadow: 
+      box-shadow:
           0 12px 28px rgba(102, 126, 234, 0.4),
           0 6px 16px rgba(0, 0, 0, 0.3);
       border-color: rgba(102, 126, 234, 0.6);
@@ -231,7 +256,8 @@
       visibility: hidden !important;
   }
 
-  .modal-overlay {
+  /* Shared modal/panel styles */
+  .modal-overlay, .notes-panel {
       display: none;
       position: fixed;
       right: 0;
@@ -241,7 +267,7 @@
       background: rgba(15, 15, 25, 0.98);
       backdrop-filter: blur(25px) saturate(120%);
       border-left: 1px solid rgba(102, 126, 234, 0.3);
-      box-shadow: 
+      box-shadow:
           -12px 0 40px rgba(0, 0, 0, 0.4),
           -4px 0 20px rgba(102, 126, 234, 0.1);
       z-index: 1100;
@@ -249,24 +275,24 @@
   }
 
   @keyframes slideIn {
-      from { 
-          transform: translateX(100%); 
+      from {
+          transform: translateX(100%);
           opacity: 0;
       }
-      to { 
-          transform: translateX(0); 
+      to {
+          transform: translateX(0);
           opacity: 1;
       }
   }
 
-  .modal-content {
+  .modal-content, .notes-panel-content {
       height: 100%;
       display: flex;
       flex-direction: column;
       position: relative;
   }
 
-  .modal-content::before {
+  .modal-content::before, .notes-panel::before {
       content: '';
       position: absolute;
       top: 0;
@@ -276,7 +302,7 @@
       background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.6), transparent);
   }
 
-  .modal-header {
+  .modal-header, .notes-panel-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -284,7 +310,7 @@
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   }
 
-  .modal-header h3 {
+  .modal-header h3, .notes-panel-header h3 {
       color: #f8fafc;
       font-size: 22px;
       font-weight: 700;
@@ -316,7 +342,7 @@
       transform: scale(1.05);
   }
 
-  .modal-body {
+  .modal-body, .notes-panel-body {
       flex: 1;
       padding: 28px;
       overflow-y: auto;
@@ -355,7 +381,7 @@
       outline: none;
       border-color: rgba(102, 126, 234, 0.6);
       background: rgba(255, 255, 255, 0.08);
-      box-shadow: 
+      box-shadow:
           0 0 0 4px rgba(102, 126, 234, 0.15),
           0 8px 25px rgba(102, 126, 234, 0.2);
       transform: translateY(-2px);
@@ -396,10 +422,6 @@
       transform: translateY(-3px) scale(1.02);
       box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
       background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
-  }
-
-  .search-btn:hover::before {
-      left: 100%;
   }
 
   .search-btn:active {
@@ -466,40 +488,330 @@
       font-style: normal;
       font-weight: 600;
   }
+
+  /* --- Highlight Specific Styles --- */
+  .user-highlight {
+      position: relative;
+      display: inline; /* Keep inline to flow with text */
+      line-height: inherit;
+      background-color: var(--highlight-color, yellow);
+      padding: 0 2px;
+      border-radius: 3px;
+      transition: background-color 0.2s ease;
+      vertical-align: baseline;
+  }
+
+  .highlight-trash-icon {
+      position: absolute;
+      right: 0px; /* Positioned relative to the highlight span's right edge */
+      top: -8px; /* Move it slightly outside to the top */
+      transform: scale(0.9); /* Slightly smaller initial scale */
+      opacity: 0; /* Hidden by default */
+      font-size: 10px; /* Smaller icon size */
+      color: rgba(0, 0, 0, 0.7); /* Darker color for visibility */
+      background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white background */
+      border-radius: 50%;
+      padding: 2px 4px; /* Padding around the 'x' */
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none; /* Prevents icon from blocking text selection when hidden */
+      z-index: 10; /* Make sure it's on top of other content */
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Subtle shadow */
+      border: 1px solid rgba(0, 0, 0, 0.1); /* Add a subtle border */
+      display: flex; /* Use flex to center the 'x' inside the circle */
+      align-items: center;
+      justify-content: center;
+      width: 18px; /* Fixed width/height for circular icon */
+      height: 18px;
+  }
+
+  .highlight-note-icon { /* NEW: Note icon style */
+      position: absolute;
+      right: 22px; /* Positioned to the left of the trash icon (trash width + small gap) */
+      top: -8px;
+      transform: scale(0.9);
+      opacity: 0;
+      font-size: 10px;
+      color: rgba(0, 0, 0, 0.7);
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      padding: 2px 4px;
+      cursor: pointer;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      pointer-events: none;
+      z-index: 10;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+  }
+
+
+  .user-highlight:hover .highlight-trash-icon,
+  .user-highlight:hover .highlight-note-icon { /* Show both icons on hover */
+      opacity: 1; /* Show on hover */
+      pointer-events: auto; /* Allow clicking when visible */
+      transform: scale(1.1); /* Slight pop effect on hover */
+  }
+
+  .highlight-trash-icon:hover {
+      background-color: rgba(239, 68, 68, 0.9); /* Tomato color on hover */
+      color: white;
+      transform: scale(1.2); /* Even more pop on direct hover */
+  }
+
+  .highlight-note-icon:hover { /* NEW: Note icon hover style */
+      background-color: rgba(102, 126, 234, 0.9); /* Blue color on hover */
+      color: white;
+      transform: scale(1.2);
+  }
+
+  /* --- Highlighting Button Active Style --- */
+  .highlighting {
+      border-color: rgba(102, 126, 234, 0.6);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+  }
+  #highlight-color::-webkit-color-swatch-wrapper {
+      padding: 0;
+  }
+  #highlight-color::-webkit-color-swatch {
+      border: none;
+      border-radius: 5px;
+  }
+
+
+  /* --- NEW: Notes Panel (Sidebar) Specific Styles --- */
+  .notes-panel {
+      /* Reuses .modal-overlay styles for basic positioning and animation */
+      /* Overrides specific for a panel vs a modal-like overlay */
+      display: none; /* Hidden by default, toggled by JS */
+  }
+
+  .notes-panel-header {
+      /* Reuses .modal-header styles */
+      padding: 28px 28px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .notes-panel-body {
+      /* Reuses .modal-body styles */
+      flex: 1;
+      padding: 28px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+  }
+
+  .notes-list {
+      flex-grow: 1; /* Allows notes list to expand and take available space */
+      margin-bottom: 20px;
+      /* max-height: 50vh;  No longer needed as flex-grow handles sizing */
+      overflow-y: auto;
+      padding-right: 10px; /* For scrollbar spacing */
+  }
+
+  .notes-list::-webkit-scrollbar {
+      width: 8px;
+  }
+  .notes-list::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+  }
+  .notes-list::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.4);
+      border-radius: 10px;
+  }
+  .notes-list::-webkit-scrollbar-thumb:hover {
+      background: rgba(102, 126, 234, 0.6);
+  }
+
+  .note-item {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 12px;
+      color: #f1f5f9;
+      font-size: 14px;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .note-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .note-item p {
+      margin-bottom: 8px;
+      line-height: 1.5;
+  }
+
+  .note-item .note-context {
+      font-size: 13px;
+      color: #a78bfa; /* Matches highlight text color */
+      font-style: italic;
+      margin-top: 5px;
+      padding: 5px 8px;
+      background: rgba(167, 139, 250, 0.1);
+      border-radius: 8px;
+      border-left: 3px solid #a78bfa;
+      display: block; /* Ensures it takes its own line */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      cursor: pointer; /* Indicate clickable */
+  }
+
+  .note-item .note-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+  }
+
+  .note-item .delete-note-btn,
+  .note-item .edit-note-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      font-size: 12px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+  }
+
+  .note-item .delete-note-btn:hover {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #f87171;
+  }
+
+  .note-item .edit-note-btn:hover {
+      background: rgba(102, 126, 234, 0.15);
+      border-color: rgba(102, 126, 234, 0.3);
+      color: #667eea;
+  }
+
+  .note-input-area {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      bottom: 0;
+      background: rgba(15, 15, 25, 0.98); /* Match notes panel background */
+      padding-bottom: 0px;
+      margin-top: auto;
+  }
+
+  #new-note-text {
+      width: 100%;
+      padding: 12px 15px;
+      font-size: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: #f1f5f9;
+      resize: vertical;
+      min-height: 80px;
+      font-weight: 500;
+  }
+
+  #new-note-text:focus {
+      outline: none;
+      border-color: rgba(102, 126, 234, 0.6);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+  }
+
+  #new-note-text::placeholder {
+      color: rgba(148, 163, 184, 0.7);
+  }
+
+  .note-input-area .search-btn,
+  .note-input-area .close-btn {
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 15px;
+      border-radius: 12px;
+  }
+
+  /* NEW: Popover for notes on highlight hover */
+  .note-popover {
+      position: absolute;
+      background: #2d3748; /* Darker background */
+      color: #f1f5f9;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 13px;
+      max-width: 250px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 1002; /* Above sidebar */
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      transform: translateY(10px);
+      pointer-events: none; /* Do not block interaction with content below */
+      line-height: 1.4;
+  }
+
+  .note-popover.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+  }
+
 </style>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
       const ttsButton = document.getElementById('tts-button');
+      // Ensure lessonContent is available, otherwise the TTS and Highlight features won't work
+      const lessonContent = document.getElementById('lesson-content'); // IMPORTANT: This ID must match your main content div
+
+      // --- TEXT-TO-SPEECH (TTS) ---
       ttsButton.addEventListener('mousedown', () => {
           const selection = window.getSelection();
-          const container = document.getElementById('lesson-content');
+
           if (!selection || selection.rangeCount === 0) {
               alert('Please select some text in the lesson to read.');
               return;
           }
-          if (!container) {
-              alert('Lesson content area not found.');
+          if (!lessonContent) {
+              console.warn('Lesson content area (ID "lesson-content") not found. TTS feature might not work as expected.');
+              alert('Lesson content area not found. Cannot read text.');
               return;
           }
+
           let selectedText = '';
+          let isSelectionInLessonContent = false;
           for (let i = 0; i < selection.rangeCount; i++) {
               const range = selection.getRangeAt(i);
-              const rangeContent = range.cloneContents();
-              const tempDiv = document.createElement('div');
-              tempDiv.appendChild(rangeContent);
-              if (container.contains(range.startContainer) || container.contains(range.endContainer)) {
+              // Check if any part of the selection range is within the lesson content
+              if (lessonContent.contains(range.startContainer) || lessonContent.contains(range.endContainer)) {
                   selectedText += selection.toString();
+                  isSelectionInLessonContent = true;
                   break;
               }
           }
+
           selectedText = selectedText.trim();
-          if (!selectedText) {
+
+          if (!selectedText || !isSelectionInLessonContent) {
               alert('Please select text within the lesson content.');
               return;
           }
-          const API_KEY = '56c7e2a8367048b8ae6c5278adb13c46';
+
+          const API_KEY = '56c7e2a8367048b8ae6c5278adb13c46'; // Replace with your actual VoiceRSS API Key
           const ttsUrl = `https://api.voicerss.org/?key=${API_KEY}&hl=en-us&src=${encodeURIComponent(selectedText)}&c=MP3&f=44khz_16bit_stereo`;
+
           let audio = document.getElementById('tts-audio');
           if (!audio) {
               audio = document.createElement('audio');
@@ -508,10 +820,12 @@
           }
           audio.src = ttsUrl;
           audio.play().catch(err => {
-              alert('Failed to play TTS audio: ' + err.message);
+              console.error('Failed to play TTS audio:', err);
+              alert('Failed to play TTS audio. Make sure you have selected text and your API key is valid, or check console for errors: ' + err.message);
           });
       });
 
+      // --- DICTIONARY ---
       const dictionaryButton = document.getElementById('dictionary-button');
       const dictionaryModal = document.getElementById('dictionary-modal');
       const closeDictBtn = document.getElementById('close-dict');
@@ -567,5 +881,496 @@
               searchDictionary();
           }
       });
+
+      // --- HIGHLIGHT FEATURE ---
+      const highlightButton = document.getElementById('highlight-button');
+      const highlightColor = document.getElementById('highlight-color');
+
+      let isHighlighting = false;
+
+      // Handler function for highlight deletion
+      function handleHighlightDelete(e) {
+          e.stopPropagation(); // Prevent text selection on icon click
+          const parentHighlight = e.target.closest('.user-highlight');
+          if (parentHighlight) {
+              const highlightIdToDelete = parentHighlight.dataset.highlightId;
+
+              const contentFragment = document.createDocumentFragment();
+              // Move all child nodes of the highlight span into the fragment, except the trash and note icon
+              Array.from(parentHighlight.childNodes).forEach(child => {
+                  if (!child.classList || (!child.classList.contains('highlight-trash-icon') && !child.classList.contains('highlight-note-icon'))) {
+                      contentFragment.appendChild(child);
+                  }
+              });
+              // Replace the highlight span with its former content
+              parentHighlight.replaceWith(contentFragment);
+
+              // Also delete any associated note
+              if (highlightIdToDelete) {
+                  notesData = notesData.filter(note => note.highlightId !== highlightIdToDelete);
+                  saveNotes();
+                  renderNotesList(); // Update the notes list in the panel
+              }
+
+              saveHighlights(); // Save updated content
+          }
+      }
+
+      // New function to attach event listeners to trash icons (for new and loaded highlights)
+      function attachHighlightDeleteListeners() {
+          lessonContent.querySelectorAll('.user-highlight .highlight-trash-icon').forEach(icon => {
+              // Remove any existing listeners to prevent duplicates if called multiple times
+              icon.removeEventListener('click', handleHighlightDelete);
+              // Add the new listener
+              icon.addEventListener('click', handleHighlightDelete);
+          });
+      }
+
+      highlightButton.addEventListener('click', () => {
+          isHighlighting = !isHighlighting;
+          if (isHighlighting) {
+              highlightColor.style.opacity = 1; // Show color picker
+              highlightButton.classList.add('highlighting'); // Add class for visual feedback
+              lessonContent.style.cursor = 'crosshair'; // Change cursor when highlighting is active
+          } else {
+              highlightColor.style.opacity = 0; // Hide color picker
+              highlightButton.classList.remove('highlighting'); // Remove highlighting class
+              lessonContent.style.cursor = 'default'; // Reset cursor
+          }
+      });
+
+      /**
+       * Wraps a given text node (or a portion of it) with a highlight span.
+       * Handles splitting text nodes if the highlight doesn't cover the whole node.
+       * @param {Text} textNode - The text node to wrap.
+       * @param {number} startOffset - The starting offset within the textNode.
+       * @param {number} endOffset - The ending offset within the textNode.
+       * @param {string} color - The highlight color.
+       * @returns {HTMLElement} The created highlight span.
+       */
+      function wrapTextNodeInHighlight(textNode, startOffset, endOffset, color) {
+          let nodeToWrap = textNode;
+
+          // If the highlight doesn't start at the beginning of the text node
+          if (startOffset > 0) {
+              nodeToWrap = textNode.splitText(startOffset);
+              // Adjust endOffset relative to the new node if it was within the original node
+              endOffset = endOffset - startOffset;
+          }
+
+          // If the highlight doesn't end at the end of the (possibly split) text node
+          if (endOffset < nodeToWrap.length) {
+              nodeToWrap.splitText(endOffset);
+          }
+
+          const highlightSpan = document.createElement('span');
+          highlightSpan.style.backgroundColor = color;
+          highlightSpan.classList.add('user-highlight');
+          highlightSpan.dataset.highlightId = `highlight-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`; // Unique ID for notes
+
+          const trashIcon = document.createElement('span');
+          trashIcon.classList.add('highlight-trash-icon');
+          trashIcon.innerHTML = '✖';
+          trashIcon.title = 'Remove highlight';
+
+          const noteIcon = document.createElement('span'); // NEW: Note icon
+          noteIcon.classList.add('highlight-note-icon');
+          noteIcon.innerHTML = '📝';
+          noteIcon.title = 'Add/Edit Note';
+
+          // Append the text node content first, then the icons
+          highlightSpan.appendChild(nodeToWrap.cloneNode(true));
+          highlightSpan.appendChild(trashIcon);
+          highlightSpan.appendChild(noteIcon); // Add note icon
+
+          nodeToWrap.parentNode.replaceChild(highlightSpan, nodeToWrap);
+          return highlightSpan;
+      }
+
+      /**
+       * Highlights the current selection, handling cross-tag selections gracefully.
+       */
+      function highlightSelectionInContext() {
+          const selection = window.getSelection();
+          if (!selection || selection.rangeCount === 0 || selection.isCollapsed) {
+              return;
+          }
+
+          const range = selection.getRangeAt(0);
+          const color = highlightColor.value;
+
+          // Ensure selection is within the lesson content
+          if (!lessonContent.contains(range.commonAncestorContainer)) {
+              return;
+          }
+
+          const nodesToProcess = [];
+
+          // Create a TreeWalker starting from the common ancestor, showing only text nodes
+          const walker = document.createTreeWalker(
+              range.commonAncestorContainer,
+              NodeFilter.SHOW_TEXT,
+              null, // No custom filter, accept all text nodes
+              false
+          );
+
+          // Iterate through all text nodes within the range
+          let currentNode = walker.currentNode;
+          while (currentNode) {
+              // Check if the current text node intersects with the selection range
+              // AND if it contains actual visible text (not just whitespace)
+              if (range.intersectsNode(currentNode) && currentNode.textContent.trim().length > 0) {
+                  nodesToProcess.push(currentNode);
+              }
+              currentNode = walker.nextNode();
+          }
+
+          // Handle highlighting
+          let firstHighlightSpan = null; // To store the first created highlight span for potential note attachment
+          nodesToProcess.forEach(textNode => {
+              let startOffset = 0;
+              let endOffset = textNode.length;
+
+              // If the text node is the start container, adjust startOffset
+              if (textNode === range.startContainer) {
+                  startOffset = range.startOffset;
+              }
+              // If the text node is the end container, adjust endOffset
+              if (textNode === range.endContainer) {
+                  endOffset = range.endOffset;
+              }
+
+              // Only wrap if there's actual text selected within this node
+              if (endOffset > startOffset) {
+                  const highlightSpan = wrapTextNodeInHighlight(textNode, startOffset, endOffset, color);
+                  if (!firstHighlightSpan) {
+                      firstHighlightSpan = highlightSpan; // Capture the first one
+                  }
+              }
+          });
+
+          // After highlighting, re-attach event listeners for trash and note icons
+          attachHighlightDeleteListeners();
+          attachHighlightNoteListeners(); // Call the new function for note icons
+          saveHighlights(); // Save the new highlights to local storage
+
+          // Clear the selection after highlighting
+          selection.removeAllRanges();
+          isHighlighting = false; // Turn off highlighting mode after use
+          highlightColor.style.opacity = 0;
+          highlightButton.classList.remove('highlighting');
+          lessonContent.style.cursor = 'default';
+      }
+
+      lessonContent.addEventListener('mouseup', () => {
+          if (isHighlighting) {
+              highlightSelectionInContext();
+          }
+      });
+
+      // --- NOTES FEATURE (NEW SIDEBAR IMPLEMENTATION) ---
+      const notesButton = document.getElementById('notes-button');
+      const notesSidebar = document.getElementById('notes-sidebar'); // Reference to the new sidebar
+      const closeNotesSidebarBtn = document.getElementById('close-notes-sidebar'); // New close button for the sidebar
+      const notesListContainer = document.getElementById('notes-list-container');
+      const newNoteText = document.getElementById('new-note-text');
+      const addNoteBtn = document.getElementById('add-note-btn');
+      const updateNoteBtn = document.getElementById('update-note-btn');
+      const cancelEditNoteBtn = document.getElementById('cancel-edit-note-btn');
+      const highlightNotePopover = document.getElementById('highlight-note-popover');
+
+      let notesData = []; // Array to store note objects
+      let editingNoteId = null; // To track which note is being edited
+      let currentHighlightIdForNote = null; // To link a new note to a specific highlight
+
+      // --- Local Storage Functions ---
+      function saveNotes() {
+          localStorage.setItem('userNotes', JSON.stringify(notesData));
+      }
+
+      function loadNotes() {
+          const storedNotes = localStorage.getItem('userNotes');
+          if (storedNotes) {
+              notesData = JSON.parse(storedNotes);
+              renderNotesList();
+          }
+      }
+
+      function saveHighlights() {
+          // This saves the entire innerHTML of lessonContent after highlights are applied.
+          // This is a simple approach but can have side effects if lessonContent changes outside of highlights.
+          localStorage.setItem('lessonHighlights', lessonContent.innerHTML);
+      }
+
+      function loadHighlights() {
+          const storedHighlights = localStorage.getItem('lessonHighlights');
+          if (storedHighlights && lessonContent) {
+              // Temporarily store current scroll position
+              const scrollPosition = window.scrollY;
+
+              // Create a temporary div to avoid re-rendering issues and potential script execution
+              const tempDiv = document.createElement('div');
+              tempDiv.innerHTML = storedHighlights;
+
+              // Replace content
+              lessonContent.innerHTML = tempDiv.innerHTML;
+
+              // Reattach event listeners to newly loaded highlight elements
+              attachHighlightDeleteListeners();
+              attachHighlightNoteListeners();
+
+              // Restore scroll position
+              window.scrollTo(0, scrollPosition);
+          }
+      }
+
+      // --- Render Notes List ---
+      function renderNotesList() {
+          notesListContainer.innerHTML = ''; // Clear current list
+          notesData.forEach(note => {
+              const noteItem = document.createElement('div');
+              noteItem.classList.add('note-item');
+              noteItem.dataset.noteId = note.id;
+
+              const noteText = document.createElement('p');
+              noteText.textContent = note.text;
+              noteItem.appendChild(noteText);
+
+              if (note.highlightedText && note.highlightId) {
+                  const noteContext = document.createElement('span');
+                  noteContext.classList.add('note-context');
+                  noteContext.textContent = `Context: "${note.highlightedText}"`;
+                  noteContext.title = `Go to highlight for: "${note.highlightedText}"`; // Add a tooltip
+                  noteContext.addEventListener('click', () => {
+                      // Scroll to the associated highlight
+                      const targetHighlight = lessonContent.querySelector(`[data-highlight-id="${note.highlightId}"]`);
+                      if (targetHighlight) {
+                          targetHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          // Optionally, briefly animate or highlight the scrolled-to item
+                          targetHighlight.style.transition = 'outline 0.3s ease-in-out';
+                          targetHighlight.style.outline = '2px solid #a78bfa';
+                          setTimeout(() => {
+                              targetHighlight.style.outline = 'none';
+                          }, 1500);
+                      } else {
+                          alert('Associated highlight not found in the content.');
+                      }
+                      notesSidebar.style.display = 'none'; // Close notes panel after navigating
+                  });
+                  noteItem.appendChild(noteContext);
+              }
+
+              const actionsDiv = document.createElement('div');
+              actionsDiv.classList.add('note-actions');
+
+              const editBtn = document.createElement('button');
+              editBtn.classList.add('edit-note-btn');
+              editBtn.textContent = 'Edit';
+              editBtn.addEventListener('click', () => editNote(note.id));
+              actionsDiv.appendChild(editBtn);
+
+              const deleteBtn = document.createElement('button');
+              deleteBtn.classList.add('delete-note-btn');
+              deleteBtn.textContent = 'Delete';
+              deleteBtn.addEventListener('click', () => deleteNote(note.id));
+              actionsDiv.appendChild(deleteBtn);
+
+              noteItem.appendChild(actionsDiv);
+              notesListContainer.appendChild(noteItem);
+          });
+      }
+
+      // --- Add/Update Note Logic ---
+      addNoteBtn.addEventListener('click', () => {
+          const noteText = newNoteText.value.trim();
+          if (!noteText) {
+              alert('Please enter some text for your note.');
+              return;
+          }
+
+          const newNote = {
+              id: Date.now().toString(), // Unique ID for the note
+              text: noteText,
+              timestamp: new Date().toISOString(),
+              highlightId: currentHighlightIdForNote || null, // Link to highlight if available
+              highlightedText: currentHighlightIdForNote ? getHighlightedTextById(currentHighlightIdForNote) : null
+          };
+
+          notesData.push(newNote);
+          saveNotes();
+          renderNotesList();
+          newNoteText.value = ''; // Clear textarea
+          currentHighlightIdForNote = null; // Reset highlight link
+          highlightNotePopover.classList.remove('show'); // Hide popover after adding
+      });
+
+      updateNoteBtn.addEventListener('click', () => {
+          const noteText = newNoteText.value.trim();
+          if (!noteText) {
+              alert('Please enter some text for your note.');
+              return;
+          }
+
+          notesData = notesData.map(note =>
+              note.id === editingNoteId ? { ...note, text: noteText, timestamp: new Date().toISOString() } : note
+          );
+          saveNotes();
+          renderNotesList();
+          resetNoteForm();
+      });
+
+      cancelEditNoteBtn.addEventListener('click', resetNoteForm);
+
+      function editNote(id) {
+          const noteToEdit = notesData.find(note => note.id === id);
+          if (noteToEdit) {
+              newNoteText.value = noteToEdit.text;
+              editingNoteId = noteToEdit.id;
+              addNoteBtn.style.display = 'none';
+              updateNoteBtn.style.display = 'inline-block';
+              cancelEditNoteBtn.style.display = 'inline-block';
+              newNoteText.focus();
+              notesSidebar.style.display = 'block'; // Ensure notes sidebar is open when editing
+          }
+      }
+
+      function deleteNote(id) {
+          if (confirm('Are you sure you want to delete this note?')) {
+              notesData = notesData.filter(note => note.id !== id);
+              saveNotes();
+              renderNotesList();
+              resetNoteForm();
+          }
+      }
+
+      function resetNoteForm() {
+          newNoteText.value = '';
+          editingNoteId = null;
+          addNoteBtn.style.display = 'inline-block';
+          updateNoteBtn.style.display = 'none';
+          cancelEditNoteBtn.style.display = 'none';
+          currentHighlightIdForNote = null; // Also reset highlight link
+      }
+
+      // Helper to get highlighted text by ID (for notes context)
+      function getHighlightedTextById(highlightId) {
+          const highlightElement = lessonContent.querySelector(`[data-highlight-id="${highlightId}"]`);
+          if (highlightElement) {
+              // Clone the element to remove the icons before getting textContent
+              const clonedElement = highlightElement.cloneNode(true);
+              clonedElement.querySelectorAll('.highlight-trash-icon, .highlight-note-icon').forEach(icon => icon.remove());
+              return clonedElement.textContent.trim();
+          }
+          return '';
+      }
+
+      // --- Highlight Note Icon Logic ---
+      function attachHighlightNoteListeners() {
+          lessonContent.querySelectorAll('.user-highlight .highlight-note-icon').forEach(icon => {
+              // Remove existing listeners to prevent duplicates
+              icon.removeEventListener('click', handleHighlightNoteClick);
+              icon.removeEventListener('mouseenter', handleHighlightNoteHover);
+              icon.removeEventListener('mouseleave', handleHighlightNoteLeave);
+
+              // Add new listeners
+              icon.addEventListener('click', handleHighlightNoteClick);
+              icon.addEventListener('mouseenter', handleHighlightNoteHover);
+              icon.addEventListener('mouseleave', handleHighlightNoteLeave);
+          });
+      }
+
+      function handleHighlightNoteClick(e) {
+          e.stopPropagation(); // Prevent text selection
+          const parentHighlight = e.target.closest('.user-highlight');
+          if (parentHighlight) {
+              const highlightId = parentHighlight.dataset.highlightId;
+              const existingNote = notesData.find(note => note.highlightId === highlightId);
+
+              // Open notes sidebar
+              notesSidebar.style.display = 'block';
+
+              if (existingNote) {
+                  // If a note already exists for this highlight, populate form for editing
+                  editNote(existingNote.id);
+              } else {
+                  // If no note, prepare to add a new one linked to this highlight
+                  resetNoteForm(); // Clear any previous editing state
+                  currentHighlightIdForNote = highlightId;
+                  const highlightedText = getHighlightedTextById(highlightId);
+                  newNoteText.value = `Note for: "${highlightedText}"\n\n`; // Pre-fill for context
+                  newNoteText.focus();
+              }
+          }
+          highlightNotePopover.classList.remove('show'); // Hide popover
+      }
+
+      function handleHighlightNoteHover(e) {
+          const parentHighlight = e.target.closest('.user-highlight');
+          if (!parentHighlight) return;
+
+          const highlightId = parentHighlight.dataset.highlightId;
+          const existingNote = notesData.find(note => note.highlightId === highlightId);
+
+          if (existingNote) {
+              highlightNotePopover.textContent = existingNote.text;
+              const iconRect = e.target.getBoundingClientRect();
+              const sidebarRect = notesSidebar.getBoundingClientRect(); // Get sidebar position
+
+              // Position popover relative to the icon, but keep it within the viewport
+              let popoverX = iconRect.left + window.scrollX - highlightNotePopover.offsetWidth / 2 + iconRect.width / 2;
+              let popoverY = iconRect.top + window.scrollY - highlightNotePopover.offsetHeight - 10; // 10px above icon
+
+              // Adjust if it goes off screen to the left
+              if (popoverX < 0) {
+                  popoverX = 5; // Small margin from left edge
+              }
+              // Adjust if it goes off screen to the right (considering the notes sidebar)
+              // Ensure popover does not overlap with the notes sidebar when it's open
+              if (notesSidebar.style.display === 'block') {
+                  const maxRight = sidebarRect.left - 10; // 10px from sidebar's left edge
+                  if (popoverX + highlightNotePopover.offsetWidth > maxRight) {
+                      popoverX = maxRight - highlightNotePopover.offsetWidth;
+                  }
+              } else {
+                  // If sidebar is not open, just check against viewport width
+                  if (popoverX + highlightNotePopover.offsetWidth > window.innerWidth) {
+                      popoverX = window.innerWidth - highlightNotePopover.offsetWidth - 5;
+                  }
+              }
+
+
+              // Adjust if it goes off screen to the top
+              if (popoverY < window.scrollY) {
+                  popoverY = iconRect.bottom + window.scrollY + 10; // 10px below icon
+              }
+
+              highlightNotePopover.style.left = `${popoverX}px`;
+              highlightNotePopover.style.top = `${popoverY}px`;
+              highlightNotePopover.classList.add('show');
+          }
+      }
+
+      function handleHighlightNoteLeave() {
+          highlightNotePopover.classList.remove('show');
+      }
+
+      // --- Notes Sidebar Toggle ---
+      notesButton.addEventListener('click', () => {
+          notesSidebar.style.display = notesSidebar.style.display === 'block' ? 'none' : 'block';
+          if (notesSidebar.style.display === 'block') {
+              renderNotesList(); // Re-render notes every time it's opened to ensure fresh data
+          }
+      });
+
+      closeNotesSidebarBtn.addEventListener('click', () => {
+          notesSidebar.style.display = 'none';
+          resetNoteForm(); // Clear form when closing
+      });
+
+      // Initial loads
+      loadHighlights(); // Load highlights first
+      loadNotes(); // Then load notes, which will render them
+      attachHighlightDeleteListeners(); // Ensure listeners are attached on page load
+      attachHighlightNoteListeners(); // Ensure note icon listeners are attached on page load
   });
 </script>
