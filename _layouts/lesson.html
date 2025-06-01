@@ -74,37 +74,38 @@ document.getElementById('hackResponse').addEventListener('input', function() {
 let selectedFeedback = null;
 
 function selectFeedback(type) {
-    selectedFeedback = type;
-    
-    // Reset button states
-    document.getElementById('thumbsUp').classList.remove('selected');
-    document.getElementById('thumbsDown').classList.remove('selected');
-    
-    // Add selected state to clicked button
-    const selectedBtn = document.getElementById(type === 'up' ? 'thumbsUp' : 'thumbsDown');
-    selectedBtn.classList.add('selected');
-    
-    // Show feedback form
-    const feedbackForm = document.getElementById('feedbackForm');
-    const feedbackTitle = document.getElementById('feedbackTitle');
-    const feedbackText = document.getElementById('feedbackText');
-    
-    if (type === 'up') {
-        feedbackTitle.textContent = 'What did you like about this lesson?';
-        feedbackText.placeholder = 'Tell us what worked well and any suggestions for improvement...';
-        feedbackTitle.style.borderLeftColor = '#4CAF50';
-    } else {
-        feedbackTitle.textContent = 'What could we do better?';
-        feedbackText.placeholder = 'Help us improve by sharing what didn\'t work or what was confusing...';
-        feedbackTitle.style.borderLeftColor = '#f44336';
-    }
-    
-    feedbackForm.style.display = 'block';
-    feedbackText.focus();
-    
-    // Hide status message if visible
-    document.getElementById('feedbackStatus').style.display = 'none';
+  const formContainer = document.getElementById('feedbackForm');
+  const thumbsUp = document.getElementById('thumbsUp');
+  const thumbsDown = document.getElementById('thumbsDown');
+
+  // Clear previous selection
+  thumbsUp.classList.remove('selected');
+  thumbsDown.classList.remove('selected');
+
+  // Highlight selected button
+  if (type === 'up') {
+    thumbsUp.classList.add('selected');
+  } else {
+    thumbsDown.classList.add('selected');
+  }
+
+  // Define values
+  const entryId = "entry.2118665550";
+  const baseUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfLtJ379pka0HiBUrKfhg3iMoqNe_CTq8GyKh4Teb4aXq3VEA/viewform?usp=pp_url";
+  const feedbackValue = window.location.href;
+  const formUrl = `${baseUrl}&${entryId}=${encodeURIComponent(feedbackValue)}`;
+
+  // Show Google Form
+  formContainer.innerHTML = `
+    <iframe
+      src="${formUrl}"
+      style="width: 100%; height: 600px; border: none; border-radius: 10px;"
+      allowfullscreen
+    ></iframe>
+  `;
+  formContainer.style.display = 'block';
 }
+
 
 async function submitFeedback() {
   const feedbackText = document.getElementById('feedbackText').value.trim();
