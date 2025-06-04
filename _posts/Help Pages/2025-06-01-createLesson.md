@@ -3,7 +3,6 @@ layout: post
 show_reading_time: false
 permalink: /lessoncreation
 title: How to Create a Lesson
-categories: [Help Pages]
 ---
 
 # How to Build a Coding Lesson with Layouts
@@ -74,6 +73,8 @@ You’ll customize this file every time you create a new lesson.
 
 ---
 
+<img src="{{site.baseurl}}/images/featureflowchart.jpeg">
+
 ## 🧩 Step 3: Add Interactive Components
 
 Pick the features that fit your lesson. All components are modular and easy to include:
@@ -135,3 +136,40 @@ Here’s a quick reference when building a new lesson:
 * [ ] Deploy when everything is working
 
 With this layout system, you can build high-quality, interactive lessons that are modular, student-friendly, and easy to maintain. Whether you're teaching loops, functions, or arrays, these templates give you a powerful way to bring your content to life.
+
+
+---
+
+## 🔮 Future Vision
+
+This layout system is already modular and easy to deploy, but it can evolve into a full-fledged interactive learning platform with deeper integration of backend and analytics.
+
+### Goals for Expansion
+
+**1. User Accounts**
+- Add student and teacher login via a Flask backend
+- Use sessions or JWT for secure access control
+
+**2. Data Storage & Progress Tracking**
+- Migrate all localStorage-based components (code input, flashcards, highlights, quiz answers) to a database (PostgreSQL or MongoDB)
+- Track individual student progress, AI quiz performance, and code history
+
+**3. Gamification**
+- Teachers can award tokens, badges, or achievements stored in a user profile
+- Completion of tasks like flashcards or code prompts could unlock new content or feedback
+
+**4. Teacher Dashboard**
+- View all student progress in one place
+- Set deadlines, unlock features per student/class
+- Review code submissions, flashcards created, and quiz attempts
+
+**5. Shared Libraries**
+- Enable students to share flashcard decks
+- Create a gallery of teacher-curated lessons with import options
+
+### Long-Term Vision
+
+By layering backend support and real-time analytics on top of the existing modular system, this framework could become a lightweight LMS that is:
+- Interactive and student-friendly
+- Data-rich for teachers
+- Easy to maintain and extend for developers
